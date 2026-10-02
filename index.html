@@ -36,7 +36,6 @@
       line-height: 1.5;
     }
 
-    /* Header & Navigation */
     header {
       background-color: var(--bg-card);
       border-bottom: 1px solid var(--border);
@@ -74,7 +73,18 @@
       font-family: monospace;
     }
 
-    /* Action Buttons Header */
+    .tag-badge {
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.25rem;
+      font-size: 0.65rem;
+      font-weight: bold;
+    }
+
+    .tag-confirmado { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .tag-inferencia { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+    .tag-pendiente { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .tag-ejemplo { background: rgba(56, 189, 248, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+
     .header-actions {
       display: flex;
       gap: 0.5rem;
@@ -124,7 +134,6 @@
       color: #fff;
     }
 
-    /* Main Grid Layout */
     main {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -162,7 +171,6 @@
       align-items: center;
     }
 
-    /* Metric Cards */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -188,7 +196,6 @@
       color: var(--text-muted);
     }
 
-    /* Audit Log Box */
     .log-box {
       background-color: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--border);
@@ -214,7 +221,6 @@
       margin-right: 0.35rem;
     }
 
-    /* Power Dashboard */
     .power-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -245,7 +251,6 @@
       transition: width 0.3s ease;
     }
 
-    /* Alerts Panel */
     .alert-item {
       background-color: rgba(245, 158, 11, 0.1);
       border: 1px solid var(--warning);
@@ -264,12 +269,11 @@
       color: #fca5a5;
     }
 
-    /* Rack Graphic Styles */
     .rack-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
       background-color: rgba(15, 23, 42, 0.4);
       padding: 0.5rem;
@@ -277,12 +281,20 @@
       border: 1px solid var(--border);
     }
 
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* RACK ANCHO (1000px) */
     .rack-frame {
       background-color: #0b0f19;
       border: 3px solid #475569;
       border-radius: 0.375rem;
       padding: 0.5rem;
-      max-width: 550px;
+      width: 100%;
+      max-width: 1000px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -292,11 +304,11 @@
 
     .u-slot {
       display: grid;
-      grid-template-columns: 40px 1fr 60px;
-      height: 28px;
+      grid-template-columns: 50px 1fr 100px;
+      height: 32px;
       background-color: rgba(30, 41, 59, 0.5);
       border: 1px solid rgba(51, 65, 85, 0.6);
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       align-items: center;
       border-radius: 2px;
     }
@@ -315,19 +327,20 @@
     }
 
     .u-content {
-      padding: 0 0.5rem;
+      padding: 0 0.75rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       display: flex;
       align-items: center;
+      gap: 0.5rem;
       height: 100%;
       font-weight: 500;
     }
 
     .u-status {
       text-align: center;
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: bold;
       text-transform: uppercase;
       padding: 0.1rem 0.2rem;
@@ -350,7 +363,6 @@
       color: #475569;
     }
 
-    /* Inventory Table */
     .table-container {
       overflow-x: auto;
     }
@@ -379,7 +391,6 @@
       background-color: rgba(51, 65, 85, 0.3);
     }
 
-    /* Modals Custom CSS */
     .modal-backdrop {
       position: fixed;
       top: 0;
@@ -407,7 +418,7 @@
       border: 1px solid var(--border);
       border-radius: 0.5rem;
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
@@ -436,7 +447,6 @@
       padding-top: 0.75rem;
     }
 
-    /* Forms & Inputs */
     .form-group {
       display: flex;
       flex-direction: column;
@@ -464,7 +474,7 @@
 
     .form-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 0.5rem;
     }
 
@@ -506,7 +516,6 @@
   </header>
 
   <main>
-    <!-- Panel Izquierdo: Dashboard, Selector y Bitácora -->
     <aside class="panel">
       <h2 class="panel-title">Métricas de Control</h2>
       <div class="metrics-grid">
@@ -540,14 +549,10 @@
         Bitácora de Auditoría
         <button class="btn" style="font-size:0.65rem; padding: 0.1rem 0.3rem;" onclick="clearLog()">Limpiar</button>
       </h2>
-      <div class="log-box" id="auditLogContainer">
-        <!-- Log de eventos -->
-      </div>
+      <div class="log-box" id="auditLogContainer"></div>
     </aside>
 
-    <!-- Panel Derecho: Espacio de Trabajo Principal -->
     <section class="workspace">
-      <!-- Monitoreo de Energía A/B y Alertas (Paso 5) -->
       <div class="panel">
         <h2 class="panel-title">Monitoreo Eléctrico A/B & Alertas Globales</h2>
         <div class="power-grid">
@@ -567,52 +572,58 @@
           </div>
         </div>
 
-        <div id="alertsContainer" style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.5rem;">
-          <!-- Alertas dinámicas -->
-        </div>
+        <div id="alertsContainer" style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.5rem;"></div>
       </div>
 
-      <!-- Visualizador de Racks 1U - 48U -->
       <div class="panel">
         <div class="panel-title">
           <span>Vista de Bastidor / Rack (<span id="activeRackTitle">Ninguno</span>)</span>
           <div class="rack-controls">
-            <label style="font-size: 0.75rem; color: var(--text-muted);">Vista:</label>
-            <select id="viewOrientationSelect" class="form-control" onchange="renderRackGraphic()">
-              <option value="frontal" selected>Frontal</option>
-              <option value="posterior">Posterior</option>
-            </select>
+            <!-- VISTA FRONTAL / POSTERIOR -->
+            <div class="control-group">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Vista:</label>
+              <select id="viewOrientationSelect" class="form-control" onchange="renderRackGraphic()">
+                <option value="Frontal" selected>Frontal</option>
+                <option value="Posterior">Posterior</option>
+              </select>
+            </div>
+
+            <!-- FILTRO DE ORDENACION U -->
+            <div class="control-group">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Orden U:</label>
+              <select id="uOrderSelect" class="form-control" onchange="renderRackGraphic()">
+                <option value="DESC" selected>Mayor a Menor (42 → 1)</option>
+                <option value="ASC">Menor a Mayor (1 → 42)</option>
+              </select>
+            </div>
+
             <button class="btn btn-accent" style="font-size:0.75rem;" onclick="openDeviceModal()">+ Añadir Equipo / Reserva</button>
           </div>
         </div>
 
-        <div id="rackViewContainer" style="overflow-y: auto; max-height: 480px; padding: 0.5rem;">
+        <div id="rackViewContainer" style="overflow-y: auto; max-height: 520px; padding: 0.5rem;">
           <p style="text-align:center; color: var(--text-muted);">Seleccione un rack para visualizar.</p>
         </div>
       </div>
 
-      <!-- Inventario Editable CRUD -->
       <div class="panel">
         <div class="panel-title">
-          <span>Inventario de Equipos y Puertos</span>
+          <span>Inventario Editable CRUD</span>
           <input type="text" id="globalSearchInput" placeholder="Buscar equipo, servicio o puerto..." class="form-control" style="width:240px; font-size:0.75rem;" oninput="renderInventoryTable()">
         </div>
-        <div class="table-container" id="inventoryTableContainer">
-          <!-- Tabla de Inventario -->
-        </div>
+        <div class="table-container" id="inventoryTableContainer"></div>
       </div>
     </section>
   </main>
 
-  <!-- ==================== MODALES INDEPENDIENTES ==================== -->
-
-  <!-- Modal 1: Crear / Editar Rack -->
+  <!-- MODAL 1: Crear / Editar Rack -->
   <div class="modal-backdrop" id="rackModal">
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="rackModalTitle">Crear Nuevo Bastidor / Rack</h3>
         <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('rackModal')">✕</button>
       </div>
+      <input type="hidden" id="editingRackId" value="">
       <div class="form-group">
         <label>Nombre del Rack:</label>
         <input type="text" id="rackNameInput" class="form-control" placeholder="Ej. Rack Fila B - Core">
@@ -627,6 +638,27 @@
           <input type="text" id="rackLocationInput" class="form-control" placeholder="Ej. Sala 101 - Fila B">
         </div>
       </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado Operativo:</label>
+          <select id="rackEstadoSelect" class="form-control">
+            <option value="Activo" selected>Activo</option>
+            <option value="Planificado">Planificado</option>
+            <option value="Retirado">Retirado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fuente de Verdad (Trazabilidad):</label>
+          <select id="rackVeracidadSelect" class="form-control">
+            <option value="[CONFIRMADO]">[CONFIRMADO] - Verificado por auditoría</option>
+            <option value="[INFERENCIA POR VALIDAR]">[INFERENCIA POR VALIDAR] - Estimado</option>
+            <option value="[PENDIENTE]">[PENDIENTE] - Datos incompletos</option>
+            <option value="[EJEMPLO DIDÁCTICO]">[EJEMPLO DIDÁCTICO] - Muestra académica</option>
+          </select>
+        </div>
+      </div>
+
       <div class="modal-footer">
         <button class="btn" onclick="closeModal('rackModal')">Cancelar</button>
         <button class="btn btn-accent" onclick="saveRackFromModal()">Guardar Rack</button>
@@ -634,31 +666,49 @@
     </div>
   </div>
 
-  <!-- Modal 2: Crear Equipo / Reserva -->
+  <!-- MODAL 2: Crear / Editar Elemento -->
   <div class="modal-backdrop" id="deviceModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3 id="deviceModalTitle">Añadir Equipo / Reserva en Rack</h3>
+        <h3 id="deviceModalTitle">Añadir / Modificar Elemento en Rack</h3>
         <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('deviceModal')">✕</button>
       </div>
-      <div class="form-group">
-        <label>Tipo de Elemento:</label>
-        <select id="deviceTypeSelect" class="form-control" onchange="toggleDeviceTypeFields()">
-          <option value="equipo" selected>Equipo Activo (Switch, Servidor, Router)</option>
-          <option value="reserva">Reserva de Espacio Futuro</option>
-        </select>
-      </div>
-      <div class="form-group" id="deviceNameGroup">
-        <label>Nombre del Equipo / Elemento:</label>
-        <input type="text" id="deviceNameInput" class="form-control" placeholder="Ej. Switch Cisco Catalyst 9300">
-      </div>
-      <div class="form-group" id="deviceReasonGroup" style="display:none;">
-        <label>Motivo de la Reserva:</label>
-        <input type="text" id="deviceReasonInput" class="form-control" placeholder="Ej. Bloqueo Proyecto Expansión Q4">
-      </div>
+      <input type="hidden" id="editingDeviceId" value="">
+
+      <!-- TIPO Y CLASIFICACIÓN -->
       <div class="form-row">
         <div class="form-group">
-          <label>Unidad U Inicial (Límite Inf.):</label>
+          <label>Tipo de Elemento:</label>
+          <select id="deviceTypeSelect" class="form-control" onchange="toggleDeviceTypeFields()">
+            <option value="Equipo" selected>Equipo</option>
+            <option value="Accesorio">Accesorio</option>
+            <option value="Reserva">Reserva de espacio futuro</option>
+          </select>
+        </div>
+        <div class="form-group" id="subTypeContainer">
+          <label id="subTypeLabel">Categoría / Clasificación:</label>
+          <select id="deviceSubTypeSelect" class="form-control">
+            <!-- Dinámico -->
+          </select>
+        </div>
+      </div>
+
+      <!-- NOMBRE / ESPECIFICACIÓN -->
+      <div class="form-group" id="deviceNameGroup">
+        <label id="deviceNameLabel">Nombre del Elemento:</label>
+        <input type="text" id="deviceNameInput" class="form-control" placeholder="Ej. Switch Cisco Catalyst 9300">
+      </div>
+
+      <!-- CAMPO DE TEXTO DEDICADO PARA EL MOTIVO DE LA RESERVA -->
+      <div class="form-group" id="deviceReasonGroup" style="display:none;">
+        <label>Motivo de la Reserva / Especificación:</label>
+        <input type="text" id="deviceReasonInput" class="form-control" placeholder="Ej. Proyecto Expansión Servidor Blade Q4">
+      </div>
+
+      <!-- POSICIÓN Y DIMENSIONES -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Unidad U Inicial:</label>
           <input type="number" id="deviceStartUInput" class="form-control" value="1" min="1" max="48">
         </div>
         <div class="form-group">
@@ -666,6 +716,26 @@
           <input type="number" id="deviceHeightUInput" class="form-control" value="1" min="1" max="10">
         </div>
       </div>
+
+      <!-- UBICACIÓN Y TAMAÑO/PROFUNDIDAD -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ubicación Física:</label>
+          <select id="deviceUbicacionSelect" class="form-control">
+            <option value="Frontal" selected>Frontal</option>
+            <option value="Posterior">Posterior</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Profundidad / Tamaño:</label>
+          <select id="deviceTamanoSelect" class="form-control">
+            <option value="Completo" selected>Completo (Ambas caras)</option>
+            <option value="Medio">Medio (Solo una cara)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ALIMENTACIÓN Y CONSUMO -->
       <div class="form-row" id="devicePowerGroup">
         <div class="form-group">
           <label>Consumo Estimado (Watts):</label>
@@ -679,19 +749,41 @@
           </select>
         </div>
       </div>
+
+      <!-- ESTADO Y TRAZABILIDAD -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado Operativo:</label>
+          <select id="deviceEstadoSelect" class="form-control">
+            <option value="Activo" selected>Activo</option>
+            <option value="Planificado">Planificado</option>
+            <option value="Retirado">Retirado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fuente de Verdad (Trazabilidad):</label>
+          <select id="deviceVeracidadSelect" class="form-control">
+            <option value="[CONFIRMADO]">[CONFIRMADO] - Verificado por auditoría</option>
+            <option value="[INFERENCIA POR VALIDAR]">[INFERENCIA POR VALIDAR] - Estimado</option>
+            <option value="[PENDIENTE]">[PENDIENTE] - Datos incompletos</option>
+            <option value="[EJEMPLO DIDÁCTICO]">[EJEMPLO DIDÁCTICO] - Muestra académica</option>
+          </select>
+        </div>
+      </div>
+
       <div id="modalAlertError" style="display:none; color:var(--danger); font-size:0.75rem; background:rgba(239,68,68,0.1); padding:0.4rem; border-radius:0.375rem; border:1px solid rgba(239,68,68,0.3);"></div>
       <div class="modal-footer">
         <button class="btn" onclick="closeModal('deviceModal')">Cancelar</button>
-        <button class="btn btn-accent" onclick="saveDeviceFromModal()">Guardar en Rack</button>
+        <button class="btn btn-accent" onclick="saveDeviceFromModal()">Guardar Cambios</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal 3: Confirmación de Borrado Segura -->
+  <!-- MODAL 3: Confirmación de Borrado -->
   <div class="modal-backdrop" id="confirmModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3 style="color:var(--danger);">Confirmar Acción</h3>
+        <h3 style="color:var(--danger);">Confirmar Eliminación</h3>
         <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('confirmModal')">✕</button>
       </div>
       <p style="font-size:0.85rem;" id="confirmModalMessage">¿Está seguro de eliminar este elemento?</p>
@@ -707,13 +799,15 @@
   </footer>
 
   <script>
-    /**
-     * Motor Completo de Auditoría, Energía A/B y Alertas (v1.0.0 Final)
-     */
     const APP_CONFIG = {
       version: "1.0.0",
       appName: "Rack & Structured Cabling Manager",
       storageKey: "rack_cabling_inventory_v1"
+    };
+
+    const SUBTIPOS = {
+      Equipo: ["Router", "Switch", "Servidor", "Firewall", "Otro"],
+      Accesorio: ["Patch panel", "Organizador", "Bandeja", "Multitoma", "Otro"]
     };
 
     const DEFAULT_STATE = {
@@ -723,33 +817,43 @@
       racks: [
         {
           id: "rack-01",
-          nombre: "Rack Principal DC [EJEMPLO DIDÁCTICO]",
+          nombre: "Rack Principal DC",
           unidades_totales: 42,
-          ubicacion: "Sala 101 - Fila A [CONFIRMADO]"
+          ubicacion: "Sala 101 - Fila A",
+          estado: "Activo",
+          fuente_verdad: "[EJEMPLO DIDÁCTICO]"
         }
       ],
       equipos: [
         {
           id: "eq-01",
           rack_id: "rack-01",
-          nombre: "Switch Core L3 [EJEMPLO DIDÁCTICO]",
+          tipo: "Equipo",
+          subtipo: "Switch",
+          nombre: "Switch Core L3",
           u_inicial: 40,
           u_alto: 2,
-          vista: "frontal",
+          ubicacion_cara: "Frontal",
+          tamano: "Completo",
           consumo_watts: 350,
           fuente_alimentacion: "Dual A/B",
-          estado: "ACTIVO [CONFIRMADO]"
+          estado: "Activo",
+          fuente_verdad: "[CONFIRMADO]"
         },
         {
           id: "eq-02",
           rack_id: "rack-01",
-          nombre: "Servidor BD Principal [EJEMPLO DIDÁCTICO]",
-          u_inicial: 36,
-          u_alto: 3,
-          vista: "frontal",
-          consumo_watts: 850,
+          tipo: "Accesorio",
+          subtipo: "Patch panel",
+          nombre: "Patch Panel 24P Cat6A",
+          u_inicial: 38,
+          u_alto: 1,
+          ubicacion_cara: "Frontal",
+          tamano: "Medio",
+          consumo_watts: 0,
           fuente_alimentacion: "Simple",
-          estado: "ACTIVO [CONFIRMADO]"
+          estado: "Activo",
+          fuente_verdad: "[CONFIRMADO]"
         }
       ],
       interfaces: [],
@@ -757,16 +861,22 @@
         {
           id: "res-01",
           rack_id: "rack-01",
+          tipo: "Reserva",
+          subtipo: "Servidor",
+          motivo: "Servidor adicional para respaldo BD Q4",
           u_inicial: 15,
           u_alto: 4,
-          motivo: "Reserva Expansión Q4 [EJEMPLO DIDÁCTICO]"
+          ubicacion_cara: "Frontal",
+          tamano: "Completo",
+          estado: "Planificado",
+          fuente_verdad: "[EJEMPLO DIDÁCTICO]"
         }
       ],
       bitacora: [
         {
           timestamp: new Date().toISOString(),
           accion: "SISTEMA_INICIALIZADO",
-          detalle: "Sistema actualizado a versión final v1.0.0 con módulo de Energía A/B y Alertas Globale."
+          detalle: "Sistema actualizado con filtro de ordenación de U (Ascendente/Descendente)."
         }
       ]
     };
@@ -782,6 +892,13 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+    }
+
+    function getTagCssClass(tag) {
+      if (tag === '[CONFIRMADO]') return 'tag-confirmado';
+      if (tag === '[INFERENCIA POR VALIDAR]') return 'tag-inferencia';
+      if (tag === '[PENDIENTE]') return 'tag-pendiente';
+      return 'tag-ejemplo';
     }
 
     function loadState() {
@@ -823,7 +940,6 @@
       saveState();
     }
 
-    /* MODAL MANAGEMENT */
     function openModal(id) {
       document.getElementById(id).classList.add('active');
     }
@@ -834,17 +950,38 @@
       if (errBox) errBox.style.display = 'none';
     }
 
-    function openRackModal() {
-      document.getElementById('rackNameInput').value = '';
-      document.getElementById('rackUnitsInput').value = 42;
-      document.getElementById('rackLocationInput').value = '';
+    /* CRUD RACKS */
+    function openRackModal(editRackId = null) {
+      document.getElementById('editingRackId').value = editRackId || '';
+
+      if (editRackId) {
+        const rack = appState.racks.find(r => r.id === editRackId);
+        if (rack) {
+          document.getElementById('rackModalTitle').textContent = "Editar Bastidor / Rack";
+          document.getElementById('rackNameInput').value = rack.nombre;
+          document.getElementById('rackUnitsInput').value = rack.unidades_totales;
+          document.getElementById('rackLocationInput').value = rack.ubicacion || '';
+          document.getElementById('rackEstadoSelect').value = rack.estado || 'Activo';
+          document.getElementById('rackVeracidadSelect').value = rack.fuente_verdad || '[CONFIRMADO]';
+        }
+      } else {
+        document.getElementById('rackModalTitle').textContent = "Crear Nuevo Bastidor / Rack";
+        document.getElementById('rackNameInput').value = '';
+        document.getElementById('rackUnitsInput').value = 42;
+        document.getElementById('rackLocationInput').value = '';
+        document.getElementById('rackEstadoSelect').value = 'Activo';
+        document.getElementById('rackVeracidadSelect').value = '[CONFIRMADO]';
+      }
       openModal('rackModal');
     }
 
     function saveRackFromModal() {
+      const editId = document.getElementById('editingRackId').value;
       const nombre = document.getElementById('rackNameInput').value.trim();
       const unidades = parseInt(document.getElementById('rackUnitsInput').value, 10);
       const ubicacion = document.getElementById('rackLocationInput').value.trim();
+      const estado = document.getElementById('rackEstadoSelect').value;
+      const veracidad = document.getElementById('rackVeracidadSelect').value;
 
       if (!nombre) {
         alert("Por favor, ingrese el nombre del rack.");
@@ -855,56 +992,122 @@
         return;
       }
 
-      const newRack = {
-        id: "rack-" + Date.now(),
-        nombre: escapeHTML(nombre),
-        unidades_totales: unidades,
-        ubicacion: escapeHTML(ubicacion || "Por definir")
-      };
+      if (editId) {
+        const index = appState.racks.findIndex(r => r.id === editId);
+        if (index !== -1) {
+          appState.racks[index].nombre = escapeHTML(nombre);
+          appState.racks[index].unidades_totales = unidades;
+          appState.racks[index].ubicacion = escapeHTML(ubicacion || "Por definir");
+          appState.racks[index].estado = estado;
+          appState.racks[index].fuente_verdad = veracidad;
+          addLogEntry("EDITAR_RACK", `Rack "${nombre}" modificado.`);
+        }
+      } else {
+        const newRack = {
+          id: "rack-" + Date.now(),
+          nombre: escapeHTML(nombre),
+          unidades_totales: unidades,
+          ubicacion: escapeHTML(ubicacion || "Por definir"),
+          estado: estado,
+          fuente_verdad: veracidad
+        };
+        if (!appState.racks) appState.racks = [];
+        appState.racks.push(newRack);
+        appState.activeRackId = newRack.id;
+        addLogEntry("CREAR_RACK", `Rack "${newRack.nombre}" de ${unidades}U creado.`);
+      }
 
-      if (!appState.racks) appState.racks = [];
-      appState.racks.push(newRack);
-      appState.activeRackId = newRack.id;
-      addLogEntry("CREAR_RACK", `Rack "${newRack.nombre}" de ${unidades}U creado vía Modal.`);
       saveState();
       closeModal('rackModal');
       renderRackGraphic();
     }
 
+    /* CONTROL FORMULARIO TIPO/RESERVA/EQUIPO */
     function toggleDeviceTypeFields() {
       const type = document.getElementById('deviceTypeSelect').value;
-      if (type === 'equipo') {
-        document.getElementById('deviceNameGroup').style.display = 'flex';
-        document.getElementById('devicePowerGroup').style.display = 'grid';
-        document.getElementById('deviceReasonGroup').style.display = 'none';
-      } else {
+      const subTypeSelect = document.getElementById('deviceSubTypeSelect');
+
+      subTypeSelect.innerHTML = '';
+      const list = type === 'Reserva' ? [...SUBTIPOS.Equipo, ...SUBTIPOS.Accesorio] : SUBTIPOS[type];
+      list.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        subTypeSelect.appendChild(opt);
+      });
+
+      if (type === 'Reserva') {
         document.getElementById('deviceNameGroup').style.display = 'none';
-        document.getElementById('devicePowerGroup').style.display = 'none';
         document.getElementById('deviceReasonGroup').style.display = 'flex';
+        document.getElementById('devicePowerGroup').style.display = 'none';
+        document.getElementById('subTypeLabel').textContent = "Planeado para:";
+      } else {
+        document.getElementById('deviceNameGroup').style.display = 'flex';
+        document.getElementById('deviceReasonGroup').style.display = 'none';
+        document.getElementById('devicePowerGroup').style.display = 'grid';
+        document.getElementById('subTypeLabel').textContent = "Categoría:";
+        document.getElementById('deviceNameLabel').textContent = `Nombre del ${type}:`;
       }
     }
 
-    function openDeviceModal() {
+    function openDeviceModal(editDeviceId = null) {
       if (!appState.activeRackId) {
         alert("Seleccione un rack activo primero.");
         return;
       }
-      document.getElementById('deviceNameInput').value = '';
-      document.getElementById('deviceReasonInput').value = '';
-      document.getElementById('deviceStartUInput').value = 1;
-      document.getElementById('deviceHeightUInput').value = 1;
+
       document.getElementById('modalAlertError').style.display = 'none';
-      toggleDeviceTypeFields();
+      document.getElementById('editingDeviceId').value = editDeviceId || '';
+
+      if (editDeviceId) {
+        const eq = appState.equipos.find(e => e.id === editDeviceId) || appState.reservas.find(r => r.id === editDeviceId);
+        if (eq) {
+          document.getElementById('deviceModalTitle').textContent = "Modificar Elemento en Inventario";
+          document.getElementById('deviceTypeSelect').value = eq.tipo || 'Equipo';
+          toggleDeviceTypeFields();
+
+          document.getElementById('deviceSubTypeSelect').value = eq.subtipo || 'Switch';
+          document.getElementById('deviceNameInput').value = eq.nombre || '';
+          document.getElementById('deviceReasonInput').value = eq.motivo || '';
+          document.getElementById('deviceStartUInput').value = eq.u_inicial;
+          document.getElementById('deviceHeightUInput').value = eq.u_alto;
+          document.getElementById('deviceUbicacionSelect').value = eq.ubicacion_cara || 'Frontal';
+          document.getElementById('deviceTamanoSelect').value = eq.tamano || 'Completo';
+          document.getElementById('deviceWattsInput').value = eq.consumo_watts || 0;
+          document.getElementById('devicePowerTypeSelect').value = eq.fuente_alimentacion || "Simple";
+          document.getElementById('deviceEstadoSelect').value = eq.estado || 'Activo';
+          document.getElementById('deviceVeracidadSelect').value = eq.fuente_verdad || "[CONFIRMADO]";
+        }
+      } else {
+        document.getElementById('deviceModalTitle').textContent = "Añadir Elemento en Rack";
+        document.getElementById('deviceTypeSelect').value = 'Equipo';
+        toggleDeviceTypeFields();
+        document.getElementById('deviceNameInput').value = '';
+        document.getElementById('deviceReasonInput').value = '';
+        document.getElementById('deviceStartUInput').value = 1;
+        document.getElementById('deviceHeightUInput').value = 1;
+        document.getElementById('deviceUbicacionSelect').value = 'Frontal';
+        document.getElementById('deviceTamanoSelect').value = 'Completo';
+        document.getElementById('deviceWattsInput').value = 0;
+        document.getElementById('deviceEstadoSelect').value = 'Activo';
+        document.getElementById('deviceVeracidadSelect').value = '[CONFIRMADO]';
+      }
+
       openModal('deviceModal');
     }
 
     function saveDeviceFromModal() {
+      const editId = document.getElementById('editingDeviceId').value;
       const type = document.getElementById('deviceTypeSelect').value;
+      const subtipo = document.getElementById('deviceSubTypeSelect').value;
       const uInicial = parseInt(document.getElementById('deviceStartUInput').value, 10);
       const uAlto = parseInt(document.getElementById('deviceHeightUInput').value, 10);
+      const ubicacionCara = document.getElementById('deviceUbicacionSelect').value;
+      const tamano = document.getElementById('deviceTamanoSelect').value;
+      const estado = document.getElementById('deviceEstadoSelect').value;
+      const veracidad = document.getElementById('deviceVeracidadSelect').value;
 
-      // Detección de Solapamientos
-      const validation = validateOverlap(appState.activeRackId, uInicial, uAlto);
+      const validation = validateOverlap(appState.activeRackId, uInicial, uAlto, ubicacionCara, tamano, editId);
       if (!validation.valid) {
         const errBox = document.getElementById('modalAlertError');
         errBox.textContent = validation.reason;
@@ -912,53 +1115,79 @@
         return;
       }
 
-      if (type === 'equipo') {
+      if (type === 'Equipo' || type === 'Accesorio') {
         const nombre = document.getElementById('deviceNameInput').value.trim();
         const watts = parseInt(document.getElementById('deviceWattsInput').value, 10) || 0;
         const fuente = document.getElementById('devicePowerTypeSelect').value;
 
         if (!nombre) {
           const errBox = document.getElementById('modalAlertError');
-          errBox.textContent = "Ingrese el nombre del equipo.";
+          errBox.textContent = `Ingrese el nombre del ${type.toLowerCase()}.`;
           errBox.style.display = 'block';
           return;
         }
 
-        const newDevice = {
-          id: "eq-" + Date.now(),
-          rack_id: appState.activeRackId,
-          nombre: escapeHTML(nombre),
-          u_inicial: uInicial,
-          u_alto: uAlto,
-          vista: document.getElementById('viewOrientationSelect').value,
-          consumo_watts: watts,
-          fuente_alimentacion: fuente,
-          estado: "ACTIVO [CONFIRMADO]"
-        };
-
-        if (!appState.equipos) appState.equipos = [];
-        appState.equipos.push(newDevice);
-        addLogEntry("CREAR_EQUIPO", `Equipo "${newDevice.nombre}" añadido a U${uInicial}-U${uInicial + uAlto - 1}.`);
+        if (editId) {
+          const index = appState.equipos.findIndex(e => e.id === editId);
+          if (index !== -1) {
+            appState.equipos[index] = {
+              ...appState.equipos[index],
+              tipo, subtipo, nombre: escapeHTML(nombre),
+              u_inicial: uInicial, u_alto: uAlto,
+              ubicacion_cara: ubicacionCara, tamano: tamano,
+              consumo_watts: watts, fuente_alimentacion: fuente,
+              estado: estado, fuente_verdad: veracidad
+            };
+            addLogEntry("EDITAR_ELEMENTO", `${type} "${nombre}" modificado.`);
+          }
+        } else {
+          const newDevice = {
+            id: "eq-" + Date.now(),
+            rack_id: appState.activeRackId,
+            tipo, subtipo, nombre: escapeHTML(nombre),
+            u_inicial: uInicial, u_alto: uAlto,
+            ubicacion_cara: ubicacionCara, tamano: tamano,
+            consumo_watts: watts, fuente_alimentacion: fuente,
+            estado: estado, fuente_verdad: veracidad
+          };
+          if (!appState.equipos) appState.equipos = [];
+          appState.equipos.push(newDevice);
+          addLogEntry("CREAR_ELEMENTO", `${type} "${newDevice.nombre}" creado en U${uInicial}-U${uInicial + uAlto - 1}.`);
+        }
       } else {
         const motivo = document.getElementById('deviceReasonInput').value.trim();
         if (!motivo) {
           const errBox = document.getElementById('modalAlertError');
-          errBox.textContent = "Ingrese el motivo de la reserva.";
+          errBox.textContent = "Ingrese el motivo/especificación de la reserva.";
           errBox.style.display = 'block';
           return;
         }
 
-        const newReservation = {
-          id: "res-" + Date.now(),
-          rack_id: appState.activeRackId,
-          u_inicial: uInicial,
-          u_alto: uAlto,
-          motivo: escapeHTML(motivo)
-        };
-
-        if (!appState.reservas) appState.reservas = [];
-        appState.reservas.push(newReservation);
-        addLogEntry("CREAR_RESERVA", `Reserva U${uInicial}-U${uInicial + uAlto - 1}: ${newReservation.motivo}`);
+        if (editId) {
+          const index = appState.reservas.findIndex(r => r.id === editId);
+          if (index !== -1) {
+            appState.reservas[index] = {
+              ...appState.reservas[index],
+              tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
+              u_inicial: uInicial, u_alto: uAlto,
+              ubicacion_cara: ubicacionCara, tamano: tamano,
+              estado: estado, fuente_verdad: veracidad
+            };
+            addLogEntry("EDITAR_RESERVA", `Reserva "${motivo}" modificada.`);
+          }
+        } else {
+          const newReservation = {
+            id: "res-" + Date.now(),
+            rack_id: appState.activeRackId,
+            tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
+            u_inicial: uInicial, u_alto: uAlto,
+            ubicacion_cara: ubicacionCara, tamano: tamano,
+            estado: estado, fuente_verdad: veracidad
+          };
+          if (!appState.reservas) appState.reservas = [];
+          appState.reservas.push(newReservation);
+          addLogEntry("CREAR_RESERVA", `Reserva creada U${uInicial}-U${uInicial + uAlto - 1}`);
+        }
       }
 
       saveState();
@@ -983,11 +1212,16 @@
 
     function confirmDeleteDevice(deviceId) {
       const eq = appState.equipos.find(e => e.id === deviceId);
-      if (!eq) return;
-      document.getElementById('confirmModalMessage').textContent = `¿Confirmas que deseas eliminar el equipo "${eq.nombre}"?`;
+      const res = appState.reservas ? appState.reservas.find(r => r.id === deviceId) : null;
+      const item = eq || res;
+      if (!item) return;
+
+      const itemName = item.nombre || item.motivo;
+      document.getElementById('confirmModalMessage').textContent = `¿Confirmas que deseas eliminar "${itemName}"?`;
       deleteCallback = function() {
-        appState.equipos = appState.equipos.filter(e => e.id !== deviceId);
-        addLogEntry("ELIMINAR_EQUIPO", `Equipo "${eq.nombre}" eliminado del inventario.`);
+        if (eq) appState.equipos = appState.equipos.filter(e => e.id !== deviceId);
+        if (res) appState.reservas = appState.reservas.filter(r => r.id !== deviceId);
+        addLogEntry("ELIMINAR_ELEMENTO", `Elemento "${itemName}" eliminado.`);
         saveState();
         renderRackGraphic();
         renderInventoryTable();
@@ -997,8 +1231,8 @@
       openModal('confirmModal');
     }
 
-    /* RACK OVERLAP ENGINE */
-    function validateOverlap(rackId, startU, heightU, excludeId = null) {
+    /* PREVENCIÓN DE SOLAPAMIENTOS */
+    function validateOverlap(rackId, startU, heightU, cara, tamano, excludeId = null) {
       const targetStart = Number(startU);
       const targetEnd = targetStart + Number(heightU) - 1;
 
@@ -1008,22 +1242,19 @@
         return { valid: false, reason: `Las unidades exceden los límites del rack (1U - ${rack.unidades_totales}U).` };
       }
 
-      for (const eq of (appState.equipos || [])) {
-        if (eq.rack_id === rackId && eq.id !== excludeId) {
-          const eqStart = Number(eq.u_inicial);
-          const eqEnd = eqStart + Number(eq.u_alto) - 1;
-          if (targetStart <= eqEnd && targetEnd >= eqStart) {
-            return { valid: false, reason: `Solapamiento detectado con: "${eq.nombre}" (U${eqStart}-U${eqEnd}).` };
-          }
-        }
-      }
+      const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
 
-      for (const res of (appState.reservas || [])) {
-        if (res.rack_id === rackId && res.id !== excludeId) {
-          const resStart = Number(res.u_inicial);
-          const resEnd = resStart + Number(res.u_alto) - 1;
-          if (targetStart <= resEnd && targetEnd >= resStart) {
-            return { valid: false, reason: `Solapamiento con espacio reservado: "${res.motivo}" (U${resStart}-U${resEnd}).` };
+      for (const item of allItems) {
+        if (item.rack_id === rackId && item.id !== excludeId) {
+          const itemStart = Number(item.u_inicial);
+          const itemEnd = itemStart + Number(item.u_alto) - 1;
+
+          if (targetStart <= itemEnd && targetEnd >= itemStart) {
+            const conflictCara = (item.tamano === 'Completo' || tamano === 'Completo' || item.ubicacion_cara === cara);
+            if (conflictCara) {
+              const name = item.nombre || item.motivo;
+              return { valid: false, reason: `Solapamiento con "${name}" (U${itemStart}-U${itemEnd}, ${item.ubicacion_cara || 'Frontal'} - ${item.tamano || 'Completo'}).` };
+            }
           }
         }
       }
@@ -1031,7 +1262,7 @@
       return { valid: true };
     }
 
-    /* RENDER & MONITORING ENGINE */
+    /* RENDER ENGINE */
     function renderDashboard() {
       document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
 
@@ -1046,7 +1277,6 @@
 
       const ocupacionPct = uTotales > 0 ? Math.round((uUsadas / uTotales) * 100) : 0;
 
-      // Cálculo de Energía A/B
       let wattsA = 0;
       let wattsB = 0;
       let singlePowerCount = 0;
@@ -1058,8 +1288,8 @@
             wattsA += w / 2;
             wattsB += w / 2;
           } else {
-            wattsA += w; // Asignación por defecto a Rama A
-            singlePowerCount++;
+            wattsA += w;
+            if (w > 0 || eq.tipo === 'Equipo') singlePowerCount++;
           }
         });
       }
@@ -1070,7 +1300,6 @@
       document.getElementById('powerWattsA').textContent = `${Math.round(wattsA)} W / ${ampsA} A`;
       document.getElementById('powerWattsB').textContent = `${Math.round(wattsB)} W / ${ampsB} A`;
 
-      // Barra porcentual basada en límite hipotético de 2400W por rama (20A @ 120V)
       const maxCap = 2400;
       const pctA = Math.min(Math.round((wattsA / maxCap) * 100), 100);
       const pctB = Math.min(Math.round((wattsB / maxCap) * 100), 100);
@@ -1078,18 +1307,17 @@
       document.getElementById('powerBarA').style.width = `${pctA}%`;
       document.getElementById('powerBarB').style.width = `${pctB}%`;
 
-      // Generar Panel de Alertas Globales
       const alerts = [];
       if (singlePowerCount > 0) {
         alerts.push({
           type: 'warning',
-          msg: `Riesgo de Redundancia: ${singlePowerCount} equipo(s) configurado(s) con fuente de alimentación simple en Rama A.`
+          msg: `Riesgo de Redundancia: ${singlePowerCount} equipo(s) activo(s) con fuente de alimentación simple.`
         });
       }
       if (pctA > 80 || pctB > 80) {
         alerts.push({
           type: 'danger',
-          msg: `Advertencia de Carga: La rama eléctrica supera el 80% de utilización de su capacidad estimada.`
+          msg: `Advertencia de Carga: La rama eléctrica supera el 80% de utilización estimada.`
         });
       }
 
@@ -1111,17 +1339,22 @@
       document.getElementById('totalEquipos').textContent = totalEquipos;
       document.getElementById('ocupacionU').textContent = `${ocupacionPct}%`;
 
-      // Selector de Racks
       const rackContainer = document.getElementById('rackSelectorContainer');
       if (appState.racks && appState.racks.length > 0) {
         let html = '<div style="display:flex; flex-direction:column; gap:0.35rem;">';
         appState.racks.forEach(r => {
           const isSelected = r.id === appState.activeRackId;
+          const fvTag = r.fuente_verdad || '[CONFIRMADO]';
+          const estadoRack = r.estado || 'Activo';
           html += `
-            <button class="btn" style="width:100%; justify-between: space-between; text-align:left; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}" onclick="selectRack('${r.id}')">
-              <span><strong>${escapeHTML(r.nombre)}</strong> (${r.unidades_totales}U)</span>
-              ${isSelected ? '<span style="color:var(--accent)">●</span>' : ''}
-            </button>
+            <div class="btn" style="width:100%; justify-content:space-between; align-items:center; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}">
+              <span onclick="selectRack('${r.id}')" style="cursor:pointer; flex:1;">
+                <strong>${escapeHTML(r.nombre)}</strong> (${r.unidades_totales}U)
+                <span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span>
+                <span style="font-size:0.65rem; color:var(--text-muted); font-weight:bold;">[${escapeHTML(estadoRack)}]</span>
+              </span>
+              <button class="btn btn-accent" style="padding:0.1rem 0.3rem; font-size:0.65rem;" onclick="openRackModal('${r.id}')">Editar</button>
+            </div>
           `;
         });
         html += '</div>';
@@ -1130,7 +1363,6 @@
         rackContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">No hay racks registrados.</p>';
       }
 
-      // Bitácora
       const logContainer = document.getElementById('auditLogContainer');
       if (appState.bitacora && appState.bitacora.length > 0) {
         let logHtml = '';
@@ -1165,25 +1397,32 @@
         return;
       }
 
-      document.getElementById('activeRackTitle').textContent = `${rack.nombre} (${rack.unidades_totales}U)`;
+      const currentView = document.getElementById('viewOrientationSelect').value;
+      const orderU = document.getElementById('uOrderSelect').value; // DESC o ASC
+
+      document.getElementById('activeRackTitle').textContent = `${rack.nombre} (${rack.unidades_totales}U) - Vista ${currentView}`;
 
       const uMap = {};
       for (let i = 1; i <= rack.unidades_totales; i++) {
-        uMap[i] = { status: 'empty', label: 'Disponible', detail: '' };
+        uMap[i] = { status: 'empty', label: 'Disponible', detail: '', fvTag: '' };
       }
 
       if (appState.equipos) {
         appState.equipos.forEach(eq => {
           if (eq.rack_id === rack.id) {
-            const start = Number(eq.u_inicial);
-            const alto = Number(eq.u_alto);
-            for (let u = start; u < start + alto; u++) {
-              if (uMap[u]) {
-                uMap[u] = {
-                  status: 'occupied',
-                  label: eq.nombre,
-                  detail: `${eq.consumo_watts || 0}W - Fuente ${eq.fuente_alimentacion || 'Simple'}`
-                };
+            const isVisible = eq.tamano === 'Completo' || (eq.ubicacion_cara || 'Frontal') === currentView;
+            if (isVisible) {
+              const start = Number(eq.u_inicial);
+              const alto = Number(eq.u_alto);
+              for (let u = start; u < start + alto; u++) {
+                if (uMap[u]) {
+                  uMap[u] = {
+                    status: 'occupied',
+                    label: `[${eq.tipo || 'Equipo'}] ${eq.nombre}`,
+                    detail: `${eq.subtipo || ''} | ${eq.tamano || 'Completo'} | ${eq.estado || 'Activo'}`,
+                    fvTag: eq.fuente_verdad || '[CONFIRMADO]'
+                  };
+                }
               }
             }
           }
@@ -1193,23 +1432,35 @@
       if (appState.reservas) {
         appState.reservas.forEach(res => {
           if (res.rack_id === rack.id) {
-            const start = Number(res.u_inicial);
-            const alto = Number(res.u_alto);
-            for (let u = start; u < start + alto; u++) {
-              if (uMap[u]) {
-                uMap[u] = {
-                  status: 'reserved',
-                  label: `RESERVA: ${res.motivo}`,
-                  detail: 'Espacio bloqueado'
-                };
+            const isVisible = res.tamano === 'Completo' || (res.ubicacion_cara || 'Frontal') === currentView;
+            if (isVisible) {
+              const start = Number(res.u_inicial);
+              const alto = Number(res.u_alto);
+              for (let u = start; u < start + alto; u++) {
+                if (uMap[u]) {
+                  uMap[u] = {
+                    status: 'reserved',
+                    label: `RESERVA (${res.subtipo || 'General'}): ${res.motivo}`,
+                    detail: `${res.tamano || 'Completo'} | ${res.estado || 'Planificado'}`,
+                    fvTag: res.fuente_verdad || '[EJEMPLO DIDÁCTICO]'
+                  };
+                }
               }
             }
           }
         });
       }
 
+      // ORDENACION DE U DEPENDIENDO DEL FILTRO
+      const uSequence = [];
+      if (orderU === 'DESC') {
+        for (let u = rack.unidades_totales; u >= 1; u--) uSequence.push(u);
+      } else {
+        for (let u = 1; u <= rack.unidades_totales; u++) uSequence.push(u);
+      }
+
       let frameHtml = `<div class="rack-frame">`;
-      for (let u = rack.unidades_totales; u >= 1; u--) {
+      uSequence.forEach(u => {
         const slot = uMap[u];
         let statusClass = 'slot-empty';
         if (slot.status === 'occupied') statusClass = 'slot-occupied';
@@ -1220,12 +1471,13 @@
             <div class="u-number">${u}U</div>
             <div class="u-content" title="${escapeHTML(slot.label)} ${escapeHTML(slot.detail)}">
               <strong>${escapeHTML(slot.label)}</strong>
-              ${slot.detail ? `<span style="font-size:0.65rem; color:var(--text-muted); margin-left:0.5rem;">(${escapeHTML(slot.detail)})</span>` : ''}
+              ${slot.fvTag ? `<span class="tag-badge ${getTagCssClass(slot.fvTag)}">${slot.fvTag}</span>` : ''}
+              ${slot.detail ? `<span style="font-size:0.65rem; color:var(--text-muted); margin-left:0.25rem;">(${escapeHTML(slot.detail)})</span>` : ''}
             </div>
             <div class="u-status">${slot.status === 'empty' ? 'LIBRE' : slot.status}</div>
           </div>
         `;
-      }
+      });
       frameHtml += `</div>`;
 
       container.innerHTML = frameHtml;
@@ -1235,20 +1487,28 @@
       const container = document.getElementById('inventoryTableContainer');
       const searchTerm = document.getElementById('globalSearchInput').value.toLowerCase().trim();
 
-      if (!appState.equipos || appState.equipos.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 1rem;">No hay equipos registrados en el inventario.</p>';
+      const allItems = [
+        ...(appState.equipos || []),
+        ...(appState.reservas || [])
+      ];
+
+      if (allItems.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 1rem;">No hay elementos registrados en el inventario.</p>';
         return;
       }
 
-      const filteredEquipos = appState.equipos.filter(eq => {
-        const rack = appState.racks.find(r => r.id === eq.rack_id);
+      const filteredItems = allItems.filter(item => {
+        const rack = appState.racks.find(r => r.id === item.rack_id);
         const rackName = rack ? rack.nombre.toLowerCase() : '';
-        return eq.nombre.toLowerCase().includes(searchTerm) ||
+        const name = (item.nombre || item.motivo || '').toLowerCase();
+        return name.includes(searchTerm) ||
                rackName.includes(searchTerm) ||
-               (eq.estado && eq.estado.toLowerCase().includes(searchTerm));
+               (item.tipo && item.tipo.toLowerCase().includes(searchTerm)) ||
+               (item.subtipo && item.subtipo.toLowerCase().includes(searchTerm)) ||
+               (item.estado && item.estado.toLowerCase().includes(searchTerm));
       });
 
-      if (filteredEquipos.length === 0) {
+      if (filteredItems.length === 0) {
         container.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 1rem;">No se encontraron resultados para la búsqueda.</p>';
         return;
       }
@@ -1258,32 +1518,39 @@
           <thead>
             <tr>
               <th>Rack</th>
-              <th>Equipo</th>
+              <th>Tipo / Subtipo</th>
+              <th>Elemento / Reserva</th>
               <th>Posición U</th>
-              <th>Consumo</th>
-              <th>Alimentación</th>
+              <th>Ubicación / Tamaño</th>
               <th>Estado</th>
+              <th>Fuente de Verdad</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
       `;
 
-      filteredEquipos.forEach(eq => {
-        const rack = appState.racks.find(r => r.id === eq.rack_id);
+      filteredItems.forEach(item => {
+        const rack = appState.racks.find(r => r.id === item.rack_id);
         const rackName = rack ? rack.nombre : 'Sin Rack';
-        const uRange = eq.u_alto > 1 ? `U${eq.u_inicial} - U${eq.u_inicial + eq.u_alto - 1}` : `U${eq.u_inicial}`;
+        const uRange = item.u_alto > 1 ? `U${item.u_inicial} - U${item.u_inicial + item.u_alto - 1}` : `U${item.u_inicial}`;
+        const fvTag = item.fuente_verdad || '[CONFIRMADO]';
+        const name = item.nombre || `RESERVA: ${item.motivo}`;
 
         html += `
           <tr>
             <td><strong>${escapeHTML(rackName)}</strong></td>
-            <td>${escapeHTML(eq.nombre)}</td>
-            <td><span class="version-badge">${uRange}</span></td>
-            <td>${eq.consumo_watts || 0} Watts</td>
-            <td>${escapeHTML(eq.fuente_alimentacion || 'Simple')}</td>
-            <td><span style="color:var(--success); font-weight:600;">${escapeHTML(eq.estado || 'Activo')}</span></td>
+            <td><span class="version-badge">${escapeHTML(item.tipo || 'Equipo')}</span> ${escapeHTML(item.subtipo || '')}</td>
+            <td>${escapeHTML(name)}</td>
+            <td><strong>${uRange}</strong></td>
+            <td>${escapeHTML(item.ubicacion_cara || 'Frontal')} (${escapeHTML(item.tamano || 'Completo')})</td>
+            <td><strong style="color:var(--accent);">${escapeHTML(item.estado || 'Activo')}</strong></td>
+            <td><span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span></td>
             <td>
-              <button class="btn btn-danger" style="padding:0.1rem 0.35rem; font-size:0.7rem;" onclick="confirmDeleteDevice('${eq.id}')">Eliminar</button>
+              <div style="display:flex; gap:0.25rem;">
+                <button class="btn btn-accent" style="padding:0.1rem 0.35rem; font-size:0.7rem;" onclick="openDeviceModal('${item.id}')">Editar</button>
+                <button class="btn btn-danger" style="padding:0.1rem 0.35rem; font-size:0.7rem;" onclick="confirmDeleteDevice('${item.id}')">Eliminar</button>
+              </div>
             </td>
           </tr>
         `;
@@ -1307,13 +1574,20 @@
     }
 
     function exportInventoryCSV() {
-      if (!appState.equipos || appState.equipos.length === 0) {
-        alert("No hay equipos para exportar.");
+      const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
+      if (allItems.length === 0) {
+        alert("No hay elementos para exportar.");
         return;
       }
-      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Nombre,U_Inicial,U_Alto,Vista,Consumo_Watts,Estado\n";
-      appState.equipos.forEach(eq => {
-        csvContent += [eq.id, eq.rack_id, `"${eq.nombre}"`, eq.u_inicial, eq.u_alto, eq.vista, eq.consumo_watts, `"${eq.estado}"`].join(",") + "\n";
+      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Tipo,Subtipo,Nombre_Motivo,U_Inicial,U_Alto,Ubicacion_Cara,Tamano,Consumo_Watts,Estado,Fuente_Verdad\n";
+      allItems.forEach(item => {
+        const name = item.nombre || item.motivo;
+        csvContent += [
+          item.id, item.rack_id, `"${item.tipo || 'Equipo'}"`, `"${item.subtipo || ''}"`,
+          `"${name}"`, item.u_inicial, item.u_alto, `"${item.ubicacion_cara || 'Frontal'}"`,
+          `"${item.tamano || 'Completo'}"`, item.consumo_watts || 0, `"${item.estado || 'Activo'}"`,
+          `"${item.fuente_verdad || '[CONFIRMADO]'}"`
+        ].join(",") + "\n";
       });
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
