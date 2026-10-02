@@ -47,6 +47,8 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
     .brand {
@@ -69,10 +71,60 @@
       border-radius: 0.375rem;
       font-size: 0.75rem;
       font-weight: 600;
-      font-mono: monospace;
+      font-family: monospace;
     }
 
-    /* Main Grid Layout - Maximize Screen Space */
+    /* Action Buttons Header */
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background-color: var(--bg-card-hover);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--border);
+      border-color: var(--accent);
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .btn-accent:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger);
+      color: #fff;
+    }
+
+    /* Main Grid Layout */
     main {
       display: grid;
       grid-template-columns: 320px 1fr;
@@ -105,6 +157,9 @@
       font-weight: 600;
       border-bottom: 1px solid var(--border);
       padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     /* Metric Cards */
@@ -133,6 +188,32 @@
       color: var(--text-muted);
     }
 
+    /* Audit Log Box */
+    .log-box {
+      background-color: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .log-entry {
+      border-bottom: 1px dotted var(--border);
+      padding-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+
+    .log-timestamp {
+      color: var(--accent);
+      margin-right: 0.35rem;
+    }
+
     /* Container Workspace */
     .workspace {
       display: flex;
@@ -157,6 +238,11 @@
       font-size: 0.75rem;
       color: var(--text-muted);
     }
+
+    /* File Input Hidden */
+    #fileInputJSON {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -164,15 +250,20 @@
   <header>
     <div class="brand">
       <h1>Auditoría y Gestión de Cableado Estructurado</h1>
-      <span class="version-badge" id="appVersion">v0.1.0-alpha</span>
+      <span class="version-badge" id="appVersion">v0.3.0-alpha</span>
     </div>
-    <div>
-      <span id="statusIndicator" style="font-size: 0.8rem; color: var(--success);">● Sistema listo [CONFIRMADO]</span>
+    
+    <div class="header-actions">
+      <button class="btn btn-accent" onclick="exportStateJSON()">Exportar JSON</button>
+      <button class="btn" onclick="exportInventoryCSV()">Exportar CSV</button>
+      <button class="btn" onclick="document.getElementById('fileInputJSON').click()">Importar JSON</button>
+      <input type="file" id="fileInputJSON" accept=".json" onchange="importStateJSON(event)">
+      <button class="btn btn-danger" onclick="confirmResetData()">Restablecer</button>
     </div>
   </header>
 
   <main>
-    <!-- Panel Izquierdo: Dashboard y Selección -->
+    <!-- Panel Izquierdo: Dashboard y Bitácora -->
     <aside class="panel">
       <h2 class="panel-title">Métricas de Control</h2>
       <div class="metrics-grid">
@@ -196,7 +287,15 @@
 
       <h2 class="panel-title" style="margin-top: 1rem;">Navegación / Racks</h2>
       <div id="rackSelectorContainer">
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Cargando módulo de estado...</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);" id="rackListStatus">Cargando bastidores...</p>
+      </div>
+
+      <h2 class="panel-title" style="margin-top: 1rem;">
+        Bitácora de Auditoría
+        <button class="btn" style="font-size:0.65rem; padding: 0.1rem 0.3rem;" onclick="clearLog()">Limpiar</button>
+      </h2>
+      <div class="log-box" id="auditLogContainer">
+        <!-- Log de eventos -->
       </div>
     </aside>
 
@@ -205,14 +304,14 @@
       <div class="panel">
         <h2 class="panel-title">Vista de Bastidor (Rack Frontal / Posterior)</h2>
         <div id="rackViewContainer" class="placeholder-box">
-          El visualizador de Racks $1\text{U}$ a $48\text{U}$ se cargará en el Paso 3.
+          El visualizador dinámico de Racks $1\text{U}$ a $48\text{U}$ se cargará en el Paso 3.
         </div>
       </div>
 
       <div class="panel">
         <h2 class="panel-title">Inventario de Equipos y Puertos</h2>
         <div id="inventoryContainer" class="placeholder-box">
-          La gestión de inventario y tablas dinámicas se cargará en el Paso 4.
+          La gestión de inventario editable y tablas dinámicas se cargará en el Paso 4.
         </div>
       </div>
     </section>
@@ -224,13 +323,63 @@
 
   <script>
     /**
-     * Módulo de Seguridad y Utilidades Básicas
-     * Versión: 0.1.0-alpha
+     * Motor de Estado, Persistencia y Bitácora (v0.3.0-alpha)
      */
     const APP_CONFIG = {
-      version: "0.1.0-alpha",
-      appName: "Rack & Structured Cabling Manager"
+      version: "0.3.0-alpha",
+      appName: "Rack & Structured Cabling Manager",
+      storageKey: "rack_cabling_inventory_v1"
     };
+
+    // Estado inicial de ejemplo didáctico
+    const DEFAULT_STATE = {
+      version: "0.3.0-alpha",
+      fecha_actualizacion: new Date().toISOString(),
+      racks: [
+        {
+          id: "rack-01",
+          nombre: "Rack Principal Principal DC [EJEMPLO DIDÁCTICO]",
+          unidades_totales: 42,
+          ubicacion: "Sala 101 - Fila A [CONFIRMADO]"
+        }
+      ],
+      equipos: [
+        {
+          id: "eq-01",
+          rack_id: "rack-01",
+          nombre: "Switch Core L3 [EJEMPLO DIDÁCTICO]",
+          u_inicial: 40,
+          u_alto: 2,
+          vista: "frontal",
+          consumo_watts: 350,
+          fuente_alimentacion: "Dual A/B",
+          pdu_a_id: "pdu-a1",
+          pdu_b_id: "pdu-b1",
+          estado: "ACTIVO [CONFIRMADO]"
+        }
+      ],
+      interfaces: [
+        {
+          id: "int-01",
+          equipo_id: "eq-01",
+          nombre_puerto: "Gi0/0/1",
+          tipo: "SFP+ 10G",
+          servicio_asociado: "Trunk Enlace Servidores",
+          estado: "OCUPADO"
+        }
+      ],
+      reservas: [],
+      circuitos_pdu: [],
+      bitacora: [
+        {
+          timestamp: new Date().toISOString(),
+          accion: "SISTEMA_INICIALIZADO",
+          detalle: "Estado base inicializado con datos de ejemplo didáctico."
+        }
+      ]
+    };
+
+    let appState = null;
 
     // Helper de sanitización XSS
     function escapeHTML(str) {
@@ -243,10 +392,203 @@
         .replace(/'/g, '&#039;');
     }
 
-    // Inicialización al cargar la página
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log(`[INIT] ${APP_CONFIG.appName} inicializado en versión ${APP_CONFIG.version}`);
+    // Cargar estado desde localStorage
+    function loadState() {
+      try {
+        const data = localStorage.getItem(APP_CONFIG.storageKey);
+        if (data) {
+          appState = JSON.parse(data);
+        } else {
+          appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+          saveState();
+        }
+      } catch (e) {
+        console.error("Error al cargar localStorage, usando estado por defecto:", e);
+        appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+      renderDashboard();
+    }
+
+    // Guardar estado en localStorage
+    function saveState() {
+      if (!appState) return;
+      appState.fecha_actualizacion = new Date().toISOString();
+      appState.version = APP_CONFIG.version;
+      localStorage.setItem(APP_CONFIG.storageKey, JSON.stringify(appState));
+      renderDashboard();
+    }
+
+    // Agregar registro a la bitácora
+    function addLogEntry(accion, detalle) {
+      if (!appState.bitacora) appState.bitacora = [];
+      const entry = {
+        timestamp: new Date().toISOString(),
+        accion: escapeHTML(accion),
+        detalle: escapeHTML(detalle)
+      };
+      appState.bitacora.unshift(entry);
+      saveState();
+    }
+
+    // Renderizar Dashboard y Bitácora
+    function renderDashboard() {
       document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
+
+      const totalRacks = appState.racks ? appState.racks.length : 0;
+      const totalEquipos = appState.equipos ? appState.equipos.length : 0;
+
+      // Cálculo básico de ocupación U
+      let uUsadas = 0;
+      let uTotales = 0;
+      if (appState.racks) {
+        appState.racks.forEach(r => uTotales += Number(r.unidades_totales || 0));
+      }
+      if (appState.equipos) {
+        appState.equipos.forEach(e => uUsadas += Number(e.u_alto || 0));
+      }
+
+      const ocupacionPct = uTotales > 0 ? Math.round((uUsadas / uTotales) * 100) : 0;
+
+      document.getElementById('totalRacks').textContent = totalRacks;
+      document.getElementById('totalEquipos').textContent = totalEquipos;
+      document.getElementById('ocupacionU').textContent = `${ocupacionPct}%`;
+      document.getElementById('alertasCount').textContent = 0; // Se actualizará dinámicamente en el Paso 5
+
+      // Renderizar Racks en menú lateral
+      const rackContainer = document.getElementById('rackSelectorContainer');
+      if (appState.racks && appState.racks.length > 0) {
+        let html = '<ul style="list-style:none; display:flex; flex-direction:column; gap:0.5rem;">';
+        appState.racks.forEach(r => {
+          html += `
+            <li style="background-color:rgba(15,23,42,0.6); border:1px solid var(--border); padding:0.5rem; border-radius:0.375rem; font-size:0.8rem;">
+              <strong>${escapeHTML(r.nombre)}</strong><br>
+              <span style="color:var(--text-muted);">${r.unidades_totales}U - ${escapeHTML(r.ubicacion)}</span>
+            </li>
+          `;
+        });
+        html += '</ul>';
+        rackContainer.innerHTML = html;
+      } else {
+        rackContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">No hay bastidores creados.</p>';
+      }
+
+      // Renderizar Bitácora
+      const logContainer = document.getElementById('auditLogContainer');
+      if (appState.bitacora && appState.bitacora.length > 0) {
+        let logHtml = '';
+        appState.bitacora.forEach(log => {
+          const time = new Date(log.timestamp).toLocaleTimeString();
+          logHtml += `
+            <div class="log-entry">
+              <span class="log-timestamp">[${time}]</span>
+              <strong>${escapeHTML(log.accion)}:</strong> ${escapeHTML(log.detalle)}
+            </div>
+          `;
+        });
+        logContainer.innerHTML = logHtml;
+      } else {
+        logContainer.innerHTML = '<span style="color:var(--text-muted);">Sin registros.</span>';
+      }
+    }
+
+    // Exportar estado completo a JSON
+    function exportStateJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const filename = `inventario_rack_v${APP_CONFIG.version}_${new Date().toISOString().slice(0,10)}.json`;
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", filename);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      addLogEntry("EXPORTAR_JSON", `Inventario exportado como ${filename}`);
+    }
+
+    // Exportar inventario de equipos a CSV
+    function exportInventoryCSV() {
+      if (!appState.equipos || appState.equipos.length === 0) {
+        alert("No hay equipos para exportar.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Nombre,U_Inicial,U_Alto,Vista,Consumo_Watts,Fuente,Estado\n";
+      appState.equipos.forEach(eq => {
+        const row = [
+          eq.id,
+          eq.rack_id,
+          `"${(eq.nombre || '').replace(/"/g, '""')}"`,
+          eq.u_inicial,
+          eq.u_alto,
+          eq.vista,
+          eq.consumo_watts,
+          `"${(eq.fuente_alimentacion || '').replace(/"/g, '""')}"`,
+          `"${(eq.estado || '').replace(/"/g, '""')}"`
+        ].join(",");
+        csvContent += row + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      const filename = `inventario_equipos_${new Date().toISOString().slice(0,10)}.csv`;
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      addLogEntry("EXPORTAR_CSV", `Inventario CSV exportado como ${filename}`);
+    }
+
+    // Importar estado desde JSON con validación
+    function importStateJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+
+          // Validación básica de esquema
+          if (!importedData.racks || !Array.isArray(importedData.racks) || !importedData.equipos) {
+            alert("Error: El archivo JSON importado no cumple con el esquema válido de inventario.");
+            return;
+          }
+
+          if (confirm("¿Está seguro de reemplazar todo el inventario actual con el contenido de este archivo?")) {
+            appState = importedData;
+            addLogEntry("IMPORTAR_JSON", `Inventario cargado exitosamente desde ${file.name}`);
+            saveState();
+            alert("Inventario importado correctamente [CONFIRMADO].");
+          }
+        } catch (err) {
+          alert("Error crítico al procesar el archivo JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      // Limpiar input file
+      event.target.value = '';
+    }
+
+    // Confirmar y restablecer datos por defecto
+    function confirmResetData() {
+      if (confirm("¿ADVERTENCIA: Deseas borrar todos los datos e inicializar el estado didáctico por defecto?")) {
+        appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        saveState();
+        addLogEntry("RESTABLECER", "Datos restablecidos a la configuración inicial por defecto.");
+        alert("Sistema restablecido [CONFIRMADO].");
+      }
+    }
+
+    // Limpiar bitácora
+    function clearLog() {
+      appState.bitacora = [];
+      saveState();
+    }
+
+    // Inicializar al cargar el DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      console.log(`[INIT] ${APP_CONFIG.appName} inicializado en versión ${APP_CONFIG.version}`);
     });
   </script>
 </body>
