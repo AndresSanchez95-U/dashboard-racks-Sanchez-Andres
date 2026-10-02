@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Cableado Estructurado e Inventario de Racks</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --border: #334155;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Header & Navigation */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand h1 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .version-badge {
+      background-color: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-mono: monospace;
+    }
+
+    /* Main Grid Layout - Maximize Screen Space */
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Metric Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Container Workspace */
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .placeholder-box {
+      border: 2px dashed var(--border);
+      border-radius: 0.375rem;
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    footer {
+      background-color: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>Auditoría y Gestión de Cableado Estructurado</h1>
+      <span class="version-badge" id="appVersion">v0.1.0-alpha</span>
+    </div>
+    <div>
+      <span id="statusIndicator" style="font-size: 0.8rem; color: var(--success);">● Sistema listo [CONFIRMADO]</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Panel Izquierdo: Dashboard y Selección -->
+    <aside class="panel">
+      <h2 class="panel-title">Métricas de Control</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="totalRacks">0</div>
+          <div class="metric-label">Racks</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="totalEquipos">0</div>
+          <div class="metric-label">Equipos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="ocupacionU">0%</div>
+          <div class="metric-label">Ocupación U</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="alertasCount">0</div>
+          <div class="metric-label">Alertas</div>
+        </div>
+      </div>
+
+      <h2 class="panel-title" style="margin-top: 1rem;">Navegación / Racks</h2>
+      <div id="rackSelectorContainer">
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Cargando módulo de estado...</p>
+      </div>
+    </aside>
+
+    <!-- Panel Derecho: Espacio de Trabajo Principal -->
+    <section class="workspace">
+      <div class="panel">
+        <h2 class="panel-title">Vista de Bastidor (Rack Frontal / Posterior)</h2>
+        <div id="rackViewContainer" class="placeholder-box">
+          El visualizador de Racks $1\text{U}$ a $48\text{U}$ se cargará en el Paso 3.
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel-title">Inventario de Equipos y Puertos</h2>
+        <div id="inventoryContainer" class="placeholder-box">
+          La gestión de inventario y tablas dinámicas se cargará en el Paso 4.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Cableado Estructurado & Audit System | Archivo único editable de ejecución local
+  </footer>
+
+  <script>
+    /**
+     * Módulo de Seguridad y Utilidades Básicas
+     * Versión: 0.1.0-alpha
+     */
+    const APP_CONFIG = {
+      version: "0.1.0-alpha",
+      appName: "Rack & Structured Cabling Manager"
+    };
+
+    // Helper de sanitización XSS
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Inicialización al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log(`[INIT] ${APP_CONFIG.appName} inicializado en versión ${APP_CONFIG.version}`);
+      document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
+    });
+  </script>
+</body>
+</html>
