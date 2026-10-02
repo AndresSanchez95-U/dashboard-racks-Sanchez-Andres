@@ -287,7 +287,6 @@
       gap: 0.35rem;
     }
 
-    /* RACK ANCHO (1000px) */
     .rack-frame {
       background-color: #0b0f19;
       border: 3px solid #475569;
@@ -579,7 +578,6 @@
         <div class="panel-title">
           <span>Vista de Bastidor / Rack (<span id="activeRackTitle">Ninguno</span>)</span>
           <div class="rack-controls">
-            <!-- VISTA FRONTAL / POSTERIOR -->
             <div class="control-group">
               <label style="font-size: 0.75rem; color: var(--text-muted);">Vista:</label>
               <select id="viewOrientationSelect" class="form-control" onchange="renderRackGraphic()">
@@ -588,7 +586,6 @@
               </select>
             </div>
 
-            <!-- FILTRO DE ORDENACION U -->
             <div class="control-group">
               <label style="font-size: 0.75rem; color: var(--text-muted);">Orden U:</label>
               <select id="uOrderSelect" class="form-control" onchange="renderRackGraphic()">
@@ -675,7 +672,6 @@
       </div>
       <input type="hidden" id="editingDeviceId" value="">
 
-      <!-- TIPO Y CLASIFICACIÓN -->
       <div class="form-row">
         <div class="form-group">
           <label>Tipo de Elemento:</label>
@@ -687,25 +683,20 @@
         </div>
         <div class="form-group" id="subTypeContainer">
           <label id="subTypeLabel">Categoría / Clasificación:</label>
-          <select id="deviceSubTypeSelect" class="form-control">
-            <!-- Dinámico -->
-          </select>
+          <select id="deviceSubTypeSelect" class="form-control"></select>
         </div>
       </div>
 
-      <!-- NOMBRE / ESPECIFICACIÓN -->
       <div class="form-group" id="deviceNameGroup">
         <label id="deviceNameLabel">Nombre del Elemento:</label>
         <input type="text" id="deviceNameInput" class="form-control" placeholder="Ej. Switch Cisco Catalyst 9300">
       </div>
 
-      <!-- CAMPO DE TEXTO DEDICADO PARA EL MOTIVO DE LA RESERVA -->
       <div class="form-group" id="deviceReasonGroup" style="display:none;">
         <label>Motivo de la Reserva / Especificación:</label>
         <input type="text" id="deviceReasonInput" class="form-control" placeholder="Ej. Proyecto Expansión Servidor Blade Q4">
       </div>
 
-      <!-- POSICIÓN Y DIMENSIONES -->
       <div class="form-row">
         <div class="form-group">
           <label>Unidad U Inicial:</label>
@@ -717,7 +708,6 @@
         </div>
       </div>
 
-      <!-- UBICACIÓN Y TAMAÑO/PROFUNDIDAD -->
       <div class="form-row">
         <div class="form-group">
           <label>Ubicación Física:</label>
@@ -735,7 +725,6 @@
         </div>
       </div>
 
-      <!-- ALIMENTACIÓN Y CONSUMO -->
       <div class="form-row" id="devicePowerGroup">
         <div class="form-group">
           <label>Consumo Estimado (Watts):</label>
@@ -750,7 +739,6 @@
         </div>
       </div>
 
-      <!-- ESTADO Y TRAZABILIDAD -->
       <div class="form-row">
         <div class="form-group">
           <label>Estado Operativo:</label>
@@ -856,7 +844,6 @@
           fuente_verdad: "[CONFIRMADO]"
         }
       ],
-      interfaces: [],
       reservas: [
         {
           id: "res-01",
@@ -876,7 +863,7 @@
         {
           timestamp: new Date().toISOString(),
           accion: "SISTEMA_INICIALIZADO",
-          detalle: "Sistema actualizado con filtro de ordenación de U (Ascendente/Descendente)."
+          detalle: "Sistema cargado con funciones corregidas de edición, solapamiento y eliminación de racks."
         }
       ]
     };
@@ -914,7 +901,7 @@
         console.error("Error al cargar localStorage:", e);
         appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
       }
-      if (!appState.activeRackId && appState.racks.length > 0) {
+      if (!appState.activeRackId && appState.racks && appState.racks.length > 0) {
         appState.activeRackId = appState.racks[0].id;
       }
       renderDashboard();
@@ -958,11 +945,11 @@
         const rack = appState.racks.find(r => r.id === editRackId);
         if (rack) {
           document.getElementById('rackModalTitle').textContent = "Editar Bastidor / Rack";
-          document.getElementById('rackNameInput').value = rack.nombre;
-          document.getElementById('rackUnitsInput').value = rack.unidades_totales;
-          document.getElementById('rackLocationInput').value = rack.ubicacion || '';
-          document.getElementById('rackEstadoSelect').value = rack.estado || 'Activo';
-          document.getElementById('rackVeracidadSelect').value = rack.fuente_verdad || '[CONFIRMADO]';
+          document.getElementById('rackNameInput').value = rack.nombre || rack.name;
+          document.getElementById('rackUnitsInput').value = rack.unidades_totales || rack.totalU;
+          document.getElementById('rackLocationInput').value = rack.ubicacion || rack.zone || '';
+          document.getElementById('rackEstadoSelect').value = rack.estado || rack.status || 'Activo';
+          document.getElementById('rackVeracidadSelect').value = rack.fuente_verdad || rack.tag || '[CONFIRMADO]';
         }
       } else {
         document.getElementById('rackModalTitle').textContent = "Crear Nuevo Bastidor / Rack";
@@ -1022,6 +1009,31 @@
       renderRackGraphic();
     }
 
+    function confirmDeleteRack(rackId) {
+      const rack = appState.racks.find(r => r.id === rackId);
+      if (!rack) return;
+
+      const rackName = rack.nombre || rack.name;
+      document.getElementById('confirmModalMessage').textContent = `¿Confirmas que deseas eliminar el rack "${rackName}" y todos sus elementos asociados?`;
+      deleteCallback = function() {
+        appState.racks = appState.racks.filter(r => r.id !== rackId);
+        appState.equipos = (appState.equipos || []).filter(e => e.rack_id !== rackId && e.rackId !== rackId);
+        appState.reservas = (appState.reservas || []).filter(r => r.rack_id !== rackId && r.rackId !== rackId);
+        
+        if (appState.activeRackId === rackId) {
+          appState.activeRackId = appState.racks.length > 0 ? appState.racks[0].id : null;
+        }
+
+        addLogEntry("ELIMINAR_RACK", `Rack "${rackName}" eliminado.`);
+        saveState();
+        renderRackGraphic();
+        renderInventoryTable();
+        closeModal('confirmModal');
+      };
+      document.getElementById('confirmModalActionBtn').onclick = deleteCallback;
+      openModal('confirmModal');
+    }
+
     /* CONTROL FORMULARIO TIPO/RESERVA/EQUIPO */
     function toggleDeviceTypeFields() {
       const type = document.getElementById('deviceTypeSelect').value;
@@ -1060,23 +1072,31 @@
       document.getElementById('editingDeviceId').value = editDeviceId || '';
 
       if (editDeviceId) {
-        const eq = appState.equipos.find(e => e.id === editDeviceId) || appState.reservas.find(r => r.id === editDeviceId);
+        const eq = (appState.equipos || []).find(e => e.id === editDeviceId) || (appState.reservas || []).find(r => r.id === editDeviceId);
         if (eq) {
           document.getElementById('deviceModalTitle').textContent = "Modificar Elemento en Inventario";
-          document.getElementById('deviceTypeSelect').value = eq.tipo || 'Equipo';
+          document.getElementById('deviceTypeSelect').value = eq.tipo || (eq.purpose ? 'Reserva' : 'Equipo');
           toggleDeviceTypeFields();
 
           document.getElementById('deviceSubTypeSelect').value = eq.subtipo || 'Switch';
-          document.getElementById('deviceNameInput').value = eq.nombre || '';
-          document.getElementById('deviceReasonInput').value = eq.motivo || '';
-          document.getElementById('deviceStartUInput').value = eq.u_inicial;
-          document.getElementById('deviceHeightUInput').value = eq.u_alto;
-          document.getElementById('deviceUbicacionSelect').value = eq.ubicacion_cara || 'Frontal';
-          document.getElementById('deviceTamanoSelect').value = eq.tamano || 'Completo';
-          document.getElementById('deviceWattsInput').value = eq.consumo_watts || 0;
+          document.getElementById('deviceNameInput').value = eq.nombre || eq.name || '';
+          document.getElementById('deviceReasonInput').value = eq.motivo || eq.purpose || '';
+          document.getElementById('deviceStartUInput').value = eq.u_inicial || eq.uStart || 1;
+          document.getElementById('deviceHeightUInput').value = eq.u_alto || eq.uHeight || 1;
+          
+          let faceVal = eq.ubicacion_cara || eq.face || 'Frontal';
+          if (faceVal === 'front') faceVal = 'Frontal';
+          if (faceVal === 'rear') faceVal = 'Posterior';
+          document.getElementById('deviceUbicacionSelect').value = faceVal;
+
+          let tamVal = eq.tamano || (eq.face === 'both' ? 'Completo' : 'Medio');
+          if (tamVal === 'both') tamVal = 'Completo';
+          document.getElementById('deviceTamanoSelect').value = tamVal;
+
+          document.getElementById('deviceWattsInput').value = eq.consumo_watts || eq.nominalW || 0;
           document.getElementById('devicePowerTypeSelect').value = eq.fuente_alimentacion || "Simple";
-          document.getElementById('deviceEstadoSelect').value = eq.estado || 'Activo';
-          document.getElementById('deviceVeracidadSelect').value = eq.fuente_verdad || "[CONFIRMADO]";
+          document.getElementById('deviceEstadoSelect').value = eq.estado || eq.status || 'Activo';
+          document.getElementById('deviceVeracidadSelect').value = eq.fuente_verdad || eq.tag || "[CONFIRMADO]";
         }
       } else {
         document.getElementById('deviceModalTitle').textContent = "Añadir Elemento en Rack";
@@ -1096,105 +1116,146 @@
       openModal('deviceModal');
     }
 
-    function saveDeviceFromModal() {
-      const editId = document.getElementById('editingDeviceId').value;
-      const type = document.getElementById('deviceTypeSelect').value;
-      const subtipo = document.getElementById('deviceSubTypeSelect').value;
-      const uInicial = parseInt(document.getElementById('deviceStartUInput').value, 10);
-      const uAlto = parseInt(document.getElementById('deviceHeightUInput').value, 10);
-      const ubicacionCara = document.getElementById('deviceUbicacionSelect').value;
-      const tamano = document.getElementById('deviceTamanoSelect').value;
-      const estado = document.getElementById('deviceEstadoSelect').value;
-      const veracidad = document.getElementById('deviceVeracidadSelect').value;
+   function saveDeviceFromModal() {
+  try {
+    const editId = document.getElementById('editingDeviceId') ? document.getElementById('editingDeviceId').value : '';
+    const typeElem = document.getElementById('deviceTypeSelect');
+    const tipo = typeElem ? typeElem.value : 'Equipo'; // <--- Se renombra de 'type' a 'tipo'
+    
+    const subTypeElem = document.getElementById('deviceSubTypeSelect');
+    const subtipo = subTypeElem ? subTypeElem.value : 'Switch';
 
-      const validation = validateOverlap(appState.activeRackId, uInicial, uAlto, ubicacionCara, tamano, editId);
-      if (!validation.valid) {
-        const errBox = document.getElementById('modalAlertError');
+    const startUElem = document.getElementById('deviceStartUInput');
+    const heightUElem = document.getElementById('deviceHeightUInput');
+    const uInicial = startUElem ? (parseInt(startUElem.value, 10) || 1) : 1;
+    const uAlto = heightUElem ? (parseInt(heightUElem.value, 10) || 1) : 1;
+
+    const caraElem = document.getElementById('deviceUbicacionSelect');
+    const tamanoElem = document.getElementById('deviceTamanoSelect');
+    const estadoElem = document.getElementById('deviceEstadoSelect');
+    const veracidadElem = document.getElementById('deviceVeracidadSelect');
+
+    const ubicacionCara = caraElem ? caraElem.value : 'Frontal';
+    const tamano = tamanoElem ? tamanoElem.value : 'Completo';
+    const estado = estadoElem ? estadoElem.value : 'Activo';
+    const veracidad = veracidadElem ? veracidadElem.value : '[CONFIRMADO]';
+
+    // 1. Validar Solapamiento
+    const validation = validateOverlap(appState.activeRackId, uInicial, uAlto, ubicacionCara, tamano, editId);
+    if (!validation.valid) {
+      const errBox = document.getElementById('modalAlertError');
+      if (errBox) {
         errBox.textContent = validation.reason;
         errBox.style.display = 'block';
+      } else {
+        alert(validation.reason);
+      }
+      return;
+    }
+
+    // Asegurar arreglos en appState
+    if (!appState.equipos) appState.equipos = [];
+    if (!appState.reservas) appState.reservas = [];
+
+    // 2. Procesar según Tipo (Equipo/Accesorio vs Reserva)
+    if (tipo === 'Equipo' || tipo === 'Accesorio') {
+      const nameElem = document.getElementById('deviceNameInput');
+      const wattsElem = document.getElementById('deviceWattsInput');
+      const powerElem = document.getElementById('devicePowerTypeSelect');
+
+      const nombre = nameElem ? nameElem.value.trim() : '';
+      const watts = wattsElem ? (parseInt(wattsElem.value, 10) || 0) : 0;
+      const fuente = powerElem ? powerElem.value : 'Simple';
+
+      if (!nombre) {
+        const errBox = document.getElementById('modalAlertError');
+        if (errBox) {
+          errBox.textContent = `Por favor, ingrese el nombre del ${tipo.toLowerCase()}.`;
+          errBox.style.display = 'block';
+        } else {
+          alert(`Ingrese el nombre del ${tipo.toLowerCase()}.`);
+        }
         return;
       }
 
-      if (type === 'Equipo' || type === 'Accesorio') {
-        const nombre = document.getElementById('deviceNameInput').value.trim();
-        const watts = parseInt(document.getElementById('deviceWattsInput').value, 10) || 0;
-        const fuente = document.getElementById('devicePowerTypeSelect').value;
-
-        if (!nombre) {
-          const errBox = document.getElementById('modalAlertError');
-          errBox.textContent = `Ingrese el nombre del ${type.toLowerCase()}.`;
-          errBox.style.display = 'block';
-          return;
-        }
-
-        if (editId) {
-          const index = appState.equipos.findIndex(e => e.id === editId);
-          if (index !== -1) {
-            appState.equipos[index] = {
-              ...appState.equipos[index],
-              tipo, subtipo, nombre: escapeHTML(nombre),
-              u_inicial: uInicial, u_alto: uAlto,
-              ubicacion_cara: ubicacionCara, tamano: tamano,
-              consumo_watts: watts, fuente_alimentacion: fuente,
-              estado: estado, fuente_verdad: veracidad
-            };
-            addLogEntry("EDITAR_ELEMENTO", `${type} "${nombre}" modificado.`);
-          }
-        } else {
-          const newDevice = {
-            id: "eq-" + Date.now(),
-            rack_id: appState.activeRackId,
+      if (editId) {
+        const index = appState.equipos.findIndex(e => e && e.id === editId);
+        if (index !== -1) {
+          appState.equipos[index] = {
+            ...appState.equipos[index],
             tipo, subtipo, nombre: escapeHTML(nombre),
             u_inicial: uInicial, u_alto: uAlto,
             ubicacion_cara: ubicacionCara, tamano: tamano,
             consumo_watts: watts, fuente_alimentacion: fuente,
             estado: estado, fuente_verdad: veracidad
           };
-          if (!appState.equipos) appState.equipos = [];
-          appState.equipos.push(newDevice);
-          addLogEntry("CREAR_ELEMENTO", `${type} "${newDevice.nombre}" creado en U${uInicial}-U${uInicial + uAlto - 1}.`);
+          addLogEntry("EDITAR_ELEMENTO", `${tipo} "${nombre}" modificado.`);
         }
       } else {
-        const motivo = document.getElementById('deviceReasonInput').value.trim();
-        if (!motivo) {
-          const errBox = document.getElementById('modalAlertError');
-          errBox.textContent = "Ingrese el motivo/especificación de la reserva.";
-          errBox.style.display = 'block';
-          return;
-        }
+        const newDevice = {
+          id: "eq-" + Date.now(),
+          rack_id: appState.activeRackId,
+          tipo, subtipo, nombre: escapeHTML(nombre),
+          u_inicial: uInicial, u_alto: uAlto,
+          ubicacion_cara: ubicacionCara, tamano: tamano,
+          consumo_watts: watts, fuente_alimentacion: fuente,
+          estado: estado, fuente_verdad: veracidad
+        };
+        appState.equipos.push(newDevice);
+        addLogEntry("CREAR_ELEMENTO", `${tipo} "${newDevice.nombre}" creado en U${uInicial}-U${uInicial + uAlto - 1}.`);
+      }
+    } else {
+      // Caso Reserva
+      const reasonElem = document.getElementById('deviceReasonInput');
+      const motivo = reasonElem ? reasonElem.value.trim() : '';
 
-        if (editId) {
-          const index = appState.reservas.findIndex(r => r.id === editId);
-          if (index !== -1) {
-            appState.reservas[index] = {
-              ...appState.reservas[index],
-              tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
-              u_inicial: uInicial, u_alto: uAlto,
-              ubicacion_cara: ubicacionCara, tamano: tamano,
-              estado: estado, fuente_verdad: veracidad
-            };
-            addLogEntry("EDITAR_RESERVA", `Reserva "${motivo}" modificada.`);
-          }
+      if (!motivo) {
+        const errBox = document.getElementById('modalAlertError');
+        if (errBox) {
+          errBox.textContent = "Ingrese el motivo o especificación de la reserva.";
+          errBox.style.display = 'block';
         } else {
-          const newReservation = {
-            id: "res-" + Date.now(),
-            rack_id: appState.activeRackId,
+          alert("Ingrese el motivo de la reserva.");
+        }
+        return;
+      }
+
+      if (editId) {
+        const index = appState.reservas.findIndex(r => r && r.id === editId);
+        if (index !== -1) {
+          appState.reservas[index] = {
+            ...appState.reservas[index],
             tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
             u_inicial: uInicial, u_alto: uAlto,
             ubicacion_cara: ubicacionCara, tamano: tamano,
             estado: estado, fuente_verdad: veracidad
           };
-          if (!appState.reservas) appState.reservas = [];
-          appState.reservas.push(newReservation);
-          addLogEntry("CREAR_RESERVA", `Reserva creada U${uInicial}-U${uInicial + uAlto - 1}`);
+          addLogEntry("EDITAR_RESERVA", `Reserva "${motivo}" modificada.`);
         }
+      } else {
+        const newReservation = {
+          id: "res-" + Date.now(),
+          rack_id: appState.activeRackId,
+          tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
+          u_inicial: uInicial, u_alto: uAlto,
+          ubicacion_cara: ubicacionCara, tamano: tamano,
+          estado: estado, fuente_verdad: veracidad
+        };
+        appState.reservas.push(newReservation);
+        addLogEntry("CREAR_RESERVA", `Reserva creada en U${uInicial}-U${uInicial + uAlto - 1}.`);
       }
-
-      saveState();
-      closeModal('deviceModal');
-      renderRackGraphic();
-      renderInventoryTable();
     }
+
+    // 3. Guardar estado y actualizar vista
+    saveState();
+    closeModal('deviceModal');
+    renderRackGraphic();
+    renderInventoryTable();
+  } catch (err) {
+    console.error("Error al guardar elemento:", err);
+    alert("Ocurrió un error inesperado al guardar: " + err.message);
+  }
+}
 
     function openResetModal() {
       document.getElementById('confirmModalMessage').textContent = "¿ADVERTENCIA: Deseas borrar todos los datos e inicializar el estado por defecto?";
@@ -1211,12 +1272,12 @@
     }
 
     function confirmDeleteDevice(deviceId) {
-      const eq = appState.equipos.find(e => e.id === deviceId);
-      const res = appState.reservas ? appState.reservas.find(r => r.id === deviceId) : null;
+      const eq = (appState.equipos || []).find(e => e.id === deviceId);
+      const res = (appState.reservas || []).find(r => r.id === deviceId);
       const item = eq || res;
       if (!item) return;
 
-      const itemName = item.nombre || item.motivo;
+      const itemName = item.nombre || item.name || item.motivo || item.purpose;
       document.getElementById('confirmModalMessage').textContent = `¿Confirmas que deseas eliminar "${itemName}"?`;
       deleteCallback = function() {
         if (eq) appState.equipos = appState.equipos.filter(e => e.id !== deviceId);
@@ -1231,36 +1292,56 @@
       openModal('confirmModal');
     }
 
-    /* PREVENCIÓN DE SOLAPAMIENTOS */
+    /* PREVENCIÓN DE SOLAPAMIENTOS ROBUSTA */
     function validateOverlap(rackId, startU, heightU, cara, tamano, excludeId = null) {
-      const targetStart = Number(startU);
-      const targetEnd = targetStart + Number(heightU) - 1;
+  try {
+    const targetStart = Number(startU);
+    const targetEnd = targetStart + Number(heightU) - 1;
 
-      const rack = appState.racks.find(r => r.id === rackId);
-      if (!rack) return { valid: false, reason: "Rack no encontrado." };
-      if (targetStart < 1 || targetEnd > rack.unidades_totales) {
-        return { valid: false, reason: `Las unidades exceden los límites del rack (1U - ${rack.unidades_totales}U).` };
-      }
+    if (!appState || !appState.racks) return { valid: true };
 
-      const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
+    const rack = appState.racks.find(r => r.id === rackId);
+    if (!rack) return { valid: false, reason: "Rack no encontrado." };
+    
+    const maxUnits = Number(rack.unidades_totales || rack.totalU || 42);
+    if (isNaN(targetStart) || isNaN(targetEnd) || targetStart < 1 || targetEnd > maxUnits) {
+      return { valid: false, reason: `Las unidades deben estar dentro del rango permitido (1U - ${maxUnits}U).` };
+    }
 
-      for (const item of allItems) {
-        if (item.rack_id === rackId && item.id !== excludeId) {
-          const itemStart = Number(item.u_inicial);
-          const itemEnd = itemStart + Number(item.u_alto) - 1;
+    const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
 
-          if (targetStart <= itemEnd && targetEnd >= itemStart) {
-            const conflictCara = (item.tamano === 'Completo' || tamano === 'Completo' || item.ubicacion_cara === cara);
-            if (conflictCara) {
-              const name = item.nombre || item.motivo;
-              return { valid: false, reason: `Solapamiento con "${name}" (U${itemStart}-U${itemEnd}, ${item.ubicacion_cara || 'Frontal'} - ${item.tamano || 'Completo'}).` };
-            }
+    for (const item of allItems) {
+      if (!item) continue;
+      const itemRackId = item.rack_id || item.rackId;
+      if (itemRackId === rackId && item.id !== excludeId) {
+        const itemStart = Number(item.u_inicial || item.uStart || 1);
+        const itemHeight = Number(item.u_alto || item.uHeight || 1);
+        const itemEnd = itemStart + itemHeight - 1;
+
+        if (targetStart <= itemEnd && targetEnd >= itemStart) {
+          const isTargetCompleto = tamano === 'Completo' || tamano === 'both';
+          const isItemCompleto = item.tamano === 'Completo' || item.tamano === 'both' || item.face === 'both';
+          const itemCara = item.ubicacion_cara || item.face || 'Frontal';
+
+          const matchCara = (itemCara === cara) ||
+                            (cara === 'Frontal' && itemCara === 'front') ||
+                            (cara === 'Posterior' && itemCara === 'rear');
+
+          const conflictCara = isTargetCompleto || isItemCompleto || matchCara;
+
+          if (conflictCara) {
+            const name = item.nombre || item.name || item.motivo || item.purpose || "Elemento existente";
+            return { valid: false, reason: `Solapamiento con "${name}" en U${itemStart}-U${itemEnd}.` };
           }
         }
       }
-
-      return { valid: true };
     }
+    return { valid: true };
+  } catch (e) {
+    console.error("Error en validateOverlap:", e);
+    return { valid: true }; // En caso de error inesperado, permitir la operación para no bloquear al usuario
+  }
+}
 
     /* RENDER ENGINE */
     function renderDashboard() {
@@ -1271,9 +1352,9 @@
 
       let uUsadas = 0;
       let uTotales = 0;
-      if (appState.racks) appState.racks.forEach(r => uTotales += Number(r.unidades_totales || 0));
-      if (appState.equipos) appState.equipos.forEach(e => uUsadas += Number(e.u_alto || 0));
-      if (appState.reservas) appState.reservas.forEach(r => uUsadas += Number(r.u_alto || 0));
+      if (appState.racks) appState.racks.forEach(r => uTotales += Number(r.unidades_totales || r.totalU || 0));
+      if (appState.equipos) appState.equipos.forEach(e => uUsadas += Number(e.u_alto || e.uHeight || 0));
+      if (appState.reservas) appState.reservas.forEach(r => uUsadas += Number(r.u_alto || r.uHeight || 0));
 
       const ocupacionPct = uTotales > 0 ? Math.round((uUsadas / uTotales) * 100) : 0;
 
@@ -1283,7 +1364,7 @@
 
       if (appState.equipos) {
         appState.equipos.forEach(eq => {
-          const w = Number(eq.consumo_watts || 0);
+          const w = Number(eq.consumo_watts || eq.nominalW || 0);
           if (eq.fuente_alimentacion === "Dual A/B") {
             wattsA += w / 2;
             wattsB += w / 2;
@@ -1344,16 +1425,22 @@
         let html = '<div style="display:flex; flex-direction:column; gap:0.35rem;">';
         appState.racks.forEach(r => {
           const isSelected = r.id === appState.activeRackId;
-          const fvTag = r.fuente_verdad || '[CONFIRMADO]';
-          const estadoRack = r.estado || 'Activo';
+          const fvTag = r.fuente_verdad || r.tag || '[CONFIRMADO]';
+          const estadoRack = r.estado || r.status || 'Activo';
+          const rackUnits = r.unidades_totales || r.totalU || 42;
+          const rackName = r.nombre || r.name;
+          
           html += `
             <div class="btn" style="width:100%; justify-content:space-between; align-items:center; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}">
               <span onclick="selectRack('${r.id}')" style="cursor:pointer; flex:1;">
-                <strong>${escapeHTML(r.nombre)}</strong> (${r.unidades_totales}U)
+                <strong>${escapeHTML(rackName)}</strong> (${rackUnits}U)
                 <span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span>
                 <span style="font-size:0.65rem; color:var(--text-muted); font-weight:bold;">[${escapeHTML(estadoRack)}]</span>
               </span>
-              <button class="btn btn-accent" style="padding:0.1rem 0.3rem; font-size:0.65rem;" onclick="openRackModal('${r.id}')">Editar</button>
+              <div style="display:flex; gap:0.25rem;">
+                <button class="btn btn-accent" style="padding:0.1rem 0.3rem; font-size:0.65rem;" onclick="openRackModal('${r.id}')">Editar</button>
+                <button class="btn btn-danger" style="padding:0.1rem 0.3rem; font-size:0.65rem;" onclick="confirmDeleteRack('${r.id}')">Eliminar</button>
+              </div>
             </div>
           `;
         });
@@ -1398,29 +1485,39 @@
       }
 
       const currentView = document.getElementById('viewOrientationSelect').value;
-      const orderU = document.getElementById('uOrderSelect').value; // DESC o ASC
+      const orderU = document.getElementById('uOrderSelect').value;
+      const maxUnits = Number(rack.unidades_totales || rack.totalU || 42);
+      const rackName = rack.nombre || rack.name;
 
-      document.getElementById('activeRackTitle').textContent = `${rack.nombre} (${rack.unidades_totales}U) - Vista ${currentView}`;
+      document.getElementById('activeRackTitle').textContent = `${rackName} (${maxUnits}U) - Vista ${currentView}`;
 
       const uMap = {};
-      for (let i = 1; i <= rack.unidades_totales; i++) {
+      for (let i = 1; i <= maxUnits; i++) {
         uMap[i] = { status: 'empty', label: 'Disponible', detail: '', fvTag: '' };
       }
 
       if (appState.equipos) {
         appState.equipos.forEach(eq => {
-          if (eq.rack_id === rack.id) {
-            const isVisible = eq.tamano === 'Completo' || (eq.ubicacion_cara || 'Frontal') === currentView;
+          const itemRackId = eq.rack_id || eq.rackId;
+          if (itemRackId === rack.id) {
+            const isCompleto = eq.tamano === 'Completo' || eq.tamano === 'both' || eq.face === 'both';
+            const eqCara = eq.ubicacion_cara || eq.face || 'Frontal';
+            
+            const isVisible = isCompleto || 
+                              eqCara === currentView || 
+                              (currentView === 'Frontal' && (eqCara === 'front' || eqCara === 'Frontal')) ||
+                              (currentView === 'Posterior' && (eqCara === 'rear' || eqCara === 'Posterior'));
+
             if (isVisible) {
-              const start = Number(eq.u_inicial);
-              const alto = Number(eq.u_alto);
+              const start = Number(eq.u_inicial || eq.uStart);
+              const alto = Number(eq.u_alto || eq.uHeight);
               for (let u = start; u < start + alto; u++) {
                 if (uMap[u]) {
                   uMap[u] = {
                     status: 'occupied',
-                    label: `[${eq.tipo || 'Equipo'}] ${eq.nombre}`,
-                    detail: `${eq.subtipo || ''} | ${eq.tamano || 'Completo'} | ${eq.estado || 'Activo'}`,
-                    fvTag: eq.fuente_verdad || '[CONFIRMADO]'
+                    label: `[${eq.tipo || 'Equipo'}] ${eq.nombre || eq.name}`,
+                    detail: `${eq.subtipo || eq.model || ''} | ${isCompleto ? 'Completo' : 'Medio'} | ${eq.estado || eq.status || 'Activo'}`,
+                    fvTag: eq.fuente_verdad || eq.tag || '[CONFIRMADO]'
                   };
                 }
               }
@@ -1431,18 +1528,26 @@
 
       if (appState.reservas) {
         appState.reservas.forEach(res => {
-          if (res.rack_id === rack.id) {
-            const isVisible = res.tamano === 'Completo' || (res.ubicacion_cara || 'Frontal') === currentView;
+          const itemRackId = res.rack_id || res.rackId;
+          if (itemRackId === rack.id) {
+            const isCompleto = res.tamano === 'Completo' || res.tamano === 'both' || res.face === 'both';
+            const resCara = res.ubicacion_cara || res.face || 'Frontal';
+
+            const isVisible = isCompleto || 
+                              resCara === currentView || 
+                              (currentView === 'Frontal' && (resCara === 'front' || resCara === 'Frontal')) ||
+                              (currentView === 'Posterior' && (resCara === 'rear' || resCara === 'Posterior'));
+
             if (isVisible) {
-              const start = Number(res.u_inicial);
-              const alto = Number(res.u_alto);
+              const start = Number(res.u_inicial || res.uStart);
+              const alto = Number(res.u_alto || res.uHeight);
               for (let u = start; u < start + alto; u++) {
                 if (uMap[u]) {
                   uMap[u] = {
                     status: 'reserved',
-                    label: `RESERVA (${res.subtipo || 'General'}): ${res.motivo}`,
-                    detail: `${res.tamano || 'Completo'} | ${res.estado || 'Planificado'}`,
-                    fvTag: res.fuente_verdad || '[EJEMPLO DIDÁCTICO]'
+                    label: `RESERVA (${res.subtipo || 'General'}): ${res.motivo || res.purpose}`,
+                    detail: `${isCompleto ? 'Completo' : 'Medio'} | ${res.estado || res.status || 'Planificado'}`,
+                    fvTag: res.fuente_verdad || res.tag || '[EJEMPLO DIDÁCTICO]'
                   };
                 }
               }
@@ -1451,12 +1556,11 @@
         });
       }
 
-      // ORDENACION DE U DEPENDIENDO DEL FILTRO
       const uSequence = [];
       if (orderU === 'DESC') {
-        for (let u = rack.unidades_totales; u >= 1; u--) uSequence.push(u);
+        for (let u = maxUnits; u >= 1; u--) uSequence.push(u);
       } else {
-        for (let u = 1; u <= rack.unidades_totales; u++) uSequence.push(u);
+        for (let u = 1; u <= maxUnits; u++) uSequence.push(u);
       }
 
       let frameHtml = `<div class="rack-frame">`;
@@ -1498,9 +1602,10 @@
       }
 
       const filteredItems = allItems.filter(item => {
-        const rack = appState.racks.find(r => r.id === item.rack_id);
-        const rackName = rack ? rack.nombre.toLowerCase() : '';
-        const name = (item.nombre || item.motivo || '').toLowerCase();
+        const itemRackId = item.rack_id || item.rackId;
+        const rack = appState.racks.find(r => r.id === itemRackId);
+        const rackName = rack ? (rack.nombre || rack.name).toLowerCase() : '';
+        const name = (item.nombre || item.name || item.motivo || item.purpose || '').toLowerCase();
         return name.includes(searchTerm) ||
                rackName.includes(searchTerm) ||
                (item.tipo && item.tipo.toLowerCase().includes(searchTerm)) ||
@@ -1531,11 +1636,17 @@
       `;
 
       filteredItems.forEach(item => {
-        const rack = appState.racks.find(r => r.id === item.rack_id);
-        const rackName = rack ? rack.nombre : 'Sin Rack';
-        const uRange = item.u_alto > 1 ? `U${item.u_inicial} - U${item.u_inicial + item.u_alto - 1}` : `U${item.u_inicial}`;
-        const fvTag = item.fuente_verdad || '[CONFIRMADO]';
-        const name = item.nombre || `RESERVA: ${item.motivo}`;
+        const itemRackId = item.rack_id || item.rackId;
+        const rack = appState.racks.find(r => r.id === itemRackId);
+        const rackName = rack ? (rack.nombre || rack.name) : 'Sin Rack';
+        const startU = Number(item.u_inicial || item.uStart || 1);
+        const heightU = Number(item.u_alto || item.uHeight || 1);
+        const uRange = heightU > 1 ? `U${startU} - U${startU + heightU - 1}` : `U${startU}`;
+        const fvTag = item.fuente_verdad || item.tag || '[CONFIRMADO]';
+        const name = item.nombre || item.name || `RESERVA: ${item.motivo || item.purpose}`;
+
+        let cara = item.ubicacion_cara || item.face || 'Frontal';
+        let tam = item.tamano || (item.face === 'both' ? 'Completo' : 'Medio');
 
         html += `
           <tr>
@@ -1543,8 +1654,8 @@
             <td><span class="version-badge">${escapeHTML(item.tipo || 'Equipo')}</span> ${escapeHTML(item.subtipo || '')}</td>
             <td>${escapeHTML(name)}</td>
             <td><strong>${uRange}</strong></td>
-            <td>${escapeHTML(item.ubicacion_cara || 'Frontal')} (${escapeHTML(item.tamano || 'Completo')})</td>
-            <td><strong style="color:var(--accent);">${escapeHTML(item.estado || 'Activo')}</strong></td>
+            <td>${escapeHTML(cara)} (${escapeHTML(tam)})</td>
+            <td><strong style="color:var(--accent);">${escapeHTML(item.estado || item.status || 'Activo')}</strong></td>
             <td><span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span></td>
             <td>
               <div style="display:flex; gap:0.25rem;">
@@ -1581,12 +1692,15 @@
       }
       let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Tipo,Subtipo,Nombre_Motivo,U_Inicial,U_Alto,Ubicacion_Cara,Tamano,Consumo_Watts,Estado,Fuente_Verdad\n";
       allItems.forEach(item => {
-        const name = item.nombre || item.motivo;
+        const name = item.nombre || item.name || item.motivo || item.purpose;
+        const itemRackId = item.rack_id || item.rackId;
+        const startU = item.u_inicial || item.uStart;
+        const heightU = item.u_alto || item.uHeight;
         csvContent += [
-          item.id, item.rack_id, `"${item.tipo || 'Equipo'}"`, `"${item.subtipo || ''}"`,
-          `"${name}"`, item.u_inicial, item.u_alto, `"${item.ubicacion_cara || 'Frontal'}"`,
-          `"${item.tamano || 'Completo'}"`, item.consumo_watts || 0, `"${item.estado || 'Activo'}"`,
-          `"${item.fuente_verdad || '[CONFIRMADO]'}"`
+          item.id, itemRackId, `"${item.tipo || 'Equipo'}"`, `"${item.subtipo || ''}"`,
+          `"${name}"`, startU, heightU, `"${item.ubicacion_cara || item.face || 'Frontal'}"`,
+          `"${item.tamano || 'Completo'}"`, item.consumo_watts || item.nominalW || 0, `"${item.estado || item.status || 'Activo'}"`,
+          `"${item.fuente_verdad || item.tag || '[CONFIRMADO]'}"`
         ].join(",") + "\n";
       });
       const link = document.createElement("a");
