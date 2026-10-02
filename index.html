@@ -214,20 +214,125 @@
       margin-right: 0.35rem;
     }
 
+    /* Rack Graphic Styles */
+    .rack-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      background-color: rgba(15, 23, 42, 0.4);
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid var(--border);
+    }
+
+    .rack-frame {
+      background-color: #0b0f19;
+      border: 3px solid #475569;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      max-width: 550px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    .u-slot {
+      display: grid;
+      grid-template-columns: 40px 1fr 60px;
+      height: 28px;
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      font-size: 0.75rem;
+      align-items: center;
+      border-radius: 2px;
+    }
+
+    .u-number {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border);
+      background-color: rgba(15, 23, 42, 0.8);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+    }
+
+    .u-content {
+      padding: 0 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      height: 100%;
+      font-weight: 500;
+    }
+
+    .u-status {
+      text-align: center;
+      font-size: 0.65rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 0.1rem 0.2rem;
+      border-radius: 2px;
+    }
+
+    /* Unit Status Indicators */
+    .slot-occupied {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent);
+      color: #f8fafc;
+    }
+
+    .slot-reserved {
+      background-color: rgba(245, 158, 11, 0.2);
+      border-color: var(--warning);
+      color: #fef3c7;
+    }
+
+    .slot-empty {
+      color: #475569;
+    }
+
+    /* Forms & Inputs */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      background-color: var(--bg-main);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.4rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.5rem;
+    }
+
     /* Container Workspace */
     .workspace {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-    }
-
-    .placeholder-box {
-      border: 2px dashed var(--border);
-      border-radius: 0.375rem;
-      padding: 3rem 1rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.875rem;
     }
 
     footer {
@@ -239,7 +344,6 @@
       color: var(--text-muted);
     }
 
-    /* File Input Hidden */
     #fileInputJSON {
       display: none;
     }
@@ -250,7 +354,7 @@
   <header>
     <div class="brand">
       <h1>Auditoría y Gestión de Cableado Estructurado</h1>
-      <span class="version-badge" id="appVersion">v0.3.0-alpha</span>
+      <span class="version-badge" id="appVersion">v0.6.0-alpha</span>
     </div>
     
     <div class="header-actions">
@@ -263,7 +367,7 @@
   </header>
 
   <main>
-    <!-- Panel Izquierdo: Dashboard y Bitácora -->
+    <!-- Panel Izquierdo: Dashboard, Selector y Bitácora -->
     <aside class="panel">
       <h2 class="panel-title">Métricas de Control</h2>
       <div class="metrics-grid">
@@ -285,12 +389,15 @@
         </div>
       </div>
 
-      <h2 class="panel-title" style="margin-top: 1rem;">Navegación / Racks</h2>
+      <h2 class="panel-title" style="margin-top: 0.5rem;">
+        Selección de Rack
+        <button class="btn" style="font-size:0.65rem; padding: 0.1rem 0.3rem;" onclick="promptCreateRack()">+ Crear Rack</button>
+      </h2>
       <div id="rackSelectorContainer">
-        <p style="font-size: 0.8rem; color: var(--text-muted);" id="rackListStatus">Cargando bastidores...</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Cargando bastidores...</p>
       </div>
 
-      <h2 class="panel-title" style="margin-top: 1rem;">
+      <h2 class="panel-title" style="margin-top: 0.5rem;">
         Bitácora de Auditoría
         <button class="btn" style="font-size:0.65rem; padding: 0.1rem 0.3rem;" onclick="clearLog()">Limpiar</button>
       </h2>
@@ -301,17 +408,30 @@
 
     <!-- Panel Derecho: Espacio de Trabajo Principal -->
     <section class="workspace">
+      <!-- Visualizador de Racks 1U - 48U -->
       <div class="panel">
-        <h2 class="panel-title">Vista de Bastidor (Rack Frontal / Posterior)</h2>
-        <div id="rackViewContainer" class="placeholder-box">
-          El visualizador dinámico de Racks $1\text{U}$ a $48\text{U}$ se cargará en el Paso 3.
+        <div class="panel-title">
+          <span>Vista de Bastidor / Rack (<span id="activeRackTitle">Ninguno</span>)</span>
+          <div class="rack-controls">
+            <label style="font-size: 0.75rem; color: var(--text-muted);">Vista:</label>
+            <select id="viewOrientationSelect" class="form-control" onchange="renderRackGraphic()">
+              <option value="frontal" selected>Frontal</option>
+              <option value="posterior">Posterior</option>
+            </select>
+            <button class="btn btn-accent" style="font-size:0.75rem;" onclick="promptAddDevice()">+ Añadir Equipo / Reserva</button>
+          </div>
+        </div>
+
+        <div id="rackViewContainer" style="overflow-y: auto; max-height: 600px; padding: 0.5rem;">
+          <p style="text-align:center; color: var(--text-muted);">Seleccione un rack para visualizar.</p>
         </div>
       </div>
 
+      <!-- Espacio reservado para Inventario Editable (Paso 4) -->
       <div class="panel">
         <h2 class="panel-title">Inventario de Equipos y Puertos</h2>
-        <div id="inventoryContainer" class="placeholder-box">
-          La gestión de inventario editable y tablas dinámicas se cargará en el Paso 4.
+        <div id="inventoryContainer" style="text-align:center; color:var(--text-muted); padding: 1rem;">
+          El módulo de tablas editables CRUD se activará en el Paso 4.
         </div>
       </div>
     </section>
@@ -323,22 +443,22 @@
 
   <script>
     /**
-     * Motor de Estado, Persistencia y Bitácora (v0.3.0-alpha)
+     * Motor de Estado, Visualizador de Racks y Prevención de Solapamientos (v0.6.0-alpha)
      */
     const APP_CONFIG = {
-      version: "0.3.0-alpha",
+      version: "0.6.0-alpha",
       appName: "Rack & Structured Cabling Manager",
       storageKey: "rack_cabling_inventory_v1"
     };
 
-    // Estado inicial de ejemplo didáctico
     const DEFAULT_STATE = {
-      version: "0.3.0-alpha",
+      version: "0.6.0-alpha",
       fecha_actualizacion: new Date().toISOString(),
+      activeRackId: "rack-01",
       racks: [
         {
           id: "rack-01",
-          nombre: "Rack Principal Principal DC [EJEMPLO DIDÁCTICO]",
+          nombre: "Rack Principal DC [EJEMPLO DIDÁCTICO]",
           unidades_totales: 42,
           ubicacion: "Sala 101 - Fila A [CONFIRMADO]"
         }
@@ -358,23 +478,22 @@
           estado: "ACTIVO [CONFIRMADO]"
         }
       ],
-      interfaces: [
+      interfaces: [],
+      reservas: [
         {
-          id: "int-01",
-          equipo_id: "eq-01",
-          nombre_puerto: "Gi0/0/1",
-          tipo: "SFP+ 10G",
-          servicio_asociado: "Trunk Enlace Servidores",
-          estado: "OCUPADO"
+          id: "res-01",
+          rack_id: "rack-01",
+          u_inicial: 15,
+          u_alto: 4,
+          motivo: "Reserva Expansión Q4 [EJEMPLO DIDÁCTICO]"
         }
       ],
-      reservas: [],
       circuitos_pdu: [],
       bitacora: [
         {
           timestamp: new Date().toISOString(),
           accion: "SISTEMA_INICIALIZADO",
-          detalle: "Estado base inicializado con datos de ejemplo didáctico."
+          detalle: "Estado base inicializado con visualizador dinámico de Racks (v0.6.0)."
         }
       ]
     };
@@ -403,10 +522,14 @@
           saveState();
         }
       } catch (e) {
-        console.error("Error al cargar localStorage, usando estado por defecto:", e);
+        console.error("Error al cargar localStorage:", e);
         appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
       }
+      if (!appState.activeRackId && appState.racks.length > 0) {
+        appState.activeRackId = appState.racks[0].id;
+      }
       renderDashboard();
+      renderRackGraphic();
     }
 
     // Guardar estado en localStorage
@@ -418,58 +541,53 @@
       renderDashboard();
     }
 
-    // Agregar registro a la bitácora
+    // Registro de Bitácora
     function addLogEntry(accion, detalle) {
       if (!appState.bitacora) appState.bitacora = [];
-      const entry = {
+      appState.bitacora.unshift({
         timestamp: new Date().toISOString(),
         accion: escapeHTML(accion),
         detalle: escapeHTML(detalle)
-      };
-      appState.bitacora.unshift(entry);
+      });
       saveState();
     }
 
-    // Renderizar Dashboard y Bitácora
+    // Renderizar Dashboard y Navegación
     function renderDashboard() {
       document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
 
       const totalRacks = appState.racks ? appState.racks.length : 0;
       const totalEquipos = appState.equipos ? appState.equipos.length : 0;
 
-      // Cálculo básico de ocupación U
       let uUsadas = 0;
       let uTotales = 0;
-      if (appState.racks) {
-        appState.racks.forEach(r => uTotales += Number(r.unidades_totales || 0));
-      }
-      if (appState.equipos) {
-        appState.equipos.forEach(e => uUsadas += Number(e.u_alto || 0));
-      }
+      if (appState.racks) appState.racks.forEach(r => uTotales += Number(r.unidades_totales || 0));
+      if (appState.equipos) appState.equipos.forEach(e => uUsadas += Number(e.u_alto || 0));
+      if (appState.reservas) appState.reservas.forEach(r => uUsadas += Number(r.u_alto || 0));
 
       const ocupacionPct = uTotales > 0 ? Math.round((uUsadas / uTotales) * 100) : 0;
 
       document.getElementById('totalRacks').textContent = totalRacks;
       document.getElementById('totalEquipos').textContent = totalEquipos;
       document.getElementById('ocupacionU').textContent = `${ocupacionPct}%`;
-      document.getElementById('alertasCount').textContent = 0; // Se actualizará dinámicamente en el Paso 5
 
-      // Renderizar Racks en menú lateral
+      // Renderizar Selector de Racks
       const rackContainer = document.getElementById('rackSelectorContainer');
       if (appState.racks && appState.racks.length > 0) {
-        let html = '<ul style="list-style:none; display:flex; flex-direction:column; gap:0.5rem;">';
+        let html = '<div style="display:flex; flex-direction:column; gap:0.35rem;">';
         appState.racks.forEach(r => {
+          const isSelected = r.id === appState.activeRackId;
           html += `
-            <li style="background-color:rgba(15,23,42,0.6); border:1px solid var(--border); padding:0.5rem; border-radius:0.375rem; font-size:0.8rem;">
-              <strong>${escapeHTML(r.nombre)}</strong><br>
-              <span style="color:var(--text-muted);">${r.unidades_totales}U - ${escapeHTML(r.ubicacion)}</span>
-            </li>
+            <button class="btn" style="width:100%; justify-between: space-between; text-align:left; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}" onclick="selectRack('${r.id}')">
+              <span><strong>${escapeHTML(r.nombre)}</strong> (${r.unidades_totales}U)</span>
+              ${isSelected ? '<span style="color:var(--accent)">●</span>' : ''}
+            </button>
           `;
         });
-        html += '</ul>';
+        html += '</div>';
         rackContainer.innerHTML = html;
       } else {
-        rackContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">No hay bastidores creados.</p>';
+        rackContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">No hay racks registrados.</p>';
       }
 
       // Renderizar Bitácora
@@ -491,7 +609,221 @@
       }
     }
 
-    // Exportar estado completo a JSON
+    // Seleccionar Rack Activo
+    function selectRack(rackId) {
+      appState.activeRackId = rackId;
+      saveState();
+      renderRackGraphic();
+    }
+
+    // Detección Algorítmica de Solapamientos de U
+    function validateOverlap(rackId, startU, heightU, excludeId = null) {
+      const targetStart = Number(startU);
+      const targetEnd = targetStart + Number(heightU) - 1;
+
+      // Verificar límites del rack
+      const rack = appState.racks.find(r => r.id === rackId);
+      if (!rack) return { valid: false, reason: "Rack no encontrado." };
+      if (targetStart < 1 || targetEnd > rack.unidades_totales) {
+        return { valid: false, reason: `Las unidades exceden los límites del rack (1U - ${rack.unidades_totales}U).` };
+      }
+
+      // Probar solapamiento con equipos
+      for (const eq of appState.equipos) {
+        if (eq.rack_id === rackId && eq.id !== excludeId) {
+          const eqStart = Number(eq.u_inicial);
+          const eqEnd = eqStart + Number(eq.u_alto) - 1;
+          if (targetStart <= eqEnd && targetEnd >= eqStart) {
+            return { valid: false, reason: `Solapamiento detectado con el equipo: "${eq.nombre}" (U${eqStart}-U${eqEnd}).` };
+          }
+        }
+      }
+
+      // Probar solapamiento con reservas
+      for (const res of appState.reservas) {
+        if (res.rack_id === rackId && res.id !== excludeId) {
+          const resStart = Number(res.u_inicial);
+          const resEnd = resStart + Number(res.u_alto) - 1;
+          if (targetStart <= resEnd && targetEnd >= resStart) {
+            return { valid: false, reason: `Solapamiento detectado con espacio reservado: "${res.motivo}" (U${resStart}-U${resEnd}).` };
+          }
+        }
+      }
+
+      return { valid: true };
+    }
+
+    // Renderizar Gráficamente el Bastidor
+    function renderRackGraphic() {
+      const container = document.getElementById('rackViewContainer');
+      const rack = appState.racks.find(r => r.id === appState.activeRackId);
+
+      if (!rack) {
+        document.getElementById('activeRackTitle').textContent = "Ninguno";
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Por favor, crea o selecciona un rack para visualizar.</p>';
+        return;
+      }
+
+      document.getElementById('activeRackTitle').textContent = `${rack.nombre} (${rack.unidades_totales}U)`;
+      const currentView = document.getElementById('viewOrientationSelect').value;
+
+      // Crear mapa ocupacional del rack (array indexado por U)
+      const uMap = {};
+      for (let i = 1; i <= rack.unidades_totales; i++) {
+        uMap[i] = { status: 'empty', label: 'Disponible', detail: '' };
+      }
+
+      // Mapear equipos
+      if (appState.equipos) {
+        appState.equipos.forEach(eq => {
+          if (eq.rack_id === rack.id) {
+            const start = Number(eq.u_inicial);
+            const alto = Number(eq.u_alto);
+            for (let u = start; u < start + alto; u++) {
+              if (uMap[u]) {
+                uMap[u] = {
+                  status: 'occupied',
+                  label: eq.nombre,
+                  detail: `${eq.consumo_watts || 0}W - ${eq.estado || 'Activo'}`
+                };
+              }
+            }
+          }
+        });
+      }
+
+      // Mapear reservas
+      if (appState.reservas) {
+        appState.reservas.forEach(res => {
+          if (res.rack_id === rack.id) {
+            const start = Number(res.u_inicial);
+            const alto = Number(res.u_alto);
+            for (let u = start; u < start + alto; u++) {
+              if (uMap[u]) {
+                uMap[u] = {
+                  status: 'reserved',
+                  label: `RESERVA: ${res.motivo}`,
+                  detail: 'Espacio bloqueado'
+                };
+              }
+            }
+          }
+        });
+      }
+
+      // Construcción del Frame Gráfico HTML
+      let frameHtml = `<div class="rack-frame">`;
+      // Recorrer de arriba hacia abajo (de la U máxima a la 1U)
+      for (let u = rack.unidades_totales; u >= 1; u--) {
+        const slot = uMap[u];
+        let statusClass = 'slot-empty';
+        if (slot.status === 'occupied') statusClass = 'slot-occupied';
+        if (slot.status === 'reserved') statusClass = 'slot-reserved';
+
+        frameHtml += `
+          <div class="u-slot ${statusClass}">
+            <div class="u-number">${u}U</div>
+            <div class="u-content" title="${escapeHTML(slot.label)} ${escapeHTML(slot.detail)}">
+              <strong>${escapeHTML(slot.label)}</strong>
+              ${slot.detail ? `<span style="font-size:0.65rem; color:var(--text-muted); margin-left:0.5rem;">(${escapeHTML(slot.detail)})</span>` : ''}
+            </div>
+            <div class="u-status">${slot.status === 'empty' ? 'LIBRE' : slot.status}</div>
+          </div>
+        `;
+      }
+      frameHtml += `</div>`;
+
+      container.innerHTML = frameHtml;
+    }
+
+    // Modal Simple de Creación de Rack
+    function promptCreateRack() {
+      const nombre = prompt("Nombre del nuevo Rack:", "Rack Fila B");
+      if (!nombre) return;
+      const unidades = parseInt(prompt("Cantidad de unidades U (1 a 48):", "42"), 10);
+      if (isNaN(unidades) || unidades < 1 || unidades > 48) {
+        alert("Número de unidades $U$ inválido (debe estar entre 1 y 48).");
+        return;
+      }
+      const ubicacion = prompt("Ubicación física:", "Datacenter - Sala 102");
+
+      const newRack = {
+        id: "rack-" + Date.now(),
+        nombre: escapeHTML(nombre),
+        unidades_totales: unidades,
+        ubicacion: escapeHTML(ubicacion || "Por definir")
+      };
+
+      if (!appState.racks) appState.racks = [];
+      appState.racks.push(newRack);
+      appState.activeRackId = newRack.id;
+      addLogEntry("CREAR_RACK", `Rack "${newRack.nombre}" de ${unidades}U creado.`);
+      saveState();
+      renderRackGraphic();
+    }
+
+    // Modal Simple de Adición de Equipo o Reserva con Validación de Solapamiento
+    function promptAddDevice() {
+      if (!appState.activeRackId) {
+        alert("Primero seleccione o cree un Rack.");
+        return;
+      }
+
+      const tipo = prompt("Tipo de registro:\n1. Equipo Activo\n2. Reserva de Espacio\n(Ingrese 1 o 2):", "1");
+      if (tipo !== "1" && tipo !== "2") return;
+
+      const uInicial = parseInt(prompt("Unidad $U$ inicial (Posición inferior en el Rack):", "1"), 10);
+      const uAlto = parseInt(prompt("Altura en Unidades $U$:", "1"), 10);
+
+      // Validación de Solapamientos antes de registrar
+      const validation = validateOverlap(appState.activeRackId, uInicial, uAlto);
+      if (!validation.valid) {
+        alert("ERROR DE SOLAPAMIENTO:\n" + validation.reason);
+        return;
+      }
+
+      if (tipo === "1") {
+        const nombre = prompt("Nombre del Equipo:", "Servidor ProLiant DL380");
+        if (!nombre) return;
+        const consumo = parseInt(prompt("Consumo estimado en Watts:", "450"), 10) || 0;
+
+        const newDevice = {
+          id: "eq-" + Date.now(),
+          rack_id: appState.activeRackId,
+          nombre: escapeHTML(nombre),
+          u_inicial: uInicial,
+          u_alto: uAlto,
+          vista: document.getElementById('viewOrientationSelect').value,
+          consumo_watts: consumo,
+          fuente_alimentacion: "Simple",
+          estado: "ACTIVO [CONFIRMADO]"
+        };
+
+        if (!appState.equipos) appState.equipos = [];
+        appState.equipos.push(newDevice);
+        addLogEntry("CREAR_EQUIPO", `Equipo "${newDevice.nombre}" asignado a U${uInicial}-U${uInicial + uAlto - 1}.`);
+      } else {
+        const motivo = prompt("Motivo de la Reserva:", "Proyecto Expansión RED Q4");
+        if (!motivo) return;
+
+        const newReservation = {
+          id: "res-" + Date.now(),
+          rack_id: appState.activeRackId,
+          u_inicial: uInicial,
+          u_alto: uAlto,
+          motivo: escapeHTML(motivo)
+        };
+
+        if (!appState.reservas) appState.reservas = [];
+        appState.reservas.push(newReservation);
+        addLogEntry("CREAR_RESERVA", `Espacio reservado en U${uInicial}-U${uInicial + uAlto - 1} por: ${newReservation.motivo}`);
+      }
+
+      saveState();
+      renderRackGraphic();
+    }
+
+    // Exportar/Importar helpers (mantenidos)
     function exportStateJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -504,88 +836,64 @@
       addLogEntry("EXPORTAR_JSON", `Inventario exportado como ${filename}`);
     }
 
-    // Exportar inventario de equipos a CSV
     function exportInventoryCSV() {
       if (!appState.equipos || appState.equipos.length === 0) {
         alert("No hay equipos para exportar.");
         return;
       }
-
-      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Nombre,U_Inicial,U_Alto,Vista,Consumo_Watts,Fuente,Estado\n";
+      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Nombre,U_Inicial,U_Alto,Vista,Consumo_Watts,Estado\n";
       appState.equipos.forEach(eq => {
-        const row = [
-          eq.id,
-          eq.rack_id,
-          `"${(eq.nombre || '').replace(/"/g, '""')}"`,
-          eq.u_inicial,
-          eq.u_alto,
-          eq.vista,
-          eq.consumo_watts,
-          `"${(eq.fuente_alimentacion || '').replace(/"/g, '""')}"`,
-          `"${(eq.estado || '').replace(/"/g, '""')}"`
-        ].join(",");
-        csvContent += row + "\n";
+        csvContent += [eq.id, eq.rack_id, `"${eq.nombre}"`, eq.u_inicial, eq.u_alto, eq.vista, eq.consumo_watts, `"${eq.estado}"`].join(",") + "\n";
       });
-
-      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      const filename = `inventario_equipos_${new Date().toISOString().slice(0,10)}.csv`;
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", filename);
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `inventario_equipos_${new Date().toISOString().slice(0,10)}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      addLogEntry("EXPORTAR_CSV", `Inventario CSV exportado como ${filename}`);
+      addLogEntry("EXPORTAR_CSV", "CSV exportado.");
     }
 
-    // Importar estado desde JSON con validación
     function importStateJSON(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const importedData = JSON.parse(e.target.result);
-
-          // Validación básica de esquema
-          if (!importedData.racks || !Array.isArray(importedData.racks) || !importedData.equipos) {
-            alert("Error: El archivo JSON importado no cumple con el esquema válido de inventario.");
+          if (!importedData.racks || !Array.isArray(importedData.racks)) {
+            alert("Esquema JSON no válido.");
             return;
           }
-
-          if (confirm("¿Está seguro de reemplazar todo el inventario actual con el contenido de este archivo?")) {
+          if (confirm("¿Reemplazar inventario actual con el archivo importado?")) {
             appState = importedData;
-            addLogEntry("IMPORTAR_JSON", `Inventario cargado exitosamente desde ${file.name}`);
+            addLogEntry("IMPORTAR_JSON", `Archivo ${file.name} cargado.`);
             saveState();
-            alert("Inventario importado correctamente [CONFIRMADO].");
+            renderRackGraphic();
+            alert("Inventario cargado exitosamente.");
           }
         } catch (err) {
-          alert("Error crítico al procesar el archivo JSON: " + err.message);
+          alert("Error al parsear el JSON: " + err.message);
         }
       };
       reader.readAsText(file);
-      // Limpiar input file
       event.target.value = '';
     }
 
-    // Confirmar y restablecer datos por defecto
     function confirmResetData() {
-      if (confirm("¿ADVERTENCIA: Deseas borrar todos los datos e inicializar el estado didáctico por defecto?")) {
+      if (confirm("¿Borrar todo y restablecer estado de ejemplo?")) {
         appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
         saveState();
-        addLogEntry("RESTABLECER", "Datos restablecidos a la configuración inicial por defecto.");
-        alert("Sistema restablecido [CONFIRMADO].");
+        renderRackGraphic();
+        addLogEntry("RESTABLECER", "Datos borrados y restablecidos.");
       }
     }
 
-    // Limpiar bitácora
     function clearLog() {
       appState.bitacora = [];
       saveState();
     }
 
-    // Inicializar al cargar el DOM
     document.addEventListener('DOMContentLoaded', () => {
       loadState();
       console.log(`[INIT] ${APP_CONFIG.appName} inicializado en versión ${APP_CONFIG.version}`);
