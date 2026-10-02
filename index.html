@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Cableado Estructurado e Inventario de Racks</title>
+  <title>Gestor de Cableado Estructurado e Inventario de Racks v1.0.0</title>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -214,6 +214,56 @@
       margin-right: 0.35rem;
     }
 
+    /* Power Dashboard */
+    .power-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .power-card {
+      background-color: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .power-bar-bg {
+      background-color: var(--bg-main);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.25rem;
+    }
+
+    .power-bar-fill {
+      height: 100%;
+      background-color: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    /* Alerts Panel */
+    .alert-item {
+      background-color: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      color: #fef3c7;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+      color: #fca5a5;
+    }
+
     /* Rack Graphic Styles */
     .rack-controls {
       display: flex;
@@ -329,7 +379,7 @@
       background-color: rgba(51, 65, 85, 0.3);
     }
 
-    /* Modals CSS Customizado */
+    /* Modals Custom CSS */
     .modal-backdrop {
       position: fixed;
       top: 0;
@@ -443,7 +493,7 @@
   <header>
     <div class="brand">
       <h1>Auditoría y Gestión de Cableado Estructurado</h1>
-      <span class="version-badge" id="appVersion">v0.8.0-alpha</span>
+      <span class="version-badge" id="appVersion">v1.0.0</span>
     </div>
     
     <div class="header-actions">
@@ -497,6 +547,31 @@
 
     <!-- Panel Derecho: Espacio de Trabajo Principal -->
     <section class="workspace">
+      <!-- Monitoreo de Energía A/B y Alertas (Paso 5) -->
+      <div class="panel">
+        <h2 class="panel-title">Monitoreo Eléctrico A/B & Alertas Globales</h2>
+        <div class="power-grid">
+          <div class="power-card">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+              <span>Consumo Rama A:</span>
+              <strong id="powerWattsA">0 W / 0 A</strong>
+            </div>
+            <div class="power-bar-bg"><div class="power-bar-fill" id="powerBarA" style="width: 0%;"></div></div>
+          </div>
+          <div class="power-card">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+              <span>Consumo Rama B:</span>
+              <strong id="powerWattsB">0 W / 0 A</strong>
+            </div>
+            <div class="power-bar-bg"><div class="power-bar-fill" id="powerBarB" style="width: 0%; background-color:var(--warning);"></div></div>
+          </div>
+        </div>
+
+        <div id="alertsContainer" style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.5rem;">
+          <!-- Alertas dinámicas -->
+        </div>
+      </div>
+
       <!-- Visualizador de Racks 1U - 48U -->
       <div class="panel">
         <div class="panel-title">
@@ -511,12 +586,12 @@
           </div>
         </div>
 
-        <div id="rackViewContainer" style="overflow-y: auto; max-height: 500px; padding: 0.5rem;">
+        <div id="rackViewContainer" style="overflow-y: auto; max-height: 480px; padding: 0.5rem;">
           <p style="text-align:center; color: var(--text-muted);">Seleccione un rack para visualizar.</p>
         </div>
       </div>
 
-      <!-- Inventario Editable CRUD (Paso 4) -->
+      <!-- Inventario Editable CRUD -->
       <div class="panel">
         <div class="panel-title">
           <span>Inventario de Equipos y Puertos</span>
@@ -599,7 +674,7 @@
         <div class="form-group">
           <label>Fuente Alimentación:</label>
           <select id="devicePowerTypeSelect" class="form-control">
-            <option value="Simple">Fuente Simple</option>
+            <option value="Simple">Fuente Simple (No Redundante)</option>
             <option value="Dual A/B" selected>Dual A/B (Redundante)</option>
           </select>
         </div>
@@ -628,21 +703,21 @@
   </div>
 
   <footer>
-    Cableado Estructurado & Audit System | Archivo único editable de ejecución local
+    Cableado Estructurado & Audit System v1.0.0 | Archivo único editable de ejecución local
   </footer>
 
   <script>
     /**
-     * Motor de Estado, Visualizador y Modales Independientes (v0.8.0-alpha)
+     * Motor Completo de Auditoría, Energía A/B y Alertas (v1.0.0 Final)
      */
     const APP_CONFIG = {
-      version: "0.8.0-alpha",
+      version: "1.0.0",
       appName: "Rack & Structured Cabling Manager",
       storageKey: "rack_cabling_inventory_v1"
     };
 
     const DEFAULT_STATE = {
-      version: "0.8.0-alpha",
+      version: "1.0.0",
       fecha_actualizacion: new Date().toISOString(),
       activeRackId: "rack-01",
       racks: [
@@ -664,6 +739,17 @@
           consumo_watts: 350,
           fuente_alimentacion: "Dual A/B",
           estado: "ACTIVO [CONFIRMADO]"
+        },
+        {
+          id: "eq-02",
+          rack_id: "rack-01",
+          nombre: "Servidor BD Principal [EJEMPLO DIDÁCTICO]",
+          u_inicial: 36,
+          u_alto: 3,
+          vista: "frontal",
+          consumo_watts: 850,
+          fuente_alimentacion: "Simple",
+          estado: "ACTIVO [CONFIRMADO]"
         }
       ],
       interfaces: [],
@@ -680,7 +766,7 @@
         {
           timestamp: new Date().toISOString(),
           accion: "SISTEMA_INICIALIZADO",
-          detalle: "Sistema actualizado a v0.8.0 con Modales UI independientes."
+          detalle: "Sistema actualizado a versión final v1.0.0 con módulo de Energía A/B y Alertas Globale."
         }
       ]
     };
@@ -945,7 +1031,7 @@
       return { valid: true };
     }
 
-    /* RENDER ENGINE */
+    /* RENDER & MONITORING ENGINE */
     function renderDashboard() {
       document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
 
@@ -960,17 +1046,79 @@
 
       const ocupacionPct = uTotales > 0 ? Math.round((uUsadas / uTotales) * 100) : 0;
 
+      // Cálculo de Energía A/B
+      let wattsA = 0;
+      let wattsB = 0;
+      let singlePowerCount = 0;
+
+      if (appState.equipos) {
+        appState.equipos.forEach(eq => {
+          const w = Number(eq.consumo_watts || 0);
+          if (eq.fuente_alimentacion === "Dual A/B") {
+            wattsA += w / 2;
+            wattsB += w / 2;
+          } else {
+            wattsA += w; // Asignación por defecto a Rama A
+            singlePowerCount++;
+          }
+        });
+      }
+
+      const ampsA = (wattsA / 120).toFixed(1);
+      const ampsB = (wattsB / 120).toFixed(1);
+
+      document.getElementById('powerWattsA').textContent = `${Math.round(wattsA)} W / ${ampsA} A`;
+      document.getElementById('powerWattsB').textContent = `${Math.round(wattsB)} W / ${ampsB} A`;
+
+      // Barra porcentual basada en límite hipotético de 2400W por rama (20A @ 120V)
+      const maxCap = 2400;
+      const pctA = Math.min(Math.round((wattsA / maxCap) * 100), 100);
+      const pctB = Math.min(Math.round((wattsB / maxCap) * 100), 100);
+
+      document.getElementById('powerBarA').style.width = `${pctA}%`;
+      document.getElementById('powerBarB').style.width = `${pctB}%`;
+
+      // Generar Panel de Alertas Globales
+      const alerts = [];
+      if (singlePowerCount > 0) {
+        alerts.push({
+          type: 'warning',
+          msg: `Riesgo de Redundancia: ${singlePowerCount} equipo(s) configurado(s) con fuente de alimentación simple en Rama A.`
+        });
+      }
+      if (pctA > 80 || pctB > 80) {
+        alerts.push({
+          type: 'danger',
+          msg: `Advertencia de Carga: La rama eléctrica supera el 80% de utilización de su capacidad estimada.`
+        });
+      }
+
+      document.getElementById('alertasCount').textContent = alerts.length;
+
+      const alertsBox = document.getElementById('alertsContainer');
+      if (alerts.length > 0) {
+        let alertHtml = '';
+        alerts.forEach(a => {
+          const alertClass = a.type === 'danger' ? 'alert-danger' : '';
+          alertHtml += `<div class="alert-item ${alertClass}">⚠️ ${escapeHTML(a.msg)}</div>`;
+        });
+        alertsBox.innerHTML = alertHtml;
+      } else {
+        alertsBox.innerHTML = '<div class="alert-item" style="border-color:var(--success); color:var(--success); background:rgba(16,185,129,0.1);">✓ Estado eléctrico y redundancia en parámetros óptimos.</div>';
+      }
+
       document.getElementById('totalRacks').textContent = totalRacks;
       document.getElementById('totalEquipos').textContent = totalEquipos;
       document.getElementById('ocupacionU').textContent = `${ocupacionPct}%`;
 
+      // Selector de Racks
       const rackContainer = document.getElementById('rackSelectorContainer');
       if (appState.racks && appState.racks.length > 0) {
         let html = '<div style="display:flex; flex-direction:column; gap:0.35rem;">';
         appState.racks.forEach(r => {
           const isSelected = r.id === appState.activeRackId;
           html += `
-            <button class="btn" style="width:100%; justify-content:space-between; text-align:left; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}" onclick="selectRack('${r.id}')">
+            <button class="btn" style="width:100%; justify-between: space-between; text-align:left; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}" onclick="selectRack('${r.id}')">
               <span><strong>${escapeHTML(r.nombre)}</strong> (${r.unidades_totales}U)</span>
               ${isSelected ? '<span style="color:var(--accent)">●</span>' : ''}
             </button>
@@ -982,6 +1130,7 @@
         rackContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">No hay racks registrados.</p>';
       }
 
+      // Bitácora
       const logContainer = document.getElementById('auditLogContainer');
       if (appState.bitacora && appState.bitacora.length > 0) {
         let logHtml = '';
@@ -1033,7 +1182,7 @@
                 uMap[u] = {
                   status: 'occupied',
                   label: eq.nombre,
-                  detail: `${eq.consumo_watts || 0}W - ${eq.estado || 'Activo'}`
+                  detail: `${eq.consumo_watts || 0}W - Fuente ${eq.fuente_alimentacion || 'Simple'}`
                 };
               }
             }
