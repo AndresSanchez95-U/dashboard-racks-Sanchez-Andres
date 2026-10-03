@@ -1,0 +1,185 @@
+{
+  "version": "1.0.0",
+  "fecha_actualizacion": "2026-10-02T22:52:52.028Z",
+  "racks": [
+    {
+      "id": "rack-01",
+      "nombre": "Rack Principal Principal DC [EJEMPLO DIDÁCTICO]",
+      "unidades_totales": 42,
+      "ubicacion": "Sala 101 - Fila A [CONFIRMADO]"
+    },
+    {
+      "id": "rack-1790967392258",
+      "nombre": "Rack_01",
+      "unidades_totales": 42,
+      "ubicacion": "Sala 101",
+      "fuente_verdad": "[PENDIENTE]",
+      "estado": "Planificado"
+    }
+  ],
+  "equipos": [
+    {
+      "id": "eq-01",
+      "rack_id": "rack-01",
+      "nombre": "Switch Core L3 [EJEMPLO DIDÁCTICO]",
+      "u_inicial": 40,
+      "u_alto": 2,
+      "vista": "frontal",
+      "consumo_watts": 350,
+      "fuente_alimentacion": "Dual A/B",
+      "pdu_a_id": "pdu-a1",
+      "pdu_b_id": "pdu-b1",
+      "estado": "Activo",
+      "fuente_verdad": "[EJEMPLO DIDÁCTICO]",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio"
+    },
+    {
+      "id": "eq-1790981441894",
+      "rack_id": "rack-01",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "roro",
+      "u_inicial": 37,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 300,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "int-01",
+      "equipo_id": "eq-01",
+      "nombre_puerto": "Gi0/0/1",
+      "tipo": "SFP+ 10G",
+      "servicio_asociado": "Trunk Enlace Servidores",
+      "estado": "OCUPADO"
+    }
+  ],
+  "reservas": [],
+  "circuitos_pdu": [],
+  "bitacora": [
+    {
+      "timestamp": "2026-10-02T22:52:52.027Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;Switch Core L3 [EJEMPLO DIDÁCTICO]&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-02T22:52:25.656Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;roro&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-02T22:50:41.894Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;roro&quot; creado en U37-U38."
+    },
+    {
+      "timestamp": "2026-10-02T22:11:06.257Z",
+      "accion": "ELIMINAR_ELEMENTO",
+      "detalle": "Elemento &quot;Cambio de Router&quot; eliminado."
+    },
+    {
+      "timestamp": "2026-10-02T22:10:43.633Z",
+      "accion": "CREAR_RESERVA",
+      "detalle": "Reserva creada U1-U2"
+    },
+    {
+      "timestamp": "2026-10-02T22:02:19.866Z",
+      "accion": "ELIMINAR_RACK",
+      "detalle": "Rack &quot;prueba&quot; eliminado."
+    },
+    {
+      "timestamp": "2026-10-02T21:51:44.100Z",
+      "accion": "CREAR_RACK",
+      "detalle": "Rack &quot;prueba&quot; de 42U creado."
+    },
+    {
+      "timestamp": "2026-10-02T21:50:00.129Z",
+      "accion": "ELIMINAR_ELEMENTO",
+      "detalle": "Elemento &quot;Ampliacion de switch&quot; eliminado."
+    },
+    {
+      "timestamp": "2026-10-02T21:44:21.196Z",
+      "accion": "EDITAR_RESERVA",
+      "detalle": "Reserva &quot;Ampliacion de switch&quot; modificada."
+    },
+    {
+      "timestamp": "2026-10-02T21:43:41.452Z",
+      "accion": "ELIMINAR_ELEMENTO",
+      "detalle": "Elemento &quot;ups&quot; eliminado."
+    },
+    {
+      "timestamp": "2026-10-02T20:21:08.631Z",
+      "accion": "EXPORTAR_JSON",
+      "detalle": "Inventario exportado como inventario_rack_v1.0.0_2026-10-02.json"
+    },
+    {
+      "timestamp": "2026-10-02T19:18:40.058Z",
+      "accion": "CREAR_EQUIPO",
+      "detalle": "Equipo &quot;ups&quot; creado en U1-U1."
+    },
+    {
+      "timestamp": "2026-10-02T19:17:09.432Z",
+      "accion": "CREAR_RESERVA",
+      "detalle": "Reserva creada U38-U39"
+    },
+    {
+      "timestamp": "2026-10-02T19:05:22.261Z",
+      "accion": "EDITAR_EQUIPO",
+      "detalle": "Equipo &quot;Switch Core L3 [EJEMPLO DIDÁCTICO]&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-02T19:04:50.396Z",
+      "accion": "EDITAR_EQUIPO",
+      "detalle": "Equipo &quot;Switch Core L3 [EJEMPLO DIDÁCTICO]&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-02T19:04:36.797Z",
+      "accion": "EDITAR_EQUIPO",
+      "detalle": "Equipo &quot;Switch Core L3 [EJEMPLO DIDÁCTICO]&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-02T19:04:11.360Z",
+      "accion": "EDITAR_RACK",
+      "detalle": "Rack &quot;Rack_01&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-02T18:56:32.258Z",
+      "accion": "CREAR_RACK",
+      "detalle": "Rack &quot;Rack_01&quot; de 42U creado con estado [INFERENCIA POR VALIDAR]."
+    },
+    {
+      "timestamp": "2026-10-02T18:38:23.391Z",
+      "accion": "ELIMINAR_EQUIPO",
+      "detalle": "Equipo &quot;Router&quot; eliminado del inventario."
+    },
+    {
+      "timestamp": "2026-10-02T18:37:19.405Z",
+      "accion": "CREAR_EQUIPO",
+      "detalle": "Equipo &quot;Router&quot; añadido a U42-U42."
+    },
+    {
+      "timestamp": "2026-10-02T18:24:12.181Z",
+      "accion": "EXPORTAR_CSV",
+      "detalle": "Inventario CSV exportado como inventario_equipos_2026-10-02.csv"
+    },
+    {
+      "timestamp": "2026-10-02T18:23:49.521Z",
+      "accion": "EXPORTAR_JSON",
+      "detalle": "Inventario exportado como inventario_rack_v0.3.0-alpha_2026-10-02.json"
+    },
+    {
+      "timestamp": "2026-10-02T18:22:34.607Z",
+      "accion": "SISTEMA_INICIALIZADO",
+      "detalle": "Estado base inicializado con datos de ejemplo didáctico."
+    }
+  ],
+  "activeRackId": "rack-01"
+}
