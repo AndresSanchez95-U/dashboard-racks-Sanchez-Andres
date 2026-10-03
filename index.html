@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestor de Cableado Estructurado e Inventario de Racks v1.0.0</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --border: #334155;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand h1 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .version-badge {
+      background-color: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    .tag-badge {
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.25rem;
+      font-size: 0.65rem;
+      font-weight: bold;
+    }
+
+    .tag-confirmado { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .tag-inferencia { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+    .tag-pendiente { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .tag-ejemplo { background: rgba(56, 189, 248, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background-color: var(--bg-card-hover);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--border);
+      border-color: var(--accent);
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .btn-accent:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger);
+      color: #fff;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 0.75rem;
+      border-radius: 0.375rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .log-box {
+      background-color: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .log-entry {
+      border-bottom: 1px dotted var(--border);
+      padding-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+
+    .log-timestamp {
+      color: var(--accent);
+      margin-right: 0.35rem;
+    }
+
+    .power-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .power-card {
+      background-color: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .power-bar-bg {
+      background-color: var(--bg-main);
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.25rem;
+    }
+
+    .power-bar-fill {
+      height: 100%;
+      background-color: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .alert-item {
+      background-color: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      color: #fef3c7;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-danger {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-color: var(--danger);
+      color: #fca5a5;
+    }
+
+    .rack-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      background-color: rgba(15, 23, 42, 0.4);
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      border: 1px solid var(--border);
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* RACK ANCHO (1000px) */
+    .rack-frame {
+      background-color: #0b0f19;
+      border: 3px solid #475569;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    .u-slot {
+      display: grid;
+      grid-template-columns: 50px 1fr 100px;
+      height: 32px;
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      font-size: 0.8rem;
+      align-items: center;
+      border-radius: 2px;
+    }
+
+    .u-number {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border);
+      background-color: rgba(15, 23, 42, 0.8);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+    }
+
+    .u-content {
+      padding: 0 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      height: 100%;
+      font-weight: 500;
+    }
+
+    .u-status {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      padding: 0.1rem 0.2rem;
+      border-radius: 2px;
+    }
+
+    .slot-occupied {
+      background-color: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent);
+      color: #f8fafc;
+    }
+
+    .slot-reserved {
+      background-color: rgba(245, 158, 11, 0.2);
+      border-color: var(--warning);
+      color: #fef3c7;
+    }
+
+    .slot-empty {
+      color: #475569;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background-color: rgba(15, 23, 42, 0.8);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+
+    tr:hover {
+      background-color: rgba(51, 65, 85, 0.3);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      width: 100%;
+      max-width: 520px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    .modal-header h3 {
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      background-color: var(--bg-main);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    footer {
+      background-color: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    #fileInputJSON {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>Auditoría y Gestión de Cableado Estructurado</h1>
+      <span class="version-badge" id="appVersion">v1.0.0</span>
+    </div>
+    
+    <div class="header-actions">
+      <button class="btn btn-accent" onclick="exportStateJSON()">Exportar JSON</button>
+      <button class="btn" onclick="exportInventoryCSV()">Exportar CSV</button>
+      <button class="btn" onclick="document.getElementById('fileInputJSON').click()">Importar JSON</button>
+      <input type="file" id="fileInputJSON" accept=".json" onchange="importStateJSON(event)">
+      <button class="btn btn-danger" onclick="openResetModal()">Restablecer</button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="panel">
+      <h2 class="panel-title">Métricas de Control</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="totalRacks">0</div>
+          <div class="metric-label">Racks</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="totalEquipos">0</div>
+          <div class="metric-label">Equipos</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="ocupacionU">0%</div>
+          <div class="metric-label">Ocupación U</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="alertasCount">0</div>
+          <div class="metric-label">Alertas</div>
+        </div>
+      </div>
+
+      <h2 class="panel-title" style="margin-top: 0.5rem;">
+        Selección de Rack
+        <button class="btn" style="font-size:0.65rem; padding: 0.1rem 0.3rem;" onclick="openRackModal()">+ Crear Rack</button>
+      </h2>
+      <div id="rackSelectorContainer">
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Cargando bastidores...</p>
+      </div>
+
+      <h2 class="panel-title" style="margin-top: 0.5rem;">
+        Bitácora de Auditoría
+        <button class="btn" style="font-size:0.65rem; padding: 0.1rem 0.3rem;" onclick="clearLog()">Limpiar</button>
+      </h2>
+      <div class="log-box" id="auditLogContainer"></div>
+    </aside>
+
+    <section class="workspace">
+      <div class="panel">
+        <h2 class="panel-title">Monitoreo Eléctrico A/B & Alertas Globales</h2>
+        <div class="power-grid">
+          <div class="power-card">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+              <span>Consumo Rama A:</span>
+              <strong id="powerWattsA">0 W / 0 A</strong>
+            </div>
+            <div class="power-bar-bg"><div class="power-bar-fill" id="powerBarA" style="width: 0%;"></div></div>
+          </div>
+          <div class="power-card">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+              <span>Consumo Rama B:</span>
+              <strong id="powerWattsB">0 W / 0 A</strong>
+            </div>
+            <div class="power-bar-bg"><div class="power-bar-fill" id="powerBarB" style="width: 0%; background-color:var(--warning);"></div></div>
+          </div>
+        </div>
+
+        <div id="alertsContainer" style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.5rem;"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Vista de Bastidor / Rack (<span id="activeRackTitle">Ninguno</span>)</span>
+          <div class="rack-controls">
+            <!-- VISTA FRONTAL / POSTERIOR -->
+            <div class="control-group">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Vista:</label>
+              <select id="viewOrientationSelect" class="form-control" onchange="renderRackGraphic()">
+                <option value="Frontal" selected>Frontal</option>
+                <option value="Posterior">Posterior</option>
+              </select>
+            </div>
+
+            <!-- FILTRO DE ORDENACION U -->
+            <div class="control-group">
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Orden U:</label>
+              <select id="uOrderSelect" class="form-control" onchange="renderRackGraphic()">
+                <option value="DESC" selected>Mayor a Menor (42 → 1)</option>
+                <option value="ASC">Menor a Mayor (1 → 42)</option>
+              </select>
+            </div>
+
+            <button class="btn btn-accent" style="font-size:0.75rem;" onclick="openDeviceModal()">+ Añadir Equipo / Reserva</button>
+          </div>
+        </div>
+
+        <div id="rackViewContainer" style="overflow-y: auto; max-height: 520px; padding: 0.5rem;">
+          <p style="text-align:center; color: var(--text-muted);">Seleccione un rack para visualizar.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span>Inventario Editable CRUD</span>
+          <input type="text" id="globalSearchInput" placeholder="Buscar equipo, servicio o puerto..." class="form-control" style="width:240px; font-size:0.75rem;" oninput="renderInventoryTable()">
+        </div>
+        <div class="table-container" id="inventoryTableContainer"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL 1: Crear / Editar Rack -->
+  <div class="modal-backdrop" id="rackModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="rackModalTitle">Crear Nuevo Bastidor / Rack</h3>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('rackModal')">✕</button>
+      </div>
+      <input type="hidden" id="editingRackId" value="">
+      <div class="form-group">
+        <label>Nombre del Rack:</label>
+        <input type="text" id="rackNameInput" class="form-control" placeholder="Ej. Rack Fila B - Core">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Unidades U (1 a 48):</label>
+          <input type="number" id="rackUnitsInput" class="form-control" value="42" min="1" max="48">
+        </div>
+        <div class="form-group">
+          <label>Ubicación Física:</label>
+          <input type="text" id="rackLocationInput" class="form-control" placeholder="Ej. Sala 101 - Fila B">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado Operativo:</label>
+          <select id="rackEstadoSelect" class="form-control">
+            <option value="Activo" selected>Activo</option>
+            <option value="Planificado">Planificado</option>
+            <option value="Retirado">Retirado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fuente de Verdad (Trazabilidad):</label>
+          <select id="rackVeracidadSelect" class="form-control">
+            <option value="[CONFIRMADO]">[CONFIRMADO] - Verificado por auditoría</option>
+            <option value="[INFERENCIA POR VALIDAR]">[INFERENCIA POR VALIDAR] - Estimado</option>
+            <option value="[PENDIENTE]">[PENDIENTE] - Datos incompletos</option>
+            <option value="[EJEMPLO DIDÁCTICO]">[EJEMPLO DIDÁCTICO] - Muestra académica</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('rackModal')">Cancelar</button>
+        <button class="btn btn-accent" onclick="saveRackFromModal()">Guardar Rack</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Crear / Editar Elemento -->
+  <div class="modal-backdrop" id="deviceModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="deviceModalTitle">Añadir / Modificar Elemento en Rack</h3>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('deviceModal')">✕</button>
+      </div>
+      <input type="hidden" id="editingDeviceId" value="">
+
+      <!-- TIPO Y CLASIFICACIÓN -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Elemento:</label>
+          <select id="deviceTypeSelect" class="form-control" onchange="toggleDeviceTypeFields()">
+            <option value="Equipo" selected>Equipo</option>
+            <option value="Accesorio">Accesorio</option>
+            <option value="Reserva">Reserva de espacio futuro</option>
+          </select>
+        </div>
+        <div class="form-group" id="subTypeContainer">
+          <label id="subTypeLabel">Categoría / Clasificación:</label>
+          <select id="deviceSubTypeSelect" class="form-control">
+            <!-- Dinámico -->
+          </select>
+        </div>
+      </div>
+
+      <!-- NOMBRE / ESPECIFICACIÓN -->
+      <div class="form-group" id="deviceNameGroup">
+        <label id="deviceNameLabel">Nombre del Elemento:</label>
+        <input type="text" id="deviceNameInput" class="form-control" placeholder="Ej. Switch Cisco Catalyst 9300">
+      </div>
+
+      <!-- CAMPO DE TEXTO DEDICADO PARA EL MOTIVO DE LA RESERVA -->
+      <div class="form-group" id="deviceReasonGroup" style="display:none;">
+        <label>Motivo de la Reserva / Especificación:</label>
+        <input type="text" id="deviceReasonInput" class="form-control" placeholder="Ej. Proyecto Expansión Servidor Blade Q4">
+      </div>
+
+      <!-- POSICIÓN Y DIMENSIONES -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Unidad U Inicial:</label>
+          <input type="number" id="deviceStartUInput" class="form-control" value="1" min="1" max="48">
+        </div>
+        <div class="form-group">
+          <label>Altura (Cantidad U):</label>
+          <input type="number" id="deviceHeightUInput" class="form-control" value="1" min="1" max="10">
+        </div>
+      </div>
+
+      <!-- UBICACIÓN Y TAMAÑO/PROFUNDIDAD -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ubicación Física:</label>
+          <select id="deviceUbicacionSelect" class="form-control">
+            <option value="Frontal" selected>Frontal</option>
+            <option value="Posterior">Posterior</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Profundidad / Tamaño:</label>
+          <select id="deviceTamanoSelect" class="form-control">
+            <option value="Completo" selected>Completo (Ambas caras)</option>
+            <option value="Medio">Medio (Solo una cara)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ALIMENTACIÓN Y CONSUMO -->
+      <div class="form-row" id="devicePowerGroup">
+        <div class="form-group">
+          <label>Consumo Estimado (Watts):</label>
+          <input type="number" id="deviceWattsInput" class="form-control" value="300" min="0">
+        </div>
+        <div class="form-group">
+          <label>Fuente Alimentación:</label>
+          <select id="devicePowerTypeSelect" class="form-control">
+            <option value="Simple">Fuente Simple (No Redundante)</option>
+            <option value="Dual A/B" selected>Dual A/B (Redundante)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ESTADO Y TRAZABILIDAD -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado Operativo:</label>
+          <select id="deviceEstadoSelect" class="form-control">
+            <option value="Activo" selected>Activo</option>
+            <option value="Planificado">Planificado</option>
+            <option value="Retirado">Retirado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Fuente de Verdad (Trazabilidad):</label>
+          <select id="deviceVeracidadSelect" class="form-control">
+            <option value="[CONFIRMADO]">[CONFIRMADO] - Verificado por auditoría</option>
+            <option value="[INFERENCIA POR VALIDAR]">[INFERENCIA POR VALIDAR] - Estimado</option>
+            <option value="[PENDIENTE]">[PENDIENTE] - Datos incompletos</option>
+            <option value="[EJEMPLO DIDÁCTICO]">[EJEMPLO DIDÁCTICO] - Muestra académica</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="modalAlertError" style="display:none; color:var(--danger); font-size:0.75rem; background:rgba(239,68,68,0.1); padding:0.4rem; border-radius:0.375rem; border:1px solid rgba(239,68,68,0.3);"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('deviceModal')">Cancelar</button>
+        <button class="btn btn-accent" onclick="saveDeviceFromModal()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Confirmación de Borrado -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="color:var(--danger);">Confirmar Eliminación</h3>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('confirmModal')">✕</button>
+      </div>
+      <p style="font-size:0.85rem;" id="confirmModalMessage">¿Está seguro de eliminar este elemento?</p>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('confirmModal')">Cancelar</button>
+        <button class="btn btn-danger" id="confirmModalActionBtn">Confirmar Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Cableado Estructurado & Audit System v1.0.0 | Archivo único editable de ejecución local
+  </footer>
+
+  <script>
+    const APP_CONFIG = {
+      version: "1.0.0",
+      appName: "Rack & Structured Cabling Manager",
+      storageKey: "rack_cabling_inventory_v1"
+    };
+
+    const SUBTIPOS = {
+      Equipo: ["Router", "Switch", "Servidor", "Firewall", "Otro"],
+      Accesorio: ["Patch panel", "Organizador", "Bandeja", "Multitoma", "Otro"]
+    };
+
+    const DEFAULT_STATE = {
+      version: "1.0.0",
+      fecha_actualizacion: new Date().toISOString(),
+      activeRackId: "rack-01",
+      racks: [
+        {
+          id: "rack-01",
+          nombre: "Rack Principal DC",
+          unidades_totales: 42,
+          ubicacion: "Sala 101 - Fila A",
+          estado: "Activo",
+          fuente_verdad: "[EJEMPLO DIDÁCTICO]"
+        }
+      ],
+      equipos: [
+        {
+          id: "eq-01",
+          rack_id: "rack-01",
+          tipo: "Equipo",
+          subtipo: "Switch",
+          nombre: "Switch Core L3",
+          u_inicial: 40,
+          u_alto: 2,
+          ubicacion_cara: "Frontal",
+          tamano: "Completo",
+          consumo_watts: 350,
+          fuente_alimentacion: "Dual A/B",
+          estado: "Activo",
+          fuente_verdad: "[CONFIRMADO]"
+        },
+        {
+          id: "eq-02",
+          rack_id: "rack-01",
+          tipo: "Accesorio",
+          subtipo: "Patch panel",
+          nombre: "Patch Panel 24P Cat6A",
+          u_inicial: 38,
+          u_alto: 1,
+          ubicacion_cara: "Frontal",
+          tamano: "Medio",
+          consumo_watts: 0,
+          fuente_alimentacion: "Simple",
+          estado: "Activo",
+          fuente_verdad: "[CONFIRMADO]"
+        }
+      ],
+      interfaces: [],
+      reservas: [
+        {
+          id: "res-01",
+          rack_id: "rack-01",
+          tipo: "Reserva",
+          subtipo: "Servidor",
+          motivo: "Servidor adicional para respaldo BD Q4",
+          u_inicial: 15,
+          u_alto: 4,
+          ubicacion_cara: "Frontal",
+          tamano: "Completo",
+          estado: "Planificado",
+          fuente_verdad: "[EJEMPLO DIDÁCTICO]"
+        }
+      ],
+      bitacora: [
+        {
+          timestamp: new Date().toISOString(),
+          accion: "SISTEMA_INICIALIZADO",
+          detalle: "Sistema actualizado con filtro de ordenación de U (Ascendente/Descendente)."
+        }
+      ]
+    };
+
+    let appState = null;
+    let deleteCallback = null;
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function getTagCssClass(tag) {
+      if (tag === '[CONFIRMADO]') return 'tag-confirmado';
+      if (tag === '[INFERENCIA POR VALIDAR]') return 'tag-inferencia';
+      if (tag === '[PENDIENTE]') return 'tag-pendiente';
+      return 'tag-ejemplo';
+    }
+
+    function loadState() {
+      try {
+        const data = localStorage.getItem(APP_CONFIG.storageKey);
+        if (data) {
+          appState = JSON.parse(data);
+        } else {
+          appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+          saveState();
+        }
+      } catch (e) {
+        console.error("Error al cargar localStorage:", e);
+        appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+      if (!appState.activeRackId && appState.racks.length > 0) {
+        appState.activeRackId = appState.racks[0].id;
+      }
+      renderDashboard();
+      renderRackGraphic();
+      renderInventoryTable();
+    }
+
+    function saveState() {
+      if (!appState) return;
+      appState.fecha_actualizacion = new Date().toISOString();
+      appState.version = APP_CONFIG.version;
+      localStorage.setItem(APP_CONFIG.storageKey, JSON.stringify(appState));
+      renderDashboard();
+    }
+
+    function addLogEntry(accion, detalle) {
+      if (!appState.bitacora) appState.bitacora = [];
+      appState.bitacora.unshift({
+        timestamp: new Date().toISOString(),
+        accion: escapeHTML(accion),
+        detalle: escapeHTML(detalle)
+      });
+      saveState();
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      const errBox = document.getElementById('modalAlertError');
+      if (errBox) errBox.style.display = 'none';
+    }
+
+    /* CRUD RACKS */
+    function openRackModal(editRackId = null) {
+      document.getElementById('editingRackId').value = editRackId || '';
+
+      if (editRackId) {
+        const rack = appState.racks.find(r => r.id === editRackId);
+        if (rack) {
+          document.getElementById('rackModalTitle').textContent = "Editar Bastidor / Rack";
+          document.getElementById('rackNameInput').value = rack.nombre;
+          document.getElementById('rackUnitsInput').value = rack.unidades_totales;
+          document.getElementById('rackLocationInput').value = rack.ubicacion || '';
+          document.getElementById('rackEstadoSelect').value = rack.estado || 'Activo';
+          document.getElementById('rackVeracidadSelect').value = rack.fuente_verdad || '[CONFIRMADO]';
+        }
+      } else {
+        document.getElementById('rackModalTitle').textContent = "Crear Nuevo Bastidor / Rack";
+        document.getElementById('rackNameInput').value = '';
+        document.getElementById('rackUnitsInput').value = 42;
+        document.getElementById('rackLocationInput').value = '';
+        document.getElementById('rackEstadoSelect').value = 'Activo';
+        document.getElementById('rackVeracidadSelect').value = '[CONFIRMADO]';
+      }
+      openModal('rackModal');
+    }
+
+    function saveRackFromModal() {
+      const editId = document.getElementById('editingRackId').value;
+      const nombre = document.getElementById('rackNameInput').value.trim();
+      const unidades = parseInt(document.getElementById('rackUnitsInput').value, 10);
+      const ubicacion = document.getElementById('rackLocationInput').value.trim();
+      const estado = document.getElementById('rackEstadoSelect').value;
+      const veracidad = document.getElementById('rackVeracidadSelect').value;
+
+      if (!nombre) {
+        alert("Por favor, ingrese el nombre del rack.");
+        return;
+      }
+      if (isNaN(unidades) || unidades < 1 || unidades > 48) {
+        alert("Las unidades deben estar entre 1 y 48.");
+        return;
+      }
+
+      if (editId) {
+        const index = appState.racks.findIndex(r => r.id === editId);
+        if (index !== -1) {
+          appState.racks[index].nombre = escapeHTML(nombre);
+          appState.racks[index].unidades_totales = unidades;
+          appState.racks[index].ubicacion = escapeHTML(ubicacion || "Por definir");
+          appState.racks[index].estado = estado;
+          appState.racks[index].fuente_verdad = veracidad;
+          addLogEntry("EDITAR_RACK", `Rack "${nombre}" modificado.`);
+        }
+      } else {
+        const newRack = {
+          id: "rack-" + Date.now(),
+          nombre: escapeHTML(nombre),
+          unidades_totales: unidades,
+          ubicacion: escapeHTML(ubicacion || "Por definir"),
+          estado: estado,
+          fuente_verdad: veracidad
+        };
+        if (!appState.racks) appState.racks = [];
+        appState.racks.push(newRack);
+        appState.activeRackId = newRack.id;
+        addLogEntry("CREAR_RACK", `Rack "${newRack.nombre}" de ${unidades}U creado.`);
+      }
+
+      saveState();
+      closeModal('rackModal');
+      renderRackGraphic();
+    }
+
+    /* CONTROL FORMULARIO TIPO/RESERVA/EQUIPO */
+    function toggleDeviceTypeFields() {
+      const type = document.getElementById('deviceTypeSelect').value;
+      const subTypeSelect = document.getElementById('deviceSubTypeSelect');
+
+      subTypeSelect.innerHTML = '';
+      const list = type === 'Reserva' ? [...SUBTIPOS.Equipo, ...SUBTIPOS.Accesorio] : SUBTIPOS[type];
+      list.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        subTypeSelect.appendChild(opt);
+      });
+
+      if (type === 'Reserva') {
+        document.getElementById('deviceNameGroup').style.display = 'none';
+        document.getElementById('deviceReasonGroup').style.display = 'flex';
+        document.getElementById('devicePowerGroup').style.display = 'none';
+        document.getElementById('subTypeLabel').textContent = "Planeado para:";
+      } else {
+        document.getElementById('deviceNameGroup').style.display = 'flex';
+        document.getElementById('deviceReasonGroup').style.display = 'none';
+        document.getElementById('devicePowerGroup').style.display = 'grid';
+        document.getElementById('subTypeLabel').textContent = "Categoría:";
+        document.getElementById('deviceNameLabel').textContent = `Nombre del ${type}:`;
+      }
+    }
+
+    function openDeviceModal(editDeviceId = null) {
+      if (!appState.activeRackId) {
+        alert("Seleccione un rack activo primero.");
+        return;
+      }
+
+      document.getElementById('modalAlertError').style.display = 'none';
+      document.getElementById('editingDeviceId').value = editDeviceId || '';
+
+      if (editDeviceId) {
+        const eq = appState.equipos.find(e => e.id === editDeviceId) || appState.reservas.find(r => r.id === editDeviceId);
+        if (eq) {
+          document.getElementById('deviceModalTitle').textContent = "Modificar Elemento en Inventario";
+          document.getElementById('deviceTypeSelect').value = eq.tipo || 'Equipo';
+          toggleDeviceTypeFields();
+
+          document.getElementById('deviceSubTypeSelect').value = eq.subtipo || 'Switch';
+          document.getElementById('deviceNameInput').value = eq.nombre || '';
+          document.getElementById('deviceReasonInput').value = eq.motivo || '';
+          document.getElementById('deviceStartUInput').value = eq.u_inicial;
+          document.getElementById('deviceHeightUInput').value = eq.u_alto;
+          document.getElementById('deviceUbicacionSelect').value = eq.ubicacion_cara || 'Frontal';
+          document.getElementById('deviceTamanoSelect').value = eq.tamano || 'Completo';
+          document.getElementById('deviceWattsInput').value = eq.consumo_watts || 0;
+          document.getElementById('devicePowerTypeSelect').value = eq.fuente_alimentacion || "Simple";
+          document.getElementById('deviceEstadoSelect').value = eq.estado || 'Activo';
+          document.getElementById('deviceVeracidadSelect').value = eq.fuente_verdad || "[CONFIRMADO]";
+        }
+      } else {
+        document.getElementById('deviceModalTitle').textContent = "Añadir Elemento en Rack";
+        document.getElementById('deviceTypeSelect').value = 'Equipo';
+        toggleDeviceTypeFields();
+        document.getElementById('deviceNameInput').value = '';
+        document.getElementById('deviceReasonInput').value = '';
+        document.getElementById('deviceStartUInput').value = 1;
+        document.getElementById('deviceHeightUInput').value = 1;
+        document.getElementById('deviceUbicacionSelect').value = 'Frontal';
+        document.getElementById('deviceTamanoSelect').value = 'Completo';
+        document.getElementById('deviceWattsInput').value = 0;
+        document.getElementById('deviceEstadoSelect').value = 'Activo';
+        document.getElementById('deviceVeracidadSelect').value = '[CONFIRMADO]';
+      }
+
+      openModal('deviceModal');
+    }
+
+    function saveDeviceFromModal() {
+      const editId = document.getElementById('editingDeviceId').value;
+      const type = document.getElementById('deviceTypeSelect').value;
+      const subtipo = document.getElementById('deviceSubTypeSelect').value;
+      const uInicial = parseInt(document.getElementById('deviceStartUInput').value, 10);
+      const uAlto = parseInt(document.getElementById('deviceHeightUInput').value, 10);
+      const ubicacionCara = document.getElementById('deviceUbicacionSelect').value;
+      const tamano = document.getElementById('deviceTamanoSelect').value;
+      const estado = document.getElementById('deviceEstadoSelect').value;
+      const veracidad = document.getElementById('deviceVeracidadSelect').value;
+
+      const validation = validateOverlap(appState.activeRackId, uInicial, uAlto, ubicacionCara, tamano, editId);
+      if (!validation.valid) {
+        const errBox = document.getElementById('modalAlertError');
+        errBox.textContent = validation.reason;
+        errBox.style.display = 'block';
+        return;
+      }
+
+      if (type === 'Equipo' || type === 'Accesorio') {
+        const nombre = document.getElementById('deviceNameInput').value.trim();
+        const watts = parseInt(document.getElementById('deviceWattsInput').value, 10) || 0;
+        const fuente = document.getElementById('devicePowerTypeSelect').value;
+
+        if (!nombre) {
+          const errBox = document.getElementById('modalAlertError');
+          errBox.textContent = `Ingrese el nombre del ${type.toLowerCase()}.`;
+          errBox.style.display = 'block';
+          return;
+        }
+
+        if (editId) {
+          const index = appState.equipos.findIndex(e => e.id === editId);
+          if (index !== -1) {
+            appState.equipos[index] = {
+              ...appState.equipos[index],
+              tipo, subtipo, nombre: escapeHTML(nombre),
+              u_inicial: uInicial, u_alto: uAlto,
+              ubicacion_cara: ubicacionCara, tamano: tamano,
+              consumo_watts: watts, fuente_alimentacion: fuente,
+              estado: estado, fuente_verdad: veracidad
+            };
+            addLogEntry("EDITAR_ELEMENTO", `${type} "${nombre}" modificado.`);
+          }
+        } else {
+          const newDevice = {
+            id: "eq-" + Date.now(),
+            rack_id: appState.activeRackId,
+            tipo, subtipo, nombre: escapeHTML(nombre),
+            u_inicial: uInicial, u_alto: uAlto,
+            ubicacion_cara: ubicacionCara, tamano: tamano,
+            consumo_watts: watts, fuente_alimentacion: fuente,
+            estado: estado, fuente_verdad: veracidad
+          };
+          if (!appState.equipos) appState.equipos = [];
+          appState.equipos.push(newDevice);
+          addLogEntry("CREAR_ELEMENTO", `${type} "${newDevice.nombre}" creado en U${uInicial}-U${uInicial + uAlto - 1}.`);
+        }
+      } else {
+        const motivo = document.getElementById('deviceReasonInput').value.trim();
+        if (!motivo) {
+          const errBox = document.getElementById('modalAlertError');
+          errBox.textContent = "Ingrese el motivo/especificación de la reserva.";
+          errBox.style.display = 'block';
+          return;
+        }
+
+        if (editId) {
+          const index = appState.reservas.findIndex(r => r.id === editId);
+          if (index !== -1) {
+            appState.reservas[index] = {
+              ...appState.reservas[index],
+              tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
+              u_inicial: uInicial, u_alto: uAlto,
+              ubicacion_cara: ubicacionCara, tamano: tamano,
+              estado: estado, fuente_verdad: veracidad
+            };
+            addLogEntry("EDITAR_RESERVA", `Reserva "${motivo}" modificada.`);
+          }
+        } else {
+          const newReservation = {
+            id: "res-" + Date.now(),
+            rack_id: appState.activeRackId,
+            tipo: 'Reserva', subtipo, motivo: escapeHTML(motivo),
+            u_inicial: uInicial, u_alto: uAlto,
+            ubicacion_cara: ubicacionCara, tamano: tamano,
+            estado: estado, fuente_verdad: veracidad
+          };
+          if (!appState.reservas) appState.reservas = [];
+          appState.reservas.push(newReservation);
+          addLogEntry("CREAR_RESERVA", `Reserva creada U${uInicial}-U${uInicial + uAlto - 1}`);
+        }
+      }
+
+      saveState();
+      closeModal('deviceModal');
+      renderRackGraphic();
+      renderInventoryTable();
+    }
+
+    function openResetModal() {
+      document.getElementById('confirmModalMessage').textContent = "¿ADVERTENCIA: Deseas borrar todos los datos e inicializar el estado por defecto?";
+      deleteCallback = function() {
+        appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        saveState();
+        renderRackGraphic();
+        renderInventoryTable();
+        addLogEntry("RESTABLECER", "Datos restablecidos a la configuración inicial.");
+        closeModal('confirmModal');
+      };
+      document.getElementById('confirmModalActionBtn').onclick = deleteCallback;
+      openModal('confirmModal');
+    }
+
+    function confirmDeleteDevice(deviceId) {
+      const eq = appState.equipos.find(e => e.id === deviceId);
+      const res = appState.reservas ? appState.reservas.find(r => r.id === deviceId) : null;
+      const item = eq || res;
+      if (!item) return;
+
+      const itemName = item.nombre || item.motivo;
+      document.getElementById('confirmModalMessage').textContent = `¿Confirmas que deseas eliminar "${itemName}"?`;
+      deleteCallback = function() {
+        if (eq) appState.equipos = appState.equipos.filter(e => e.id !== deviceId);
+        if (res) appState.reservas = appState.reservas.filter(r => r.id !== deviceId);
+        addLogEntry("ELIMINAR_ELEMENTO", `Elemento "${itemName}" eliminado.`);
+        saveState();
+        renderRackGraphic();
+        renderInventoryTable();
+        closeModal('confirmModal');
+      };
+      document.getElementById('confirmModalActionBtn').onclick = deleteCallback;
+      openModal('confirmModal');
+    }
+
+    /* PREVENCIÓN DE SOLAPAMIENTOS */
+    function validateOverlap(rackId, startU, heightU, cara, tamano, excludeId = null) {
+      const targetStart = Number(startU);
+      const targetEnd = targetStart + Number(heightU) - 1;
+
+      const rack = appState.racks.find(r => r.id === rackId);
+      if (!rack) return { valid: false, reason: "Rack no encontrado." };
+      if (targetStart < 1 || targetEnd > rack.unidades_totales) {
+        return { valid: false, reason: `Las unidades exceden los límites del rack (1U - ${rack.unidades_totales}U).` };
+      }
+
+      const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
+
+      for (const item of allItems) {
+        if (item.rack_id === rackId && item.id !== excludeId) {
+          const itemStart = Number(item.u_inicial);
+          const itemEnd = itemStart + Number(item.u_alto) - 1;
+
+          if (targetStart <= itemEnd && targetEnd >= itemStart) {
+            const conflictCara = (item.tamano === 'Completo' || tamano === 'Completo' || item.ubicacion_cara === cara);
+            if (conflictCara) {
+              const name = item.nombre || item.motivo;
+              return { valid: false, reason: `Solapamiento con "${name}" (U${itemStart}-U${itemEnd}, ${item.ubicacion_cara || 'Frontal'} - ${item.tamano || 'Completo'}).` };
+            }
+          }
+        }
+      }
+
+      return { valid: true };
+    }
+
+    /* RENDER ENGINE */
+    function renderDashboard() {
+      document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
+
+      const totalRacks = appState.racks ? appState.racks.length : 0;
+      const totalEquipos = appState.equipos ? appState.equipos.length : 0;
+
+      let uUsadas = 0;
+      let uTotales = 0;
+      if (appState.racks) appState.racks.forEach(r => uTotales += Number(r.unidades_totales || 0));
+      if (appState.equipos) appState.equipos.forEach(e => uUsadas += Number(e.u_alto || 0));
+      if (appState.reservas) appState.reservas.forEach(r => uUsadas += Number(r.u_alto || 0));
+
+      const ocupacionPct = uTotales > 0 ? Math.round((uUsadas / uTotales) * 100) : 0;
+
+      let wattsA = 0;
+      let wattsB = 0;
+      let singlePowerCount = 0;
+
+      if (appState.equipos) {
+        appState.equipos.forEach(eq => {
+          const w = Number(eq.consumo_watts || 0);
+          if (eq.fuente_alimentacion === "Dual A/B") {
+            wattsA += w / 2;
+            wattsB += w / 2;
+          } else {
+            wattsA += w;
+            if (w > 0 || eq.tipo === 'Equipo') singlePowerCount++;
+          }
+        });
+      }
+
+      const ampsA = (wattsA / 120).toFixed(1);
+      const ampsB = (wattsB / 120).toFixed(1);
+
+      document.getElementById('powerWattsA').textContent = `${Math.round(wattsA)} W / ${ampsA} A`;
+      document.getElementById('powerWattsB').textContent = `${Math.round(wattsB)} W / ${ampsB} A`;
+
+      const maxCap = 2400;
+      const pctA = Math.min(Math.round((wattsA / maxCap) * 100), 100);
+      const pctB = Math.min(Math.round((wattsB / maxCap) * 100), 100);
+
+      document.getElementById('powerBarA').style.width = `${pctA}%`;
+      document.getElementById('powerBarB').style.width = `${pctB}%`;
+
+      const alerts = [];
+      if (singlePowerCount > 0) {
+        alerts.push({
+          type: 'warning',
+          msg: `Riesgo de Redundancia: ${singlePowerCount} equipo(s) activo(s) con fuente de alimentación simple.`
+        });
+      }
+      if (pctA > 80 || pctB > 80) {
+        alerts.push({
+          type: 'danger',
+          msg: `Advertencia de Carga: La rama eléctrica supera el 80% de utilización estimada.`
+        });
+      }
+
+      document.getElementById('alertasCount').textContent = alerts.length;
+
+      const alertsBox = document.getElementById('alertsContainer');
+      if (alerts.length > 0) {
+        let alertHtml = '';
+        alerts.forEach(a => {
+          const alertClass = a.type === 'danger' ? 'alert-danger' : '';
+          alertHtml += `<div class="alert-item ${alertClass}">⚠️ ${escapeHTML(a.msg)}</div>`;
+        });
+        alertsBox.innerHTML = alertHtml;
+      } else {
+        alertsBox.innerHTML = '<div class="alert-item" style="border-color:var(--success); color:var(--success); background:rgba(16,185,129,0.1);">✓ Estado eléctrico y redundancia en parámetros óptimos.</div>';
+      }
+
+      document.getElementById('totalRacks').textContent = totalRacks;
+      document.getElementById('totalEquipos').textContent = totalEquipos;
+      document.getElementById('ocupacionU').textContent = `${ocupacionPct}%`;
+
+      const rackContainer = document.getElementById('rackSelectorContainer');
+      if (appState.racks && appState.racks.length > 0) {
+        let html = '<div style="display:flex; flex-direction:column; gap:0.35rem;">';
+        appState.racks.forEach(r => {
+          const isSelected = r.id === appState.activeRackId;
+          const fvTag = r.fuente_verdad || '[CONFIRMADO]';
+          const estadoRack = r.estado || 'Activo';
+          html += `
+            <div class="btn" style="width:100%; justify-content:space-between; align-items:center; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.1);' : ''}">
+              <span onclick="selectRack('${r.id}')" style="cursor:pointer; flex:1;">
+                <strong>${escapeHTML(r.nombre)}</strong> (${r.unidades_totales}U)
+                <span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span>
+                <span style="font-size:0.65rem; color:var(--text-muted); font-weight:bold;">[${escapeHTML(estadoRack)}]</span>
+              </span>
+              <button class="btn btn-accent" style="padding:0.1rem 0.3rem; font-size:0.65rem;" onclick="openRackModal('${r.id}')">Editar</button>
+            </div>
+          `;
+        });
+        html += '</div>';
+        rackContainer.innerHTML = html;
+      } else {
+        rackContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">No hay racks registrados.</p>';
+      }
+
+      const logContainer = document.getElementById('auditLogContainer');
+      if (appState.bitacora && appState.bitacora.length > 0) {
+        let logHtml = '';
+        appState.bitacora.forEach(log => {
+          const time = new Date(log.timestamp).toLocaleTimeString();
+          logHtml += `
+            <div class="log-entry">
+              <span class="log-timestamp">[${time}]</span>
+              <strong>${escapeHTML(log.accion)}:</strong> ${escapeHTML(log.detalle)}
+            </div>
+          `;
+        });
+        logContainer.innerHTML = logHtml;
+      } else {
+        logContainer.innerHTML = '<span style="color:var(--text-muted);">Sin registros.</span>';
+      }
+    }
+
+    function selectRack(rackId) {
+      appState.activeRackId = rackId;
+      saveState();
+      renderRackGraphic();
+    }
+
+    function renderRackGraphic() {
+      const container = document.getElementById('rackViewContainer');
+      const rack = appState.racks.find(r => r.id === appState.activeRackId);
+
+      if (!rack) {
+        document.getElementById('activeRackTitle').textContent = "Ninguno";
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Por favor, crea o selecciona un rack para visualizar.</p>';
+        return;
+      }
+
+      const currentView = document.getElementById('viewOrientationSelect').value;
+      const orderU = document.getElementById('uOrderSelect').value; // DESC o ASC
+
+      document.getElementById('activeRackTitle').textContent = `${rack.nombre} (${rack.unidades_totales}U) - Vista ${currentView}`;
+
+      const uMap = {};
+      for (let i = 1; i <= rack.unidades_totales; i++) {
+        uMap[i] = { status: 'empty', label: 'Disponible', detail: '', fvTag: '' };
+      }
+
+      if (appState.equipos) {
+        appState.equipos.forEach(eq => {
+          if (eq.rack_id === rack.id) {
+            const isVisible = eq.tamano === 'Completo' || (eq.ubicacion_cara || 'Frontal') === currentView;
+            if (isVisible) {
+              const start = Number(eq.u_inicial);
+              const alto = Number(eq.u_alto);
+              for (let u = start; u < start + alto; u++) {
+                if (uMap[u]) {
+                  uMap[u] = {
+                    status: 'occupied',
+                    label: `[${eq.tipo || 'Equipo'}] ${eq.nombre}`,
+                    detail: `${eq.subtipo || ''} | ${eq.tamano || 'Completo'} | ${eq.estado || 'Activo'}`,
+                    fvTag: eq.fuente_verdad || '[CONFIRMADO]'
+                  };
+                }
+              }
+            }
+          }
+        });
+      }
+
+      if (appState.reservas) {
+        appState.reservas.forEach(res => {
+          if (res.rack_id === rack.id) {
+            const isVisible = res.tamano === 'Completo' || (res.ubicacion_cara || 'Frontal') === currentView;
+            if (isVisible) {
+              const start = Number(res.u_inicial);
+              const alto = Number(res.u_alto);
+              for (let u = start; u < start + alto; u++) {
+                if (uMap[u]) {
+                  uMap[u] = {
+                    status: 'reserved',
+                    label: `RESERVA (${res.subtipo || 'General'}): ${res.motivo}`,
+                    detail: `${res.tamano || 'Completo'} | ${res.estado || 'Planificado'}`,
+                    fvTag: res.fuente_verdad || '[EJEMPLO DIDÁCTICO]'
+                  };
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // ORDENACION DE U DEPENDIENDO DEL FILTRO
+      const uSequence = [];
+      if (orderU === 'DESC') {
+        for (let u = rack.unidades_totales; u >= 1; u--) uSequence.push(u);
+      } else {
+        for (let u = 1; u <= rack.unidades_totales; u++) uSequence.push(u);
+      }
+
+      let frameHtml = `<div class="rack-frame">`;
+      uSequence.forEach(u => {
+        const slot = uMap[u];
+        let statusClass = 'slot-empty';
+        if (slot.status === 'occupied') statusClass = 'slot-occupied';
+        if (slot.status === 'reserved') statusClass = 'slot-reserved';
+
+        frameHtml += `
+          <div class="u-slot ${statusClass}">
+            <div class="u-number">${u}U</div>
+            <div class="u-content" title="${escapeHTML(slot.label)} ${escapeHTML(slot.detail)}">
+              <strong>${escapeHTML(slot.label)}</strong>
+              ${slot.fvTag ? `<span class="tag-badge ${getTagCssClass(slot.fvTag)}">${slot.fvTag}</span>` : ''}
+              ${slot.detail ? `<span style="font-size:0.65rem; color:var(--text-muted); margin-left:0.25rem;">(${escapeHTML(slot.detail)})</span>` : ''}
+            </div>
+            <div class="u-status">${slot.status === 'empty' ? 'LIBRE' : slot.status}</div>
+          </div>
+        `;
+      });
+      frameHtml += `</div>`;
+
+      container.innerHTML = frameHtml;
+    }
+
+    function renderInventoryTable() {
+      const container = document.getElementById('inventoryTableContainer');
+      const searchTerm = document.getElementById('globalSearchInput').value.toLowerCase().trim();
+
+      const allItems = [
+        ...(appState.equipos || []),
+        ...(appState.reservas || [])
+      ];
+
+      if (allItems.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 1rem;">No hay elementos registrados en el inventario.</p>';
+        return;
+      }
+
+      const filteredItems = allItems.filter(item => {
+        const rack = appState.racks.find(r => r.id === item.rack_id);
+        const rackName = rack ? rack.nombre.toLowerCase() : '';
+        const name = (item.nombre || item.motivo || '').toLowerCase();
+        return name.includes(searchTerm) ||
+               rackName.includes(searchTerm) ||
+               (item.tipo && item.tipo.toLowerCase().includes(searchTerm)) ||
+               (item.subtipo && item.subtipo.toLowerCase().includes(searchTerm)) ||
+               (item.estado && item.estado.toLowerCase().includes(searchTerm));
+      });
+
+      if (filteredItems.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 1rem;">No se encontraron resultados para la búsqueda.</p>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Rack</th>
+              <th>Tipo / Subtipo</th>
+              <th>Elemento / Reserva</th>
+              <th>Posición U</th>
+              <th>Ubicación / Tamaño</th>
+              <th>Estado</th>
+              <th>Fuente de Verdad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      filteredItems.forEach(item => {
+        const rack = appState.racks.find(r => r.id === item.rack_id);
+        const rackName = rack ? rack.nombre : 'Sin Rack';
+        const uRange = item.u_alto > 1 ? `U${item.u_inicial} - U${item.u_inicial + item.u_alto - 1}` : `U${item.u_inicial}`;
+        const fvTag = item.fuente_verdad || '[CONFIRMADO]';
+        const name = item.nombre || `RESERVA: ${item.motivo}`;
+
+        html += `
+          <tr>
+            <td><strong>${escapeHTML(rackName)}</strong></td>
+            <td><span class="version-badge">${escapeHTML(item.tipo || 'Equipo')}</span> ${escapeHTML(item.subtipo || '')}</td>
+            <td>${escapeHTML(name)}</td>
+            <td><strong>${uRange}</strong></td>
+            <td>${escapeHTML(item.ubicacion_cara || 'Frontal')} (${escapeHTML(item.tamano || 'Completo')})</td>
+            <td><strong style="color:var(--accent);">${escapeHTML(item.estado || 'Activo')}</strong></td>
+            <td><span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span></td>
+            <td>
+              <div style="display:flex; gap:0.25rem;">
+                <button class="btn btn-accent" style="padding:0.1rem 0.35rem; font-size:0.7rem;" onclick="openDeviceModal('${item.id}')">Editar</button>
+                <button class="btn btn-danger" style="padding:0.1rem 0.35rem; font-size:0.7rem;" onclick="confirmDeleteDevice('${item.id}')">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    /* IMPORT/EXPORT */
+    function exportStateJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      const filename = `inventario_rack_v${APP_CONFIG.version}_${new Date().toISOString().slice(0,10)}.json`;
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", filename);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      addLogEntry("EXPORTAR_JSON", `Inventario exportado como ${filename}`);
+    }
+
+    function exportInventoryCSV() {
+      const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
+      if (allItems.length === 0) {
+        alert("No hay elementos para exportar.");
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Tipo,Subtipo,Nombre_Motivo,U_Inicial,U_Alto,Ubicacion_Cara,Tamano,Consumo_Watts,Estado,Fuente_Verdad\n";
+      allItems.forEach(item => {
+        const name = item.nombre || item.motivo;
+        csvContent += [
+          item.id, item.rack_id, `"${item.tipo || 'Equipo'}"`, `"${item.subtipo || ''}"`,
+          `"${name}"`, item.u_inicial, item.u_alto, `"${item.ubicacion_cara || 'Frontal'}"`,
+          `"${item.tamano || 'Completo'}"`, item.consumo_watts || 0, `"${item.estado || 'Activo'}"`,
+          `"${item.fuente_verdad || '[CONFIRMADO]'}"`
+        ].join(",") + "\n";
+      });
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `inventario_equipos_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      addLogEntry("EXPORTAR_CSV", "CSV exportado.");
+    }
+
+    function importStateJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (!importedData.racks || !Array.isArray(importedData.racks)) {
+            alert("Esquema JSON no válido.");
+            return;
+          }
+          appState = importedData;
+          addLogEntry("IMPORTAR_JSON", `Archivo ${file.name} cargado.`);
+          saveState();
+          renderRackGraphic();
+          renderInventoryTable();
+          alert("Inventario cargado exitosamente.");
+        } catch (err) {
+          alert("Error al parsear el JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function clearLog() {
+      appState.bitacora = [];
+      saveState();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      console.log(`[INIT] ${APP_CONFIG.appName} inicializado en versión ${APP_CONFIG.version}`);
+    });
+  </script>
+</body>
+</html>
