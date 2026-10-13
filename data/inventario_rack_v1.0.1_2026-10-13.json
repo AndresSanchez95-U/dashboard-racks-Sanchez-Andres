@@ -1,0 +1,940 @@
+{
+  "version": "1.0.1",
+  "fecha_actualizacion": "2026-10-13T05:02:01.087Z",
+  "racks": [
+    {
+      "id": "rack-1791858093088",
+      "nombre": "Rack Fila 1 - Col. 1",
+      "unidades_totales": 28,
+      "ubicacion": "Salon 1218 -  Fila 1 - Col. 1",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "rack-1791858126041",
+      "nombre": "Rack Fila 1 - Col. 2",
+      "unidades_totales": 28,
+      "ubicacion": "Salon 1218 - Fila 1 - Col. 2",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "rack-1791858493655",
+      "nombre": "Rack Fila 2 - Col. 1",
+      "unidades_totales": 28,
+      "ubicacion": "Salon 1218 - Fila 2 - Col. 1",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "rack-1791858520784",
+      "nombre": "Rack Fila 3 - Col. 1",
+      "unidades_totales": 28,
+      "ubicacion": "Salon 1218 - Fila 3 - Col. 1",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    }
+  ],
+  "equipos": [
+    {
+      "id": "eq-1791858832793",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Accesorio",
+      "subtipo": "Multitoma",
+      "nombre": "MULTITOMA QUEST 10 PUESTOS",
+      "u_inicial": 2,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791859010781",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960  24P",
+      "u_inicial": 9,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 45,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791859325223",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 13,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791859406033",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 16,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860048148",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 24,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860333502",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 27,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860520105",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 27,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860560184",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 16,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860600785",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 24,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860618336",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 13,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791859551742",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 48P",
+      "u_inicial": 20,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860800340",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "SWITCH CISCO CATALYST 2960 48P",
+      "u_inicial": 20,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791864475435",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST C3850 48P",
+      "u_inicial": 22,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 435,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791864511337",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 48P",
+      "u_inicial": 20,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791864605474",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Accesorio",
+      "subtipo": "Multitoma",
+      "nombre": "MULTITOMA QUEST 10 PUESTOS",
+      "u_inicial": 2,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791864965895",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 24P",
+      "u_inicial": 9,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 45,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866502776",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 27,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866531450",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 16,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866573140",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Accesorio",
+      "subtipo": "Multitoma",
+      "nombre": "MULTITOMA QUEST 10 PUESTOS",
+      "u_inicial": 2,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866651242",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 24,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866677229",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 13,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866755029",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 24P",
+      "u_inicial": 22,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 45,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866772252",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 48P",
+      "u_inicial": 20,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866928358",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 24P",
+      "u_inicial": 9,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 45,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866975045",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 27,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866999940",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Accesorio",
+      "subtipo": "Bandeja",
+      "nombre": "BANDEJA",
+      "u_inicial": 16,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867091552",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 24,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867114408",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 24P",
+      "u_inicial": 22,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 45,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867132813",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 48P",
+      "u_inicial": 20,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867162008",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Equipo",
+      "subtipo": "Router",
+      "nombre": "ROUTER CISCO 1941",
+      "u_inicial": 13,
+      "u_alto": 2,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 35,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867190809",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST C3650 24P",
+      "u_inicial": 11,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 70,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867210032",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST 2960 24P",
+      "u_inicial": 9,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 45,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791867037872",
+      "rack_id": "rack-1791858493655",
+      "tipo": "Accesorio",
+      "subtipo": "Multitoma",
+      "nombre": "MULTITOMA QUEST 10 PUESTOS",
+      "u_inicial": 2,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 0,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791864917489",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST C3650 24P",
+      "u_inicial": 11,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791860708308",
+      "rack_id": "rack-1791858520784",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST C3850 48P",
+      "u_inicial": 22,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 435,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791859113199",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST C3650 24P",
+      "u_inicial": 11,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 70,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791866856482",
+      "rack_id": "rack-1791858126041",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO CATALYST C3650 24P",
+      "u_inicial": 11,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Medio",
+      "consumo_watts": 67,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    },
+    {
+      "id": "eq-1791859986349",
+      "rack_id": "rack-1791858093088",
+      "tipo": "Equipo",
+      "subtipo": "Switch",
+      "nombre": "SWITCH CISCO 48P CATALYST C3850 48P",
+      "u_inicial": 22,
+      "u_alto": 1,
+      "ubicacion_cara": "Frontal",
+      "tamano": "Completo",
+      "consumo_watts": 435,
+      "fuente_alimentacion": "Dual A/B",
+      "estado": "Activo",
+      "fuente_verdad": "[CONFIRMADO]"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "int-01",
+      "equipo_id": "eq-01",
+      "nombre_puerto": "Gi0/0/1",
+      "tipo": "SFP+ 10G",
+      "servicio_asociado": "Trunk Enlace Servidores",
+      "estado": "OCUPADO"
+    }
+  ],
+  "reservas": [],
+  "circuitos_pdu": [],
+  "bitacora": [
+    {
+      "timestamp": "2026-10-13T04:54:59.268Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3650 24P&quot; guardado con éxito en U11."
+    },
+    {
+      "timestamp": "2026-10-13T04:54:50.734Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3650 24P&quot; guardado con éxito en U11."
+    },
+    {
+      "timestamp": "2026-10-13T04:54:27.708Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3850 48P&quot; guardado con éxito en U22."
+    },
+    {
+      "timestamp": "2026-10-13T04:54:12.364Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3650 24P&quot; guardado con éxito en U11."
+    },
+    {
+      "timestamp": "2026-10-13T04:53:54.555Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;MULTITOMA QUEST 10 PUESTOS&quot; guardado con éxito en U2."
+    },
+    {
+      "timestamp": "2026-10-13T04:53:30.032Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 24P&quot; guardado con éxito en U9."
+    },
+    {
+      "timestamp": "2026-10-13T04:53:10.809Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3650 24P&quot; guardado con éxito en U11."
+    },
+    {
+      "timestamp": "2026-10-13T04:52:42.008Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; guardado con éxito en U13."
+    },
+    {
+      "timestamp": "2026-10-13T04:52:12.813Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 48P&quot; guardado con éxito en U20."
+    },
+    {
+      "timestamp": "2026-10-13T04:51:54.408Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 24P&quot; guardado con éxito en U22."
+    },
+    {
+      "timestamp": "2026-10-13T04:51:31.552Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; guardado con éxito en U24."
+    },
+    {
+      "timestamp": "2026-10-13T04:50:37.872Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;MULTITOMA QUEST 10 PUESTOS&quot; guardado con éxito en U1."
+    },
+    {
+      "timestamp": "2026-10-13T04:49:59.940Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; guardado con éxito en U16."
+    },
+    {
+      "timestamp": "2026-10-13T04:49:35.045Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; guardado con éxito en U27."
+    },
+    {
+      "timestamp": "2026-10-13T04:48:48.358Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 24P&quot; guardado con éxito en U9."
+    },
+    {
+      "timestamp": "2026-10-13T04:47:36.482Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 3650 24P&quot; guardado con éxito en U11."
+    },
+    {
+      "timestamp": "2026-10-13T04:46:12.252Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 48P&quot; guardado con éxito en U20."
+    },
+    {
+      "timestamp": "2026-10-13T04:45:55.029Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 24P&quot; guardado con éxito en U22."
+    },
+    {
+      "timestamp": "2026-10-13T04:44:37.229Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; guardado con éxito en U13."
+    },
+    {
+      "timestamp": "2026-10-13T04:44:11.242Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; guardado con éxito en U24."
+    },
+    {
+      "timestamp": "2026-10-13T04:42:53.140Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;MULTITOMA QUEST 10 PUESTOS&quot; guardado con éxito en U2."
+    },
+    {
+      "timestamp": "2026-10-13T04:42:20.769Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; guardado con éxito en U16."
+    },
+    {
+      "timestamp": "2026-10-13T04:42:11.450Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; guardado con éxito en U16."
+    },
+    {
+      "timestamp": "2026-10-13T04:41:42.776Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; guardado con éxito en U27."
+    },
+    {
+      "timestamp": "2026-10-13T04:17:15.063Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 24P&quot; guardado con éxito en U9."
+    },
+    {
+      "timestamp": "2026-10-13T04:16:05.895Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 24P&quot; guardado con éxito en U9."
+    },
+    {
+      "timestamp": "2026-10-13T04:15:17.489Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 3650 24P&quot; guardado con éxito en U11."
+    },
+    {
+      "timestamp": "2026-10-13T04:10:33.415Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;MULTITOMA QUEST 10 PUESTOS&quot; guardado con éxito en U2."
+    },
+    {
+      "timestamp": "2026-10-13T04:10:05.474Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Accesorio &quot;MULTITOMA QUEST 10P&quot; guardado con éxito en U2."
+    },
+    {
+      "timestamp": "2026-10-13T04:08:31.337Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 48P&quot; guardado con éxito en U20."
+    },
+    {
+      "timestamp": "2026-10-13T04:07:55.435Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3850 48P&quot; guardado con éxito en U22."
+    },
+    {
+      "timestamp": "2026-10-13T03:59:47.292Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST C3850 48P&quot; guardado con éxito en U22."
+    },
+    {
+      "timestamp": "2026-10-13T03:59:29.170Z",
+      "accion": "GUARDAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 48P&quot; guardado con éxito en U20."
+    },
+    {
+      "timestamp": "2026-10-13T03:34:03.331Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960 48P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:24:25.152Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:24:14.881Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:07:34.345Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SW CISCO CATALYST C3850 48P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:07:25.488Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SW CISCO CATALYST 2960 48P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:06:40.340Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;SW CISCO CATALYS 2960 48P&quot; creado en U20-U20."
+    },
+    {
+      "timestamp": "2026-10-13T03:05:39.518Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SW CISCO 48P CATALYST C3850 48P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:05:08.308Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;SW CISCO 48P CATALYST 3850 48P&quot; creado en U22-U22."
+    },
+    {
+      "timestamp": "2026-10-13T03:03:55.400Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T03:03:38.336Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; creado en U13-U13."
+    },
+    {
+      "timestamp": "2026-10-13T03:03:20.785Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; creado en U24-U25."
+    },
+    {
+      "timestamp": "2026-10-13T03:02:40.184Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; creado en U16-U16."
+    },
+    {
+      "timestamp": "2026-10-13T03:02:00.105Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; creado en U27-U27."
+    },
+    {
+      "timestamp": "2026-10-13T02:58:53.502Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; creado en U27-U27."
+    },
+    {
+      "timestamp": "2026-10-13T02:54:31.614Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO 48P CATALYST 2960 48P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T02:54:08.148Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; creado en U24-U25."
+    },
+    {
+      "timestamp": "2026-10-13T02:53:06.349Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO 48P CATALYST C3850 48P&quot; creado en U22-U22."
+    },
+    {
+      "timestamp": "2026-10-13T02:46:12.400Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 2960  24P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T02:45:51.742Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO 48P CATALYST 2960 48P&quot; creado en U20-U20."
+    },
+    {
+      "timestamp": "2026-10-13T02:43:26.033Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Accesorio &quot;BANDEJA&quot; creado en U16-U16."
+    },
+    {
+      "timestamp": "2026-10-13T02:42:05.223Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;ROUTER CISCO 1941&quot; creado en U13-U14."
+    },
+    {
+      "timestamp": "2026-10-13T02:40:00.881Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 3650 24P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T02:39:52.930Z",
+      "accion": "EDITAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYS 2960  24P&quot; modificado."
+    },
+    {
+      "timestamp": "2026-10-13T02:38:33.199Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYST 3650 24P&quot; creado en U15-U15."
+    },
+    {
+      "timestamp": "2026-10-13T02:36:50.781Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Equipo &quot;SWITCH CISCO CATALYS 2960  24P&quot; creado en U13-U13."
+    },
+    {
+      "timestamp": "2026-10-13T02:33:52.793Z",
+      "accion": "CREAR_ELEMENTO",
+      "detalle": "Accesorio &quot;MULTITOMA QUEST 10 PUESTOS&quot; creado en U2-U2."
+    },
+    {
+      "timestamp": "2026-10-13T02:28:40.784Z",
+      "accion": "CREAR_RACK",
+      "detalle": "Rack &quot;Rack Fila 3 - Col. 1&quot; de 28U creado."
+    },
+    {
+      "timestamp": "2026-10-13T02:28:13.655Z",
+      "accion": "CREAR_RACK",
+      "detalle": "Rack &quot;Rack Fila 2 - Col. 1&quot; de 28U creado."
+    },
+    {
+      "timestamp": "2026-10-13T02:22:06.041Z",
+      "accion": "CREAR_RACK",
+      "detalle": "Rack &quot;Rack Fila 1 - Col. 2&quot; de 28U creado."
+    },
+    {
+      "timestamp": "2026-10-13T02:21:33.088Z",
+      "accion": "CREAR_RACK",
+      "detalle": "Rack &quot;Rack Fila 1 - Col. 1&quot; de 28U creado."
+    }
+  ],
+  "activeRackId": "rack-1791858126041"
+}
