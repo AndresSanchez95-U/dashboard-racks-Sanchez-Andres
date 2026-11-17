@@ -3,16 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Inventario de Racks v1.0.1</title>
+  <title>Gestor de Inventario de Racks v1.2.0</title>
+  
+  <!-- Tipografías de Alta Densidad para Consolas/Datacenters -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Librería SheetJS (XLSX) con fallback local integrado -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
   <style>
+    /* ==========================================================================
+       1. VARIABLES GLOBALES / SISTEMA DE DISEÑO HIGH-TECH
+       ========================================================================== */
     :root {
       --bg-main: #07090e;
       --bg-card: #0f141d;
       --bg-card-hover: #17202e;
       --bg-input: #0a0d14;
+      
       --text-main: #f1f5f9;
       --text-muted: #64748b;
       --text-subtle: #475569;
@@ -39,6 +49,9 @@
       --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
     }
 
+    /* ==========================================================================
+       2. REGLAS BASE Y RESET CSS
+       ========================================================================== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -58,7 +71,74 @@
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--bg-main); }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; border: 2px solid var(--bg-main); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
+    /* ==========================================================================
+       3. PANTALLA DE LOGIN / AUTENTICACIÓN (FULL-SCREEN OVERLAY)
+       ========================================================================== */
+    #loginOverlay {
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-main);
+      background-image: 
+        radial-gradient(circle at 50% 25%, rgba(56, 189, 248, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+    #loginOverlay.hidden {
+      display: none !important;
+    }
+
+    .login-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-bright);
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 420px;
+      padding: 2.25rem;
+      box-shadow: var(--shadow-lg), 0 0 40px rgba(56, 189, 248, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .login-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .login-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 0.5rem;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(2, 132, 199, 0.1));
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+    .login-header h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .login-header p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       4. ESTRUCTURA HEADER & NAVEGACIÓN
+       ========================================================================== */
     header {
       background-color: rgba(15, 20, 29, 0.85);
       backdrop-filter: blur(12px);
@@ -76,7 +156,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
 
-    .brand { display: flex; align-items: center; gap: 0.85rem; }
+    .brand { display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap; }
     .brand h1 {
       font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em;
       background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
@@ -89,6 +169,22 @@
       padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
       font-family: var(--font-mono); letter-spacing: 0.05em;
     }
+
+    .session-pill {
+      background-color: rgba(10, 13, 20, 0.9);
+      border: 1px solid var(--border-bright);
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.725rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: var(--font-mono);
+    }
+
+    .role-superuser { color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); background: rgba(251, 191, 36, 0.1); }
+    .role-admin { color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.1); }
+    .role-user { color: #10b981; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); }
 
     .tag-badge {
       padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700;
@@ -112,9 +208,16 @@
       background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #040914; border: none; font-weight: 700;
     }
     .btn-accent:hover { background: linear-gradient(135deg, #7dd3fc 0%, #0369a1 100%); color: #000; }
+    .btn-success { background-color: var(--success-bg); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.35); }
+    .btn-success:hover { background-color: var(--success); color: #000; }
+    .btn-warning { background-color: var(--warning-bg); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.35); }
+    .btn-warning:hover { background-color: var(--warning); color: #000; }
     .btn-danger { background-color: var(--danger-bg); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.3); }
     .btn-danger:hover { background-color: var(--danger); color: #fff; }
 
+    /* ==========================================================================
+       5. LAYOUT PRINCIPAL Y PANELES
+       ========================================================================== */
     main { display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem; flex: 1; max-width: 1920px; margin: 0 auto; width: 100%; }
     .top-section { display: grid; grid-template-columns: 340px 1fr; gap: 1.25rem; }
     .left-column { display: flex; flex-direction: column; gap: 1.25rem; }
@@ -125,10 +228,10 @@
       background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem;
       padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; box-shadow: var(--shadow-md);
     }
-    .panel-rack { display: flex; flex-direction: column; height: 100%; min-height: 500px; }
+    .panel-rack { display: flex; flex-direction: column; height: 100%; min-height: 500px; position: relative; }
     .panel-title {
       font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
-      font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center;
+      font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 0.65rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;
     }
 
     .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
@@ -138,11 +241,24 @@
 
     .log-box {
       background-color: var(--bg-input); border: 1px solid var(--border); border-radius: 0.5rem;
-      padding: 0.65rem; max-height: 220px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.725rem;
-      display: flex; flex-direction: column; gap: 0.4rem;
+      padding: 0.65rem; max-height: 260px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.725rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
     }
-    .log-entry { border-bottom: 1px solid rgba(255, 255, 255, 0.04); padding-bottom: 0.35rem; color: #94a3b8; }
-    .log-timestamp { color: var(--accent); margin-right: 0.35rem; font-weight: 600; }
+    .log-entry { border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.45rem; color: #94a3b8; line-height: 1.45; }
+    .log-timestamp { color: var(--accent); margin-right: 0.3rem; font-weight: 600; }
+    .log-actor { color: #fbbf24; font-weight: 700; }
+    .log-mnemonic { color: #e2e8f0; background: rgba(255,255,255,0.07); padding: 0.05rem 0.35rem; border-radius: 3px; font-size: 0.67rem; font-weight: 700; }
+    .log-evtid { color: #94a3b8; font-size: 0.66rem; }
+    .sev-badge { padding: 0.05rem 0.35rem; border-radius: 3px; font-size: 0.64rem; font-weight: 800; text-transform: uppercase; margin-right: 0.25rem; }
+    .sev-info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+    .sev-notice { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .sev-warning { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .sev-critical { background: rgba(244, 63, 94, 0.2); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.45); }
+    .decision-pill { font-size: 0.62rem; font-weight: 800; padding: 0.04rem 0.3rem; border-radius: 3px; margin-left: 0.25rem; }
+    .dec-allow { color: #10b981; background: rgba(16,185,129,0.12); }
+    .dec-review { color: #fbbf24; background: rgba(251,191,36,0.14); }
+    .dec-block { color: #f43f5e; background: rgba(244,63,94,0.16); }
+    .log-reason { display: block; margin-top: 0.2rem; color: #cbd5e1; font-style: italic; background: rgba(56, 189, 248, 0.06); padding: 0.2rem 0.45rem; border-left: 2px solid var(--accent); border-radius: 2px; }
 
     .power-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.85rem; }
     .power-card { background-color: rgba(10, 13, 20, 0.5); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem; }
@@ -155,11 +271,15 @@
     .rack-controls { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; background-color: rgba(10, 13, 20, 0.5); padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); }
     .control-group { display: flex; align-items: center; gap: 0.5rem; }
 
-    #rackViewContainer { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; padding: 0.5rem; min-height: 350px; }
+    /* ==========================================================================
+       6. MOTOR GRÁFICO DEL BASTIDOR & SUBMENÚ CONTEXTUAL
+       ========================================================================== */
+    #rackViewContainer { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; padding: 0.5rem; min-height: 350px; position: relative; }
+    
     .rack-frame-grid {
       background: linear-gradient(180deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
       border: 10px solid #1e293b; border-radius: 6px; padding: 8px; width: 100%; height: 100%; margin: 0 auto;
-      display: grid; grid-template-columns: 50px 1fr 80px; gap: 2px 0; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.9);
+      display: grid; grid-template-columns: 50px 1fr 50px; gap: 2px 0; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.9);
     }
 
     .u-label-row, .u-status-row {
@@ -169,13 +289,89 @@
 
     .device-block {
       grid-column: 2; display: flex; align-items: center; padding: 0 0.85rem; font-size: 0.775rem; font-weight: 600;
-      z-index: 2; gap: 0.5rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      z-index: 2; gap: 0.5rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; position: relative;
     }
     .block-empty { background-color: rgba(13, 17, 23, 0.4); color: #475569; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
     .block-occupied { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(56, 189, 248, 0.4); color: #f8fafc; }
     .block-occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 8px #10b981; flex-shrink: 0; }
+    .block-occupied.status-inactive::before { background-color: #64748b; box-shadow: none; }
+    .block-occupied.status-inactive { opacity: 0.72; border-color: rgba(148, 163, 184, 0.35); }
     .block-reserved { background: repeating-linear-gradient(-45deg, rgba(217, 119, 6, 0.25), rgba(217, 119, 6, 0.25) 12px, rgba(15, 20, 29, 0.85) 12px, rgba(15, 20, 29, 0.85) 24px); border: 1px dashed #d97706; color: #fbbf24; font-weight: 700; }
 
+    /* SUBMENÚ CONTEXTUAL ABSOLUTO EN PANTALLA */
+    .context-menu-popover {
+      position: absolute; z-index: 2000; background-color: #0f172a; border: 1px solid var(--accent);
+      border-radius: 0.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.9); display: flex; flex-direction: column;
+      width: 260px; overflow: hidden; transform: translate(10px, -10px);
+    }
+    .context-menu-header {
+      background: rgba(56, 189, 248, 0.12); padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border);
+      font-size: 0.725rem; font-weight: 700; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .context-menu-item {
+      padding: 0.65rem 0.85rem; font-size: 0.775rem; color: var(--text-main); font-weight: 600;
+      display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: background 0.2s ease;
+    }
+    .context-menu-item:hover { background-color: #1e293b; color: var(--accent); }
+
+    /* ==========================================================================
+       7. ESTILOS VISTA PANEL DE PUERTOS HD (AJUSTE AUTODINÁMICO Y PERFECTAMENTE APRETADO)
+       ========================================================================== */
+    .modal-box-hd {
+      width: fit-content !important;
+      max-width: 95vw !important;
+      transition: all 0.25s ease;
+    }
+
+    .ports-grid-container {
+      display: grid; 
+      gap: 6px; 
+      justify-content: center;
+      align-content: center;
+      padding: 1rem; 
+      background-color: #0a0d14; 
+      border: 1px solid var(--border); 
+      border-radius: 0.5rem;
+      max-height: 520px; 
+      overflow-y: auto; 
+      overflow-x: auto;
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    .port-box {
+      width: 40px; 
+      height: 42px; 
+      background-color: #1e293b; 
+      border: 1px solid var(--border-bright);
+      border-radius: 5px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+      cursor: pointer; 
+      position: relative; 
+      transition: all 0.2s ease; 
+      font-family: var(--font-mono); 
+      margin: 0 auto;
+      flex-shrink: 0;
+    }
+    .port-box:hover { transform: scale(1.12); border-color: var(--accent); z-index: 10; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+    .port-box.port-active {
+      background-color: rgba(16, 185, 129, 0.15); border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+    .port-led {
+      width: 6px; height: 6px; border-radius: 50%; background-color: #475569; margin-bottom: 3px;
+    }
+    .port-active .port-led {
+      background-color: #10b981; box-shadow: 0 0 8px #10b981;
+    }
+    .port-num { font-size: 0.625rem; font-weight: 700; color: var(--text-main); }
+
+    /* ==========================================================================
+       8. TABLA DE INVENTARIO CRUD & MODALES
+       ========================================================================== */
     .table-container { overflow-x: auto; border-radius: 0.5rem; border: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; }
     th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
@@ -189,14 +385,15 @@
     .modal-backdrop.active { opacity: 1; pointer-events: auto; }
     .modal-box {
       background-color: var(--bg-card); border: 1px solid var(--border-bright); border-radius: 0.75rem;
-      width: 100%; max-width: 540px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 580px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; box-shadow: var(--shadow-lg);
+      max-height: 92vh; overflow-y: auto;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
     .modal-footer { display: flex; justify-content: flex-end; gap: 0.6rem; border-top: 1px solid var(--border); padding-top: 1rem; }
 
     .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
     .form-group label { font-size: 0.725rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
-    .form-control { background-color: var(--bg-input); border: 1px solid var(--border-bright); color: var(--text-main); padding: 0.55rem 0.75rem; border-radius: 0.4rem; font-size: 0.825rem; }
+    .form-control { background-color: var(--bg-input); border: 1px solid var(--border-bright); color: var(--text-main); padding: 0.55rem 0.75rem; border-radius: 0.4rem; font-size: 0.825rem; width: 100%; font-family: inherit; }
     .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
     .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; }
 
@@ -206,23 +403,63 @@
 </head>
 <body>
 
+  <!-- ==========================================================================
+       PANTALLA DE INICIO DE SESIÓN (LOGIN)
+       ========================================================================== -->
+  <div id="loginOverlay">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-icon">🔐</div>
+        <h2>Gestor de Inventario de Racks</h2>
+        <p>Control de Acceso, Roles y Bitácora Auditada v1.1.0</p>
+      </div>
+
+      <form onsubmit="handleLogin(event)" style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="form-group">
+          <label for="loginUsername">Usuario:</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Ingrese su usuario" autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Contraseña:</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+
+        <div id="loginErrorBox" style="display:none; color:var(--danger); font-size:0.775rem; background:var(--danger-bg); padding:0.6rem; border-radius:0.4rem; border:1px solid rgba(244,63,94,0.3); text-align:center;"></div>
+
+        <button type="submit" class="btn btn-accent" style="width:100%; padding:0.65rem; font-size:0.875rem; margin-top:0.25rem;">
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ENCABEZADO Y CONTROLES DE PERSISTENCIA GLOBAL -->
   <header>
     <div class="brand">
       <h1>Gestor de Inventario de Racks</h1>
-      <span class="version-badge" id="appVersion">v1.0.1</span>
+      <span class="version-badge" id="appVersion">v1.1.0</span>
+      <span class="session-pill" id="activeUserBadge">
+        <span>👤</span> <strong id="currentUserNameDisplay">-</strong> <span id="currentUserRoleDisplay" style="opacity:0.85;">(-)</span>
+      </span>
     </div>
     
     <div class="header-actions">
-      <button class="btn btn-accent" onclick="exportStateJSON()">Exportar JSON</button>
-      <button class="btn" onclick="exportInventoryCSV()">Exportar CSV</button>
-      <button class="btn" onclick="document.getElementById('fileInputJSON').click()">Importar JSON</button>
+      <button class="btn" onclick="openChangePasswordModal()" title="Cambiar mi contraseña">🔑 Mi Contraseña</button>
+      <button class="btn btn-warning superuser-only" id="btnManageUsers" onclick="openUsersModal()">👥 Usuarios</button>
+      <button class="btn btn-accent admin-only" id="btnExportJSON" onclick="exportStateJSON()">Exportar JSON</button>
+      <button class="btn admin-only" id="btnExportCSV" onclick="exportInventoryCSV()">Exportar CSV</button>
+      <button class="btn admin-only" id="btnImportJSON" onclick="document.getElementById('fileInputJSON').click()">Importar JSON</button>
       <input type="file" id="fileInputJSON" accept=".json" onchange="importStateJSON(event)">
-      <button class="btn btn-danger" onclick="openResetModal()">Restablecer</button>
+      <button class="btn btn-danger superuser-only" id="btnResetApp" onclick="openResetModal()">Restablecer</button>
+      <button class="btn" onclick="logout()" title="Cerrar Sesión">🚪 Salir</button>
     </div>
   </header>
 
+  <!-- CUERPO PRINCIPAL DEL SISTEMA -->
   <main>
     <div class="top-section">
+      <!-- COLUMNA IZQUIERDA: DASHBOARD Y MÉTRICAS -->
       <div class="left-column">
         <div class="panel">
           <h2 class="panel-title">Métricas de Control</h2>
@@ -237,27 +474,38 @@
         <div class="panel">
           <h2 class="panel-title">
             Selección de Rack
-            <button class="btn" style="font-size:0.65rem; padding: 0.15rem 0.4rem;" onclick="openRackModal()">+ Crear Rack</button>
+            <button class="btn admin-only" id="btnCreateRack" style="font-size:0.65rem; padding: 0.15rem 0.4rem;" onclick="openRackModal()">+ Crear Rack</button>
           </h2>
           <div id="rackSelectorContainer"><p style="font-size: 0.8rem; color: var(--text-muted);">Cargando bastidores...</p></div>
         </div>
 
         <div class="panel">
           <h2 class="panel-title">
-            Bitácora
-            <button class="btn" style="font-size:0.65rem; padding: 0.15rem 0.4rem;" onclick="clearLog()">Limpiar</button>
+            <span>Bitácora Syslog & Auditoría</span>
+            <div style="display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap;">
+              <select id="logSeverityFilter" class="form-control" style="padding:0.12rem 0.35rem; font-size:0.65rem; width:auto;" onchange="renderDashboard()" title="Filtrar por Severidad Syslog">
+                <option value="ALL">Todas las severidades</option>
+                <option value="CRITICAL">CRITICAL (2)</option>
+                <option value="WARNING">WARNING (4)</option>
+                <option value="NOTICE">NOTICE (5)</option>
+                <option value="INFO">INFO (6)</option>
+              </select>
+              <button class="btn btn-success superuser-only" id="btnExportBitacoraXLSX" style="font-size:0.65rem; padding: 0.15rem 0.45rem;" onclick="exportAuditLogXLSX()" title="Descargar Bitácora Syslog en Excel (.xlsx)">📊 Exportar .XLSX</button>
+              <button class="btn btn-danger superuser-only" id="btnClearLog" style="font-size:0.65rem; padding: 0.15rem 0.45rem;" onclick="confirmClearLog()" title="Solo el Super Usuario (root) puede borrar la bitácora">Limpiar</button>
+            </div>
           </h2>
           <div class="log-box" id="auditLogContainer"></div>
         </div>
       </div>
 
+      <!-- COLUMNA DERECHA: MOTOR GRÁFICO RACK -->
       <div class="panel panel-rack">
         <div class="panel-title">
           <span>Vista de Bastidor / Rack (<span id="activeRackTitle" style="color:var(--accent);">Ninguno</span>)</span>
           <div class="rack-controls">
             <div class="control-group">
               <label style="font-size: 0.725rem; color: var(--text-muted); font-weight:600;">Vista:</label>
-              <select id="viewOrientationSelect" class="form-control" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onchange="renderRackGraphic()">
+              <select id="viewOrientationSelect" class="form-control" style="padding:0.25rem 0.5rem; font-size:0.75rem; width:auto;" onchange="renderRackGraphic()">
                 <option value="Frontal" selected>Frontal</option>
                 <option value="Posterior">Posterior</option>
               </select>
@@ -265,13 +513,13 @@
 
             <div class="control-group">
               <label style="font-size: 0.725rem; color: var(--text-muted); font-weight:600;">Orden U:</label>
-              <select id="uOrderSelect" class="form-control" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onchange="renderRackGraphic()">
-		<option value="DESC">Mayor a Menor (42 → 1)</option>
-                <option value="ASC" selected>Menor a Mayor (1 → 42)</option>
+              <select id="uOrderSelect" class="form-control" style="padding:0.25rem 0.5rem; font-size:0.75rem; width:auto;" onchange="renderRackGraphic()">
+                <option value="ASC" selected>Menor a Mayor (1 → N)</option>
+                <option value="DESC">Mayor a Menor (N → 1)</option>
               </select>
             </div>
 
-            <button class="btn btn-accent" style="font-size:0.75rem; padding: 0.25rem 0.6rem;" onclick="openDeviceModal()">+ Añadir Equipo / Reserva</button>
+            <button class="btn btn-accent admin-only" id="btnAddDevice" style="font-size:0.75rem; padding: 0.25rem 0.6rem;" onclick="openDeviceModal()">+ Añadir Equipo / Reserva</button>
           </div>
         </div>
 
@@ -279,17 +527,18 @@
       </div>
     </div>
 
+    <!-- SECCIÓN INFERIOR: TABLA Y AUDITORÍA ELÉCTRICA -->
     <div class="bottom-section">
       <div class="panel">
         <div class="panel-title">
-          <span>Inventario Editable</span>
+          <span>Inventario CRUD</span>
           <input type="text" id="globalSearchInput" placeholder="Buscar equipo, servicio o puerto..." class="form-control" style="width:240px; font-size:0.75rem;" oninput="renderInventoryTable()">
         </div>
         <div class="table-container" id="inventoryTableContainer"></div>
       </div>
 
       <div class="panel">
-        <h2 class="panel-title">Monitoreo Eléctrico A/B & Alertas Globales</h2>
+        <h2 class="panel-title"><span>Monitoreo Eléctrico A/B, Correlación de Eventos & Gobernanza</span><span id="policyEngineBadge" class="tag-badge tag-confirmado">MOTOR DE POLÍTICAS: ACTIVO (FAIL-SAFE)</span></h2>
         <div class="power-grid">
           <div class="power-card">
             <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600;">
@@ -311,6 +560,118 @@
     </div>
   </main>
 
+  <!-- MODAL: CAMBIAR CONTRASEÑA PROPIA (PARA CUALQUIER USUARIO AUTENTICADO) -->
+  <div class="modal-backdrop" id="changePasswordModal">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="color:var(--accent);">🔑 Cambiar Contraseña de Usuario</h3>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('changePasswordModal')">✕</button>
+      </div>
+      <div class="form-group">
+        <label>Usuario Actual:</label>
+        <input type="text" id="cpUsernameDisplay" class="form-control" disabled>
+      </div>
+      <div class="form-group">
+        <label>Contraseña Actual:</label>
+        <input type="password" id="cpCurrentPassword" class="form-control" placeholder="Ingrese su contraseña actual">
+      </div>
+      <div class="form-group">
+        <label>Nueva Contraseña:</label>
+        <input type="password" id="cpNewPassword" class="form-control" placeholder="Ingrese la nueva contraseña">
+      </div>
+      <div class="form-group">
+        <label>Confirmar Nueva Contraseña:</label>
+        <input type="password" id="cpConfirmPassword" class="form-control" placeholder="Repita la nueva contraseña">
+      </div>
+      <div id="cpErrorBox" style="display:none; color:var(--danger); font-size:0.75rem; background:var(--danger-bg); padding:0.5rem; border-radius:0.35rem;"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('changePasswordModal')">Cancelar</button>
+        <button class="btn btn-accent" onclick="saveOwnPasswordChange()">Actualizar Contraseña</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: JUSTIFICACIÓN / ARGUMENTACIÓN DE MODIFICACIÓN O DESACTIVACIÓN -->
+  <div class="modal-backdrop" id="justificationModal" style="z-index: 1200;">
+    <div class="modal-box" style="max-width: 500px; border-color: var(--warning);">
+      <div class="modal-header">
+        <h3 style="color:var(--warning);">📝 Argumentación Requerida para Bitácora</h3>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('justificationModal')">✕</button>
+      </div>
+      <p id="justificationSummary" style="font-size:0.825rem; color:var(--text-main); background:rgba(251, 191, 36, 0.08); padding:0.65rem; border-radius:0.4rem; border:1px solid rgba(251, 191, 36, 0.25);"></p>
+      <div class="form-group">
+        <label for="justificationTextInput">Motivo / Justificación Técnica de la Modificación o Desactivación:</label>
+        <textarea id="justificationTextInput" class="form-control" rows="3" placeholder="Ej. Desactivación de puerto por migración de enlace a Core Switch, mantenimiento preventivo, cambio de VLAN..."></textarea>
+      </div>
+      <div id="justificationErrorBox" style="display:none; color:var(--danger); font-size:0.75rem; background:var(--danger-bg); padding:0.45rem; border-radius:0.35rem;"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('justificationModal')">Cancelar</button>
+        <button class="btn btn-accent" id="confirmJustificationBtn">Confirmar y Registrar en Bitácora</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GESTIÓN DE USUARIOS Y ROLES -->
+  <div class="modal-backdrop" id="usersModal">
+    <div class="modal-box" style="max-width: 740px;">
+      <div class="modal-header">
+        <h3 style="color:var(--warning);">👥 Gestión de Usuarios y Privilegios</h3>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('usersModal')">✕</button>
+      </div>
+
+      <!-- Formulario Crear / Editar Usuario -->
+      <div style="background-color: rgba(10,13,20,0.7); border:1px solid var(--border-bright); border-radius:0.5rem; padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+        <h4 style="font-size:0.8rem; color:var(--accent);" id="userFormTitle">Crear Nuevo Usuario</h4>
+        <input type="hidden" id="editingUserId" value="">
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre de Usuario:</label>
+            <input type="text" id="userUsernameInput" class="form-control" placeholder="Ej. admin_red">
+          </div>
+          <div class="form-group">
+            <label id="userPasswordLabel">Contraseña:</label>
+            <input type="password" id="userPasswordInput" class="form-control" placeholder="Ingrese contraseña">
+          </div>
+          <div class="form-group">
+            <label>Rol / Privilegio:</label>
+            <select id="userRoleSelect" class="form-control">
+              <option value="Administrador">Administrador (Crear/Editar/Borrar)</option>
+              <option value="Usuario">Usuario (Solo Lectura)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="userFormError" style="display:none; color:var(--danger); font-size:0.75rem; background:var(--danger-bg); padding:0.45rem; border-radius:0.35rem;"></div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button class="btn" id="btnCancelEditUser" style="display:none; font-size:0.75rem;" onclick="resetUserForm()">Cancelar Edición</button>
+          <button class="btn btn-accent" style="font-size:0.75rem;" onclick="saveUserFromModal()">Guardar Usuario</button>
+        </div>
+      </div>
+
+      <!-- Tabla de Usuarios Registrados -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Rol / Privilegios</th>
+              <th>Permisos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('usersModal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GESTIÓN DE RACKS -->
   <div class="modal-backdrop" id="rackModal">
     <div class="modal-box">
       <div class="modal-header">
@@ -360,10 +721,11 @@
     </div>
   </div>
 
+  <!-- MODAL: GESTIÓN DE EQUIPOS Y RESERVAS -->
   <div class="modal-backdrop" id="deviceModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3 id="deviceModalTitle">Añadir / Modificar Elemento en Rack</h3>
+        <h3 id="deviceModalTitle">Añadir Elemento en Rack</h3>
         <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('deviceModal')">✕</button>
       </div>
       <input type="hidden" id="editingDeviceId" value="">
@@ -396,11 +758,11 @@
       <div class="form-row">
         <div class="form-group">
           <label>Unidad U Inicial:</label>
-          <input type="number" id="deviceStartUInput" class="form-control" value="1" min="1" max="48">
+          <input type="number" id="deviceStartUInput" class="form-control" placeholder="Ej. 1" min="1" max="48" onkeydown="onlyNaturalNumbers(event)">
         </div>
         <div class="form-group">
           <label>Altura (Cantidad U):</label>
-          <input type="number" id="deviceHeightUInput" class="form-control" value="1" min="1" max="10">
+          <input type="number" id="deviceHeightUInput" class="form-control" placeholder="Ej. 1" min="1" max="10" onkeydown="onlyNaturalNumbers(event)">
         </div>
       </div>
 
@@ -424,8 +786,15 @@
       <div class="form-row" id="devicePowerGroup">
         <div class="form-group">
           <label>Consumo Estimado (Watts):</label>
-          <input type="number" id="deviceWattsInput" class="form-control" value="67" min="0">
+          <input type="number" id="deviceWattsInput" class="form-control" placeholder="Ej. 67" min="0" onkeydown="onlyNaturalNumbers(event)">
         </div>
+        <div class="form-group" id="devicePortsGroup">
+          <label>Cantidad de Puertos:</label>
+          <input type="number" id="devicePortsInput" class="form-control" placeholder="Ej. 24" min="1" max="96" onkeydown="onlyNaturalNumbers(event)">
+        </div>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
           <label>Fuente Alimentación:</label>
           <select id="devicePowerTypeSelect" class="form-control">
@@ -433,26 +802,25 @@
             <option value="Dual A/B" selected>Dual A/B (Redundante)</option>
           </select>
         </div>
-      </div>
-
-      <div class="form-row">
         <div class="form-group">
           <label>Estado Operativo:</label>
           <select id="deviceEstadoSelect" class="form-control">
             <option value="Activo" selected>Activo</option>
+            <option value="Inactivo">Inactivo / Desactivado</option>
             <option value="Planificado">Planificado</option>
             <option value="Retirado">Retirado</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Fuente de Verdad (Trazabilidad):</label>
-          <select id="deviceVeracidadSelect" class="form-control">
-            <option value="[CONFIRMADO]">[CONFIRMADO] - Verificado por auditoría</option>
-            <option value="[INFERENCIA POR VALIDAR]">[INFERENCIA POR VALIDAR] - Estimado</option>
-            <option value="[PENDIENTE]">[PENDIENTE] - Datos incompletos</option>
-            <option value="[EJEMPLO DIDÁCTICO]">[EJEMPLO DIDÁCTICO] - Muestra académica</option>
-          </select>
-        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Fuente de Verdad (Trazabilidad):</label>
+        <select id="deviceVeracidadSelect" class="form-control">
+          <option value="[CONFIRMADO]">[CONFIRMADO] - Verificado por auditoría</option>
+          <option value="[INFERENCIA POR VALIDAR]">[INFERENCIA POR VALIDAR] - Estimado</option>
+          <option value="[PENDIENTE]">[PENDIENTE] - Datos incompletos</option>
+          <option value="[EJEMPLO DIDÁCTICO]">[EJEMPLO DIDÁCTICO] - Muestra académica</option>
+        </select>
       </div>
 
       <div id="modalAlertError" style="display:none; color:var(--danger); font-size:0.75rem; background:var(--danger-bg); padding:0.5rem; border-radius:0.375rem; border:1px solid rgba(244,63,94,0.3);"></div>
@@ -463,29 +831,106 @@
     </div>
   </div>
 
+  <!-- MODAL: GESTIÓN Y PANEL DE PUERTOS HD (AUTODINÁMICO Y AJUSTADO ULTRA HD) -->
+  <div class="modal-backdrop" id="portsPanelModal">
+    <div class="modal-box modal-box-hd">
+      <div class="modal-header">
+        <div>
+          <h3 id="portsPanelTitle" style="color:var(--accent);">Panel de Conexiones Frontal (HD)</h3>
+          <p id="portsPanelSubtitle" style="font-size:0.75rem; color:var(--text-muted);">Equipo Seleccionado</p>
+        </div>
+        <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('portsPanelModal')">✕</button>
+      </div>
+
+      <!-- MATRIZ GRÁFICA UNIFORME Y APRETADA DE PUERTOS -->
+      <div class="ports-grid-container" id="portsGridContainer"></div>
+
+      <!-- FORMULARIO DE EDICIÓN/DETALLE DEL PUERTO SELECCIONADO -->
+      <div id="portDetailForm" style="display:none; background-color: rgba(10,13,20,0.8); border:1px solid var(--border-bright); border-radius:0.5rem; padding:1rem; flex-direction:column; gap:0.75rem;">
+        <h4 style="font-size:0.8rem; color:var(--accent);" id="selectedPortLabel">Configurar Puerto</h4>
+        <input type="hidden" id="selectedPortIndex" value="">
+        <input type="hidden" id="selectedPortDeviceId" value="">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Etiqueta / Puerto:</label>
+            <input type="text" id="portTagInput" class="form-control" placeholder="Ej. P1">
+          </div>
+          <div class="form-group">
+            <label>Estado del Puerto:</label>
+            <select id="portEstadoSelect" class="form-control">
+              <option value="INACTIVO">INACTIVO (Gris / Desactivado)</option>
+              <option value="ACTIVO">ACTIVO (Verde Neón / Enlace OK)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Servicio Asociado / Descripción:</label>
+            <input type="text" id="portServicioInput" class="form-control" placeholder="Ej. Conexión AP Piso 2 - VLAN 10">
+          </div>
+          <div class="form-group">
+            <label>Direccionamiento IP / VLAN / Destino:</label>
+            <input type="text" id="portIpInput" class="form-control" placeholder="Ej. 192.168.10.25 / VLAN 10">
+          </div>
+        </div>
+
+        <div id="portSaveBtnContainer" style="display:flex; justify-content:flex-end; gap:0.5rem;">
+          <button class="btn btn-accent" style="font-size:0.75rem;" onclick="savePortDetail()">Guardar Puerto</button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('portsPanelModal')">Cerrar Panel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMACIÓN DE ELIMINACIÓN -->
   <div class="modal-backdrop" id="confirmModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3 style="color:var(--danger);">Confirmar Eliminación</h3>
+        <h3 style="color:var(--danger);">Confirmar Acción</h3>
         <button class="btn" style="padding:0.1rem 0.4rem;" onclick="closeModal('confirmModal')">✕</button>
       </div>
-      <p style="font-size:0.85rem;" id="confirmModalMessage">¿Está seguro de eliminar este elemento?</p>
+      <p style="font-size:0.85rem;" id="confirmModalMessage">¿Está seguro de continuar?</p>
       <div class="modal-footer">
         <button class="btn" onclick="closeModal('confirmModal')">Cancelar</button>
-        <button class="btn btn-danger" id="confirmModalActionBtn">Confirmar Eliminar</button>
+        <button class="btn btn-danger" id="confirmModalActionBtn">Confirmar</button>
       </div>
     </div>
   </div>
 
   <footer>
-    Cableado Estructurado v1.0.1 | Andres Felipe Sanchez Marin
+    Gestor de Inventario de Racks v1.2.0 | Control de Acceso, Roles y Bitácora Auditada
   </footer>
 
+  <!-- ==========================================================================
+     9. LÓGICA DE PROGRAMACIÓN JAVASCRIPT (SINGLE-FILE ENTERPRISE ARCHITECTURE)
+     ========================================================================== -->
   <script>
+    /**
+     * @file App Core JavaScript - Gestor de Inventario de Racks v1.2.0
+     * @version 1.1.0
+     * @description Control de acceso RBAC (Super Usuario root, Administrador, Usuario),
+     *              cambio de contraseña individual, desactivación explícita de puertos,
+     *              ventana de argumentación obligatoria en modificaciones/desactivaciones
+     *              y exportación de bitácora a archivo .xlsx para el Super Usuario.
+     */
+
     const APP_CONFIG = {
-      version: "1.0.1",
-      appName: "Rack & Structured Cabling Manager",
-      storageKey: "rack_cabling_inventory_unified"
+      version: "1.2.0",
+      appName: "Gestor de Inventario de Racks",
+      storageKey: "rack_cabling_inventory_unified",
+      sessionKey: "rack_cabling_active_session"
+    };
+
+    const ROOT_USER = {
+      id: "usr-root",
+      username: "root",
+      password: "1234",
+      role: "Super Usuario"
     };
 
     const SUBTIPOS = {
@@ -494,9 +939,12 @@
     };
 
     const DEFAULT_STATE = {
-      version: "1.0.1",
+      version: "1.2.0",
       fecha_actualizacion: new Date().toISOString(),
       activeRackId: "rack-01",
+      usuarios: [
+        { ...ROOT_USER }
+      ],
       racks: [
         {
           id: "rack-01",
@@ -519,27 +967,633 @@
           ubicacion_cara: "Frontal",
           tamano: "Medio",
           consumo_watts: 67,
+          cantidad_puertos: 48,
           fuente_alimentacion: "Dual A/B",
           estado: "Activo",
-          fuente_verdad: "[CONFIRMADO]"
+          fuente_verdad: "[CONFIRMADO]",
+          puertos: []
         }
       ],
       reservas: [],
       bitacora: [
         {
+          event_id: "EVT-1000",
           timestamp: new Date().toISOString(),
+          facility: "SYS",
+          severity: "INFO",
+          severity_code: 6,
+          mnemonic: "%SYS-6-BOOT",
+          decision: "ALLOW",
+          usuario: "root",
+          rol: "Super Usuario",
           accion: "SISTEMA_INICIALIZADO",
-          detalle: "Sincronizado v1.0.1 sin bloqueo de edición."
+          detalle: "Gestor de Inventario de Racks v1.2.0 inicializado con Motor de Políticas Fail-Safe y Syslog.",
+          argumento: "Inicialización del sistema"
         }
       ]
     };
 
     let appState = null;
+    let currentUser = null;
     let deleteCallback = null;
+    let activeContextMenu = null;
+    let pendingJustificationCallback = null;
+
+    /* ==========================================================================
+       MOTOR DE POLÍTICAS (ALLOW / BLOCK / REVIEW), FRONTERA DE CONFIANZA Y FAIL-SAFE
+       ========================================================================== */
+    const SYSLOG_CATALOG = {
+      SISTEMA_INICIALIZADO:         { eventId: "EVT-1000", facility: "SYS",    severity: "INFO",     code: 6, mnemonic: "%SYS-6-BOOT" },
+      INICIO_SESION:                { eventId: "EVT-1001", facility: "AUTH",   severity: "INFO",     code: 6, mnemonic: "%AUTH-6-LOGIN_OK" },
+      INICIO_SESION_FALLIDO:        { eventId: "EVT-1002", facility: "AUTH",   severity: "WARNING",  code: 4, mnemonic: "%AUTH-4-LOGIN_FAIL" },
+      CIERRE_SESION:                { eventId: "EVT-1003", facility: "AUTH",   severity: "INFO",     code: 6, mnemonic: "%AUTH-6-LOGOUT" },
+      CAMBIO_CONTRASEÑA:            { eventId: "EVT-1004", facility: "AUTH",   severity: "NOTICE",   code: 5, mnemonic: "%AUTH-5-PWD_CHANGE" },
+      CREAR_USUARIO:                { eventId: "EVT-1005", facility: "IAM",    severity: "NOTICE",   code: 5, mnemonic: "%IAM-5-USER_CREATE" },
+      MODIFICAR_USUARIO:            { eventId: "EVT-1006", facility: "IAM",    severity: "NOTICE",   code: 5, mnemonic: "%IAM-5-USER_MODIFY" },
+      ELIMINAR_USUARIO:             { eventId: "EVT-1007", facility: "IAM",    severity: "WARNING",  code: 4, mnemonic: "%IAM-4-USER_DELETE" },
+      POLITICA_BLOQUEADA:           { eventId: "EVT-1008", facility: "SEC",    severity: "WARNING",  code: 4, mnemonic: "%SEC-4-POLICY_BLOCK" },
+      CREAR_RACK:                   { eventId: "EVT-2001", facility: "RACK",   severity: "INFO",     code: 6, mnemonic: "%RACK-6-CREATE" },
+      MODIFICAR_RACK:               { eventId: "EVT-2002", facility: "RACK",   severity: "NOTICE",   code: 5, mnemonic: "%RACK-5-MODIFY" },
+      ELIMINAR_RACK:                { eventId: "EVT-2003", facility: "RACK",   severity: "WARNING",  code: 4, mnemonic: "%RACK-4-DELETE" },
+      CREAR_ELEMENTO:               { eventId: "EVT-3001", facility: "DEVICE", severity: "INFO",     code: 6, mnemonic: "%DEV-6-ADD" },
+      MODIFICAR_ELEMENTO:           { eventId: "EVT-3002", facility: "DEVICE", severity: "NOTICE",   code: 5, mnemonic: "%DEV-5-MODIFY" },
+      DESACTIVAR_MODIFICAR_ELEMENTO:{ eventId: "EVT-3003", facility: "DEVICE", severity: "WARNING",  code: 4, mnemonic: "%DEV-4-SHUTDOWN" },
+      ELIMINAR_ELEMENTO:            { eventId: "EVT-3004", facility: "DEVICE", severity: "WARNING",  code: 4, mnemonic: "%DEV-4-REMOVE" },
+      CREAR_RESERVA:                { eventId: "EVT-3005", facility: "DEVICE", severity: "INFO",     code: 6, mnemonic: "%DEV-6-RESERVE" },
+      MODIFICAR_RESERVA:            { eventId: "EVT-3006", facility: "DEVICE", severity: "NOTICE",   code: 5, mnemonic: "%DEV-5-RES_MODIFY" },
+      MODIFICAR_PUERTO:             { eventId: "EVT-4001", facility: "PORT",   severity: "NOTICE",   code: 5, mnemonic: "%PORT-5-CONFIG" },
+      DESACTIVAR_PUERTO:            { eventId: "EVT-4002", facility: "PORT",   severity: "WARNING",  code: 4, mnemonic: "%PORT-4-SHUTDOWN" },
+      IMPORTAR_JSON:                { eventId: "EVT-5001", facility: "DATA",   severity: "NOTICE",   code: 5, mnemonic: "%DATA-5-IMPORT_JSON" },
+      IMPORTAR_JSON_RECHAZADO:      { eventId: "EVT-5002", facility: "SEC",    severity: "WARNING",  code: 4, mnemonic: "%SEC-4-BOUNDARY_REJECT" },
+      EXPORTAR_DATOS:               { eventId: "EVT-5003", facility: "DATA",   severity: "INFO",     code: 6, mnemonic: "%DATA-6-EXPORT" },
+      BITACORA_DEPURADA:            { eventId: "EVT-9001", facility: "AUDIT",  severity: "CRITICAL", code: 2, mnemonic: "%AUDIT-2-PURGE" },
+      RESTABLECER_SISTEMA:          { eventId: "EVT-9002", facility: "SYS",    severity: "CRITICAL", code: 2, mnemonic: "%SYS-2-FACTORY_RESET" }
+    };
+
+    const POLICY_MATRIX = {
+      VIEW_INVENTORY:        { roles: ['Super Usuario', 'Administrador', 'Usuario'], decision: 'ALLOW',  reason: 'Consulta permitida para todos los perfiles autenticados.' },
+      CHANGE_OWN_PASSWORD:   { roles: ['Super Usuario', 'Administrador', 'Usuario'], decision: 'ALLOW',  reason: 'Autogestión de credenciales habilitada.' },
+      EXPORT_DATA:           { roles: ['Super Usuario', 'Administrador'],            decision: 'ALLOW',  reason: 'Exportación de inventario autorizada para roles administrativos.' },
+      IMPORT_DATA:           { roles: ['Super Usuario', 'Administrador'],            decision: 'REVIEW', reason: 'Cruce de frontera de confianza: requiere validación de esquema.' },
+      CREATE_INFRASTRUCTURE: { roles: ['Super Usuario', 'Administrador'],            decision: 'ALLOW',  reason: 'Creación de activos autorizada.' },
+      MODIFY_INFRASTRUCTURE: { roles: ['Super Usuario', 'Administrador'],            decision: 'REVIEW', reason: 'Modificación/desactivación requiere humano en el circuito y justificación.' },
+      DELETE_INFRASTRUCTURE: { roles: ['Super Usuario', 'Administrador'],            decision: 'REVIEW', reason: 'Eliminación crítica requiere confirmación explícita.' },
+      MANAGE_USERS:          { roles: ['Super Usuario'],                             decision: 'ALLOW',  reason: 'Administración de identidades exclusiva de Super Usuario.' },
+      EXPORT_AUDIT_LOG:      { roles: ['Super Usuario'],                             decision: 'ALLOW',  reason: 'Extracción forense de bitácora exclusiva de Super Usuario.' },
+      PURGE_AUDIT_LOG:       { roles: ['Super Usuario'],                             decision: 'REVIEW', reason: 'Depuración de bitácora crítica exclusiva de Super Usuario.' },
+      FACTORY_RESET:         { roles: ['Super Usuario'],                             decision: 'REVIEW', reason: 'Restablecimiento de fábrica exclusivo de Super Usuario.' }
+    };
+
+    /**
+     * Evalúa una acción contra el Motor de Políticas aplicando Falla Segura (Fail-Safe / Default Deny).
+     * Devuelve { decision: 'ALLOW' | 'REVIEW' | 'BLOCK', allowed: boolean, reason: string }
+     */
+    function evaluatePolicy(policyAction, contextLabel = '') {
+      if (!currentUser || !currentUser.role || !currentUser.username) {
+        return { decision: 'BLOCK', allowed: false, reason: 'Falla segura: Sesión inexistente o no verificada.' };
+      }
+
+      const normalizedRole = isSuperUser() ? 'Super Usuario' : currentUser.role;
+      const rule = POLICY_MATRIX[policyAction];
+
+      if (!rule) {
+        addLogEntry('POLITICA_BLOQUEADA', `Acción no reconocida bloqueada por falla segura (${policyAction}).`, 'Motor de Políticas Fail-Safe', 'BLOCK');
+        return { decision: 'BLOCK', allowed: false, reason: 'Política no definida (Fail-Closed).' };
+      }
+
+      if (!rule.roles.includes(normalizedRole)) {
+        const detailMsg = `Motor de Políticas [BLOCK] bloqueó "${policyAction}"${contextLabel ? ' (' + contextLabel + ')' : ''} para usuario "${currentUser.username}" [${normalizedRole}].`;
+        addLogEntry('POLITICA_BLOQUEADA', detailMsg, `Rol "${normalizedRole}" no autorizado por política.`, 'BLOCK');
+        return { decision: 'BLOCK', allowed: false, reason: `Acceso denegado (BLOCK): El rol "${normalizedRole}" no tiene autorización para esta operación.` };
+      }
+
+      return { decision: rule.decision, allowed: true, reason: rule.reason };
+    }
+
+    /**
+     * Frontera de Confianza (Trust Boundary): Valida y normaliza un JSON externo antes de aceptarlo en appState.
+     */
+    function validateTrustBoundaryJSON(rawObj) {
+      if (!rawObj || typeof rawObj !== 'object' || Array.isArray(rawObj)) {
+        return { valid: false, error: 'El archivo no contiene un objeto JSON estructurado válido.' };
+      }
+      if (!Array.isArray(rawObj.racks) || !Array.isArray(rawObj.equipos)) {
+        return { valid: false, error: 'Frontera de confianza rechazada: Faltan arreglos obligatorios ("racks" o "equipos").' };
+      }
+      if (rawObj.racks.length > 200 || rawObj.equipos.length > 5000) {
+        return { valid: false, error: 'Frontera de confianza rechazada: El volumen de registros excede los límites seguros.' };
+      }
+      rawObj.racks = rawObj.racks.map((r, idx) => ({
+        id: String(r.id || `rack-imp-${idx}`),
+        nombre: escapeHTML(String(r.nombre || r.name || `Rack ${idx + 1}`)),
+        unidades_totales: Math.min(Math.max(parseInt(r.unidades_totales || r.totalU || 42, 10) || 42, 1), 48),
+        ubicacion: escapeHTML(String(r.ubicacion || r.zone || 'Por definir')),
+        estado: ['Activo', 'Planificado', 'Retirado'].includes(r.estado) ? r.estado : 'Activo',
+        fuente_verdad: String(r.fuente_verdad || '[INFERENCIA POR VALIDAR]')
+      }));
+      rawObj.equipos = rawObj.equipos.map((e, idx) => ({
+        ...e,
+        id: String(e.id || `eq-imp-${idx}`),
+        rack_id: String(e.rack_id || e.rackId || (rawObj.racks[0] ? rawObj.racks[0].id : 'rack-01')),
+        nombre: escapeHTML(String(e.nombre || e.name || 'Equipo Importado')),
+        u_inicial: Math.min(Math.max(parseInt(e.u_inicial || e.uStart || 1, 10) || 1, 1), 48),
+        u_alto: Math.min(Math.max(parseInt(e.u_alto || e.uHeight || 1, 10) || 1, 1), 48),
+        consumo_watts: Math.max(parseInt(e.consumo_watts || e.nominalW || 0, 10) || 0, 0),
+        cantidad_puertos: Math.min(Math.max(parseInt(e.cantidad_puertos || 4, 10) || 4, 1), 96),
+        estado: ['Activo', 'Inactivo', 'Planificado', 'Retirado'].includes(e.estado) ? e.estado : 'Activo'
+      }));
+      if (!Array.isArray(rawObj.reservas)) rawObj.reservas = [];
+      if (!Array.isArray(rawObj.bitacora)) rawObj.bitacora = [];
+      return { valid: true, sanitized: rawObj };
+    }
+
+    /**
+     * Motor de Correlación de Eventos (SIEM ligero):
+     * Analiza la ventana temporal de la bitácora en busca de patrones anómalos.
+     */
+    function correlateSecurityEvents() {
+      const alerts = [];
+      const logs = appState && Array.isArray(appState.bitacora) ? appState.bitacora : [];
+      if (logs.length === 0) return alerts;
+
+      const now = Date.now();
+      const WINDOW_10_MIN = 10 * 60 * 1000;
+      const recentLogs = logs.filter(l => {
+        const ts = new Date(l.timestamp).getTime();
+        return !isNaN(ts) && (now - ts) <= WINDOW_10_MIN;
+      });
+
+      const failedLogins = recentLogs.filter(l => l.accion === 'INICIO_SESION_FALLIDO');
+      if (failedLogins.length >= 3) {
+        alerts.push({
+          type: 'danger',
+          msg: `CORRELACIÓN SIEM [AUTH]: Se detectaron ${failedLogins.length} intentos fallidos de inicio de sesión en los últimos 10 minutos.`
+        });
+      }
+
+      const policyBlocks = recentLogs.filter(l => l.decision === 'BLOCK' || l.accion === 'POLITICA_BLOQUEADA');
+      if (policyBlocks.length >= 2) {
+        alerts.push({
+          type: 'warning',
+          msg: `CORRELACIÓN SIEM [SEC]: ${policyBlocks.length} intentos de operación bloqueados (BLOCK) por el Motor de Políticas en los últimos 10 min.`
+        });
+      }
+
+      const shutdowns = recentLogs.filter(l => l.accion === 'DESACTIVAR_PUERTO' || l.accion === 'DESACTIVAR_MODIFICAR_ELEMENTO');
+      if (shutdowns.length >= 3) {
+        alerts.push({
+          type: 'warning',
+          msg: `CORRELACIÓN SIEM [INFRA]: ${shutdowns.length} desactivaciones de puertos/equipos registradas en una ventana de 10 minutos.`
+        });
+      }
+
+      return alerts;
+    }
+
+    function isSuperUser() {
+      return currentUser && (
+        currentUser.role === 'Super Usuario' ||
+        currentUser.role === 'Superadministrador' ||
+        currentUser.username === 'root'
+      );
+    }
+
+    function canWrite() {
+      return currentUser && (
+        isSuperUser() ||
+        currentUser.role === 'Administrador'
+      );
+    }
+
+    function ensureRootUserExists() {
+      if (!appState.usuarios || !Array.isArray(appState.usuarios)) {
+        appState.usuarios = [];
+      }
+      const rootIdx = appState.usuarios.findIndex(u => u.username === 'root');
+      if (rootIdx === -1) {
+        appState.usuarios.unshift({ ...ROOT_USER });
+      } else {
+        appState.usuarios[rootIdx].id = "usr-root";
+        appState.usuarios[rootIdx].role = "Super Usuario";
+        if (!appState.usuarios[rootIdx].password) {
+          appState.usuarios[rootIdx].password = "1234";
+        }
+      }
+      // Normalizar roles antiguos si existían en localStorage
+      appState.usuarios.forEach(u => {
+        if (u.role === 'Superadministrador') u.role = 'Super Usuario';
+      });
+    }
+
+    function applyRolePermissionsUI() {
+      if (!currentUser) return;
+
+      const displayRole = isSuperUser() ? 'Super Usuario' : currentUser.role;
+      const userBadge = document.getElementById('activeUserBadge');
+      document.getElementById('currentUserNameDisplay').textContent = currentUser.username;
+      document.getElementById('currentUserRoleDisplay').textContent = `(${displayRole})`;
+
+      userBadge.classList.remove('role-superuser', 'role-admin', 'role-user');
+      if (isSuperUser()) {
+        userBadge.classList.add('role-superuser');
+      } else if (currentUser.role === 'Administrador') {
+        userBadge.classList.add('role-admin');
+      } else {
+        userBadge.classList.add('role-user');
+      }
+
+      // Elementos visibles solo para Administradores y Super Usuario
+      document.querySelectorAll('.admin-only').forEach(el => {
+        el.style.display = canWrite() ? '' : 'none';
+      });
+
+      // Elementos visibles exclusivamente para Super Usuario (root)
+      document.querySelectorAll('.superuser-only').forEach(el => {
+        el.style.display = isSuperUser() ? '' : 'none';
+      });
+    }
+
+    /* ==========================================================================
+       VENTANA DE ARGUMENTACIÓN (PARA MODIFICACIÓN O DESACTIVACIÓN)
+       ========================================================================== */
+    function openJustificationModal(summaryText, onConfirmCallback) {
+      document.getElementById('justificationSummary').textContent = summaryText;
+      document.getElementById('justificationTextInput').value = '';
+      document.getElementById('justificationErrorBox').style.display = 'none';
+      pendingJustificationCallback = onConfirmCallback;
+      openModal('justificationModal');
+      setTimeout(() => document.getElementById('justificationTextInput').focus(), 100);
+    }
+
+    document.getElementById('confirmJustificationBtn').addEventListener('click', () => {
+      const reason = document.getElementById('justificationTextInput').value.trim();
+      const errBox = document.getElementById('justificationErrorBox');
+      if (!reason) {
+        errBox.textContent = "Debe ingresar una argumentación o motivo antes de continuar.";
+        errBox.style.display = 'block';
+        return;
+      }
+      errBox.style.display = 'none';
+      closeModal('justificationModal');
+      if (typeof pendingJustificationCallback === 'function') {
+        const cb = pendingJustificationCallback;
+        pendingJustificationCallback = null;
+        cb(reason);
+      }
+    });
+
+    /* ==========================================================================
+       AUTENTICACIÓN (LOGIN / LOGOUT) & CAMBIO DE CONTRASEÑA PROPIA
+       ========================================================================== */
+    function handleLogin(event) {
+      event.preventDefault();
+      const usernameInput = document.getElementById('loginUsername').value.trim();
+      const passwordInput = document.getElementById('loginPassword').value.trim();
+      const errorBox = document.getElementById('loginErrorBox');
+
+      if (!appState) {
+        appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+      ensureRootUserExists();
+
+      const matchedUser = appState.usuarios.find(
+        u => String(u.username || '').trim().toLowerCase() === usernameInput.toLowerCase() &&
+             String(u.password || '') === passwordInput
+      );
+
+      if (!matchedUser) {
+        addLogEntry("INICIO_SESION_FALLIDO", `Intento fallido de autenticación para el usuario "${usernameInput || 'desconocido'}".`, "Credenciales inválidas en pantalla de acceso", "BLOCK");
+        errorBox.textContent = "Credenciales incorrectas. Verifique usuario y contraseña.";
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      errorBox.style.display = 'none';
+      currentUser = {
+        id: matchedUser.id,
+        username: matchedUser.username,
+        role: matchedUser.role === 'Superadministrador' ? 'Super Usuario' : matchedUser.role
+      };
+
+      sessionStorage.setItem(APP_CONFIG.sessionKey, JSON.stringify(currentUser));
+      document.getElementById('loginUsername').value = '';
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginOverlay').classList.add('hidden');
+
+      addLogEntry("INICIO_SESION", `Inicio de sesión exitoso de "${currentUser.username}" [${currentUser.role}].`);
+      applyRolePermissionsUI();
+      renderDashboard();
+      renderRackGraphic();
+      renderInventoryTable();
+    }
+
+    function logout() {
+      if (currentUser) {
+        addLogEntry("CIERRE_SESION", `El usuario "${currentUser.username}" cerró sesión.`);
+      }
+      currentUser = null;
+      sessionStorage.removeItem(APP_CONFIG.sessionKey);
+      closeContextMenu();
+      document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
+      document.getElementById('loginOverlay').classList.remove('hidden');
+    }
+
+    function checkSession() {
+      try {
+        const savedSession = sessionStorage.getItem(APP_CONFIG.sessionKey);
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          const validUser = (appState.usuarios || []).find(u => u.username === parsed.username);
+          if (validUser) {
+            currentUser = {
+              id: validUser.id,
+              username: validUser.username,
+              role: validUser.role === 'Superadministrador' ? 'Super Usuario' : validUser.role
+            };
+            document.getElementById('loginOverlay').classList.add('hidden');
+            applyRolePermissionsUI();
+            return;
+          }
+        }
+      } catch (e) {}
+      document.getElementById('loginOverlay').classList.remove('hidden');
+    }
+
+    function openChangePasswordModal() {
+      if (!currentUser) return;
+      document.getElementById('cpUsernameDisplay').value = `${currentUser.username} (${currentUser.role})`;
+      document.getElementById('cpCurrentPassword').value = '';
+      document.getElementById('cpNewPassword').value = '';
+      document.getElementById('cpConfirmPassword').value = '';
+      document.getElementById('cpErrorBox').style.display = 'none';
+      openModal('changePasswordModal');
+    }
+
+    function saveOwnPasswordChange() {
+      if (!currentUser) return;
+      const currentPwd = document.getElementById('cpCurrentPassword').value;
+      const newPwd = document.getElementById('cpNewPassword').value;
+      const confirmPwd = document.getElementById('cpConfirmPassword').value;
+      const errBox = document.getElementById('cpErrorBox');
+
+      const userIdx = appState.usuarios.findIndex(u => String(u.id) === String(currentUser.id) || u.username === currentUser.username);
+      if (userIdx === -1) return;
+
+      if (appState.usuarios[userIdx].password !== currentPwd) {
+        errBox.textContent = "La contraseña actual es incorrecta.";
+        errBox.style.display = 'block';
+        return;
+      }
+      if (!newPwd || newPwd.length < 3) {
+        errBox.textContent = "La nueva contraseña debe tener al menos 3 caracteres.";
+        errBox.style.display = 'block';
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        errBox.textContent = "La confirmación de la nueva contraseña no coincide.";
+        errBox.style.display = 'block';
+        return;
+      }
+
+      appState.usuarios[userIdx].password = newPwd;
+      addLogEntry("CAMBIO_CONTRASEÑA", `El usuario "${currentUser.username}" actualizó su contraseña.`);
+      saveState();
+      closeModal('changePasswordModal');
+      alert("Contraseña actualizada correctamente.");
+    }
+
+    /* ==========================================================================
+       CRUD DE USUARIOS (SOLO ADMINISTRADOR Y SUPER USUARIO)
+       ========================================================================== */
+    function openUsersModal() {
+      const pol = evaluatePolicy("MANAGE_USERS", "Gestión de Usuarios");
+      if (!pol.allowed) { alert(pol.reason); return; }
+      resetUserForm();
+      renderUsersTable();
+      openModal('usersModal');
+    }
+
+    function resetUserForm() {
+      document.getElementById('editingUserId').value = '';
+      document.getElementById('userFormTitle').textContent = 'Crear Nuevo Usuario';
+      document.getElementById('userUsernameInput').value = '';
+      document.getElementById('userUsernameInput').disabled = false;
+      document.getElementById('userPasswordLabel').textContent = 'Contraseña:';
+      document.getElementById('userPasswordInput').value = '';
+      document.getElementById('userRoleSelect').value = 'Administrador';
+      document.getElementById('userRoleSelect').disabled = false;
+      document.getElementById('userFormError').style.display = 'none';
+      document.getElementById('btnCancelEditUser').style.display = 'none';
+    }
+
+    function editUser(userId, focusPassword = false) {
+      if (!isSuperUser()) { alert("Acceso denegado: Únicamente el Super Usuario puede modificar usuarios."); return; }
+      const usr = appState.usuarios.find(u => String(u.id) === String(userId));
+      if (!usr) return;
+
+      if (usr.username === 'root' && !isSuperUser()) {
+        alert("Solo el Super Usuario (root) puede modificar su propia contraseña.");
+        return;
+      }
+
+      document.getElementById('editingUserId').value = usr.id;
+      document.getElementById('userFormTitle').textContent = focusPassword
+        ? `Cambiar Contraseña de: ${usr.username}`
+        : `Modificar Usuario: ${usr.username}`;
+      document.getElementById('userUsernameInput').value = usr.username;
+      document.getElementById('userPasswordLabel').textContent = 'Nueva Contraseña:';
+      document.getElementById('userPasswordInput').value = usr.password;
+      document.getElementById('userFormError').style.display = 'none';
+      document.getElementById('btnCancelEditUser').style.display = 'inline-flex';
+
+      if (usr.username === 'root') {
+        document.getElementById('userUsernameInput').disabled = true;
+        document.getElementById('userRoleSelect').disabled = true;
+      } else {
+        document.getElementById('userUsernameInput').disabled = false;
+        document.getElementById('userRoleSelect').value = usr.role;
+        document.getElementById('userRoleSelect').disabled = false;
+      }
+
+      if (focusPassword) {
+        const pwdField = document.getElementById('userPasswordInput');
+        pwdField.focus();
+        pwdField.select();
+      }
+    }
+
+    function saveUserFromModal() {
+      if (!isSuperUser()) { alert("Acceso denegado: Únicamente el Super Usuario puede crear o modificar usuarios."); return; }
+      const editId = document.getElementById('editingUserId').value.trim();
+      const username = document.getElementById('userUsernameInput').value.trim();
+      const password = document.getElementById('userPasswordInput').value;
+      const role = document.getElementById('userRoleSelect').value;
+      const errBox = document.getElementById('userFormError');
+
+      if (!username || !password) {
+        errBox.textContent = "Debe ingresar un nombre de usuario y una contraseña.";
+        errBox.style.display = 'block';
+        return;
+      }
+
+      if (editId) {
+        const idx = appState.usuarios.findIndex(u => String(u.id) === editId);
+        if (idx === -1) return;
+
+        const targetUser = appState.usuarios[idx];
+        const passwordChanged = targetUser.password !== password;
+
+        if (targetUser.username === 'root') {
+          if (!isSuperUser()) {
+            errBox.textContent = "No tiene permisos para editar al usuario root.";
+            errBox.style.display = 'block';
+            return;
+          }
+          appState.usuarios[idx].password = password;
+          addLogEntry("MODIFICAR_USUARIO", `Actualizó la contraseña del Super Usuario "root".`);
+        } else {
+          const duplicate = appState.usuarios.some(u => u.username.toLowerCase() === username.toLowerCase() && String(u.id) !== editId);
+          if (duplicate) {
+            errBox.textContent = "Ya existe otro usuario con ese nombre.";
+            errBox.style.display = 'block';
+            return;
+          }
+          const prevName = targetUser.username;
+          appState.usuarios[idx].username = username;
+          appState.usuarios[idx].password = password;
+          appState.usuarios[idx].role = role;
+          const pwdNote = passwordChanged ? " (incluyendo cambio de contraseña)" : "";
+          addLogEntry("MODIFICAR_USUARIO", `Modificó el usuario "${prevName}" -> "${username}" (Rol: ${role})${pwdNote}.`);
+        }
+      } else {
+        if (username.toLowerCase() === 'root') {
+          errBox.textContent = "El nombre 'root' está reservado para el Super Usuario.";
+          errBox.style.display = 'block';
+          return;
+        }
+        const duplicate = appState.usuarios.some(u => u.username.toLowerCase() === username.toLowerCase());
+        if (duplicate) {
+          errBox.textContent = "El nombre de usuario ya está registrado.";
+          errBox.style.display = 'block';
+          return;
+        }
+
+        const newUser = {
+          id: "usr-" + Date.now(),
+          username: username,
+          password: password,
+          role: role
+        };
+        appState.usuarios.push(newUser);
+        addLogEntry("CREAR_USUARIO", `Creó el usuario "${username}" con privilegios de ${role}.`);
+      }
+
+      saveState();
+      resetUserForm();
+      renderUsersTable();
+    }
+
+    function confirmDeleteUser(userId) {
+      if (!isSuperUser()) { alert("Acceso denegado: Únicamente el Super Usuario puede eliminar usuarios."); return; }
+      const usr = appState.usuarios.find(u => String(u.id) === String(userId));
+      if (!usr) return;
+
+      if (usr.username === 'root') {
+        alert("El Super Usuario 'root' no puede ser eliminado.");
+        return;
+      }
+
+      if (currentUser && String(usr.id) === String(currentUser.id)) {
+        alert("No puedes eliminar tu propio usuario mientras tienes la sesión activa.");
+        return;
+      }
+
+      document.getElementById('confirmModalMessage').textContent = `¿Confirmas eliminar al usuario "${usr.username}" (${usr.role})?`;
+      deleteCallback = function() {
+        appState.usuarios = appState.usuarios.filter(u => String(u.id) !== String(userId));
+        addLogEntry("ELIMINAR_USUARIO", `Eliminó el usuario "${usr.username}" (${usr.role}).`);
+        saveState();
+        renderUsersTable();
+        closeModal('confirmModal');
+      };
+      document.getElementById('confirmModalActionBtn').onclick = deleteCallback;
+      openModal('confirmModal');
+    }
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+
+      let html = '';
+      appState.usuarios.forEach(u => {
+        const isRoot = u.username === 'root';
+        const displayRole = isRoot ? 'Super Usuario' : u.role;
+        const badgeClass = isRoot ? 'tag-inferencia' : (u.role === 'Administrador' ? 'tag-ejemplo' : 'tag-confirmado');
+        const permsText = isRoot
+          ? 'Control total + Exportar/Borrar bitácora'
+          : (u.role === 'Administrador' ? 'Crear, modificar y eliminar' : 'Solo lectura');
+
+        let actionsHtml = '';
+        if (isRoot) {
+          actionsHtml = isSuperUser()
+            ? `<button class="btn btn-warning" style="padding:0.15rem 0.45rem; font-size:0.7rem;" onclick="editUser('${u.id}', true)">🔑 Cambiar Clave</button>`
+            : `<span style="font-size:0.7rem; color:var(--text-muted);">Protegido</span>`;
+        } else {
+          actionsHtml = `
+            <div style="display:flex; gap:0.3rem; flex-wrap:wrap;">
+              <button class="btn btn-warning" style="padding:0.15rem 0.45rem; font-size:0.7rem;" onclick="editUser('${u.id}', true)" title="Cambiar contraseña">🔑 Clave</button>
+              <button class="btn" style="padding:0.15rem 0.45rem; font-size:0.7rem;" onclick="editUser('${u.id}', false)">Editar</button>
+              <button class="btn btn-danger" style="padding:0.15rem 0.45rem; font-size:0.7rem;" onclick="confirmDeleteUser('${u.id}')">Eliminar</button>
+            </div>
+          `;
+        }
+
+        html += `
+          <tr>
+            <td><strong>${escapeHTML(u.username)}</strong></td>
+            <td><span class="tag-badge ${badgeClass}">${escapeHTML(displayRole)}</span></td>
+            <td style="font-size:0.75rem; color:var(--text-muted);">${permsText}</td>
+            <td>${actionsHtml}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    /* ==========================================================================
+       UTILIDADES GENERALES & PERSISTENCIA
+       ========================================================================== */
+    function getRackNameById(rackId) {
+      if (!appState || !appState.racks) return 'Rack desconocido';
+      const r = appState.racks.find(item => String(item.id) === String(rackId));
+      return r ? (r.nombre || r.name || 'Sin nombre') : 'Sin Rack';
+    }
 
     function escapeHTML(str) {
       if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function onlyNaturalNumbers(event) {
+      const invalidKeys = ['e', 'E', '+', '-', '.', ','];
+      if (invalidKeys.includes(event.key)) {
+        event.preventDefault();
+      }
+    }
+
+    function parsePortCountFromName(nombre) {
+      if (!nombre) return 4;
+      const match = nombre.match(/(\d+)\s*P/i);
+      if (match && match[1]) {
+        return parseInt(match[1], 10);
+      }
+      return 4;
     }
 
     function getTagCssClass(tag) {
@@ -608,6 +1662,10 @@
         if (!appState) {
           appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
         }
+        ensureRootUserExists();
+        if (Array.isArray(appState.bitacora)) {
+          appState.bitacora = appState.bitacora.map(item => normalizeLogRecord(item));
+        }
         saveState();
       } catch (e) {
         appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -617,6 +1675,7 @@
         appState.activeRackId = appState.racks[0].id;
       }
 
+      checkSession();
       renderDashboard();
       renderRackGraphic();
       renderInventoryTable();
@@ -630,13 +1689,47 @@
       renderDashboard();
     }
 
-    function addLogEntry(accion, detalle) {
+    function normalizeLogRecord(raw) {
+      const cat = SYSLOG_CATALOG[raw.accion] || {
+        eventId: "EVT-9999",
+        facility: "SYS",
+        severity: "INFO",
+        code: 6,
+        mnemonic: `%SYS-6-${String(raw.accion || 'EVENT').toUpperCase()}`
+      };
+      return {
+        event_id: raw.event_id || cat.eventId,
+        timestamp: raw.timestamp || new Date().toISOString(),
+        facility: raw.facility || cat.facility,
+        severity: raw.severity || cat.severity,
+        severity_code: raw.severity_code !== undefined ? raw.severity_code : cat.code,
+        mnemonic: raw.mnemonic || cat.mnemonic,
+        decision: raw.decision || (raw.argumento ? 'REVIEW' : 'ALLOW'),
+        usuario: escapeHTML(raw.usuario || 'Sistema'),
+        rol: escapeHTML(raw.rol || 'Sistema'),
+        accion: escapeHTML(raw.accion || 'EVENTO'),
+        detalle: escapeHTML(raw.detalle || ''),
+        argumento: raw.argumento ? escapeHTML(raw.argumento) : ''
+      };
+    }
+
+    function addLogEntry(accion, detalle, argumento = '', explicitDecision = null) {
       if (!appState.bitacora) appState.bitacora = [];
-      appState.bitacora.unshift({
+      const actorName = currentUser ? currentUser.username : 'Anónimo / Sistema';
+      const actorRole = currentUser ? (isSuperUser() ? 'Super Usuario' : currentUser.role) : 'No autenticado';
+      const decision = explicitDecision || (argumento ? 'REVIEW' : 'ALLOW');
+
+      const normalizedEntry = normalizeLogRecord({
         timestamp: new Date().toISOString(),
-        accion: escapeHTML(accion),
-        detalle: escapeHTML(detalle)
+        usuario: actorName,
+        rol: actorRole,
+        accion: accion,
+        detalle: detalle,
+        argumento: argumento,
+        decision: decision
       });
+
+      appState.bitacora.unshift(normalizedEntry);
       saveState();
     }
 
@@ -647,7 +1740,11 @@
       if (errBox) errBox.style.display = 'none';
     }
 
+    /* ==========================================================================
+       CRUD DE RACKS (CON VALIDACIÓN DE ROL Y AUDITORÍA)
+       ========================================================================== */
     function openRackModal(editRackId = null) {
+      if (!canWrite()) { alert("Modo solo lectura: No tiene permisos para crear o editar racks."); return; }
       document.getElementById('editingRackId').value = editRackId || '';
       if (editRackId) {
         const rack = appState.racks.find(r => String(r.id) === String(editRackId));
@@ -671,6 +1768,7 @@
     }
 
     function saveRackFromModal() {
+      if (!canWrite()) return;
       const editId = document.getElementById('editingRackId').value;
       const nombre = document.getElementById('rackNameInput').value.trim();
       const unidades = parseInt(document.getElementById('rackUnitsInput').value, 10);
@@ -684,12 +1782,23 @@
       if (editId) {
         const index = appState.racks.findIndex(r => String(r.id) === String(editId));
         if (index !== -1) {
-          appState.racks[index].nombre = escapeHTML(nombre);
-          appState.racks[index].unidades_totales = unidades;
-          appState.racks[index].ubicacion = escapeHTML(ubicacion || "Por definir");
-          appState.racks[index].estado = estado;
-          appState.racks[index].fuente_verdad = veracidad;
-          addLogEntry("EDITAR_RACK", `Rack "${nombre}" modificado.`);
+          const prevRackName = appState.racks[index].nombre || nombre;
+          openJustificationModal(
+            `Modificación del rack "${prevRackName}" -> "${nombre}" (${unidades}U, Estado: ${estado}).`,
+            (argumento) => {
+              appState.racks[index].nombre = escapeHTML(nombre);
+              appState.racks[index].unidades_totales = unidades;
+              appState.racks[index].ubicacion = escapeHTML(ubicacion || "Por definir");
+              appState.racks[index].estado = estado;
+              appState.racks[index].fuente_verdad = veracidad;
+              addLogEntry("MODIFICAR_RACK", `Modificó el rack "${nombre}" (${unidades}U, Estado: ${estado}).`, argumento);
+              saveState();
+              closeModal('rackModal');
+              renderRackGraphic();
+              renderInventoryTable();
+            }
+          );
+          return;
         }
       } else {
         const newRack = {
@@ -703,19 +1812,20 @@
         if (!appState.racks) appState.racks = [];
         appState.racks.push(newRack);
         appState.activeRackId = newRack.id;
-        addLogEntry("CREAR_RACK", `Rack "${newRack.nombre}" creado.`);
+        addLogEntry("CREAR_RACK", `Creó el rack "${newRack.nombre}" (${unidades}U).`);
+        saveState();
+        closeModal('rackModal');
+        renderRackGraphic();
+        renderInventoryTable();
       }
-
-      saveState();
-      closeModal('rackModal');
-      renderRackGraphic();
     }
 
     function confirmDeleteRack(rackId) {
+      if (!canWrite()) { alert("Modo solo lectura: No tiene permisos para eliminar racks."); return; }
       const rack = appState.racks.find(r => String(r.id) === String(rackId));
       if (!rack) return;
       const rackName = rack.nombre || rack.name;
-      document.getElementById('confirmModalMessage').textContent = `¿Confirmas eliminar el rack "${rackName}"?`;
+      document.getElementById('confirmModalMessage').textContent = `¿Confirmas eliminar el rack "${rackName}" y todo su contenido?`;
       deleteCallback = function() {
         appState.racks = appState.racks.filter(r => String(r.id) !== String(rackId));
         appState.equipos = (appState.equipos || []).filter(e => String(e.rack_id || e.rackId) !== String(rackId));
@@ -723,7 +1833,7 @@
         if (String(appState.activeRackId) === String(rackId)) {
           appState.activeRackId = appState.racks.length > 0 ? appState.racks[0].id : null;
         }
-        addLogEntry("ELIMINAR_RACK", `Rack "${rackName}" eliminado.`);
+        addLogEntry("ELIMINAR_RACK", `Eliminó el rack "${rackName}".`);
         saveState();
         renderRackGraphic();
         renderInventoryTable();
@@ -733,6 +1843,9 @@
       openModal('confirmModal');
     }
 
+    /* ==========================================================================
+       CRUD DE EQUIPOS Y RESERVAS (CON ARGUMENTACIÓN OBLIGATORIA AL MODIFICAR/DESACTIVAR)
+       ========================================================================== */
     function toggleDeviceTypeFields() {
       const type = document.getElementById('deviceTypeSelect').value;
       const subTypeSelect = document.getElementById('deviceSubTypeSelect');
@@ -759,6 +1872,8 @@
     }
 
     function openDeviceModal(editDeviceId = null) {
+      if (!canWrite()) { alert("Modo solo lectura: No tiene permisos para crear o modificar elementos."); return; }
+      closeContextMenu();
       if (!appState.activeRackId) { alert("Seleccione un rack activo primero."); return; }
       document.getElementById('modalAlertError').style.display = 'none';
       const cleanEditId = editDeviceId ? String(editDeviceId).trim() : '';
@@ -775,8 +1890,8 @@
           document.getElementById('deviceSubTypeSelect').value = eq.subtipo || 'Switch';
           document.getElementById('deviceNameInput').value = eq.nombre || eq.name || '';
           document.getElementById('deviceReasonInput').value = eq.motivo || eq.nombre || eq.purpose || '';
-          document.getElementById('deviceStartUInput').value = eq.u_inicial || eq.uStart || 1;
-          document.getElementById('deviceHeightUInput').value = eq.u_alto || eq.uHeight || 1;
+          document.getElementById('deviceStartUInput').value = eq.u_inicial || eq.uStart || '';
+          document.getElementById('deviceHeightUInput').value = eq.u_alto || eq.uHeight || '';
           
           let faceVal = eq.ubicacion_cara || eq.face || 'Frontal';
           if (faceVal === 'front') faceVal = 'Frontal';
@@ -787,8 +1902,9 @@
           if (tamVal === 'both') tamVal = 'Completo';
           document.getElementById('deviceTamanoSelect').value = tamVal;
 
-          document.getElementById('deviceWattsInput').value = eq.consumo_watts || eq.nominalW || 0;
-          document.getElementById('devicePowerTypeSelect').value = eq.fuente_alimentacion || "Simple";
+          document.getElementById('deviceWattsInput').value = eq.consumo_watts !== undefined ? eq.consumo_watts : '';
+          document.getElementById('devicePortsInput').value = eq.cantidad_puertos !== undefined ? eq.cantidad_puertos : parsePortCountFromName(eq.nombre);
+          document.getElementById('devicePowerTypeSelect').value = eq.fuente_alimentacion || "Dual A/B";
           document.getElementById('deviceEstadoSelect').value = eq.estado || eq.status || 'Activo';
           document.getElementById('deviceVeracidadSelect').value = eq.fuente_verdad || eq.tag || "[CONFIRMADO]";
         }
@@ -798,11 +1914,13 @@
         toggleDeviceTypeFields();
         document.getElementById('deviceNameInput').value = '';
         document.getElementById('deviceReasonInput').value = '';
-        document.getElementById('deviceStartUInput').value = 1;
-        document.getElementById('deviceHeightUInput').value = 1;
+        document.getElementById('deviceStartUInput').value = '';
+        document.getElementById('deviceHeightUInput').value = '';
+        document.getElementById('deviceWattsInput').value = '';
+        document.getElementById('devicePortsInput').value = '';
         document.getElementById('deviceUbicacionSelect').value = 'Frontal';
         document.getElementById('deviceTamanoSelect').value = 'Medio';
-        document.getElementById('deviceWattsInput').value = 67;
+        document.getElementById('devicePowerTypeSelect').value = 'Dual A/B';
         document.getElementById('deviceEstadoSelect').value = 'Activo';
         document.getElementById('deviceVeracidadSelect').value = '[CONFIRMADO]';
       }
@@ -811,6 +1929,7 @@
     }
 
     function saveDeviceFromModal() {
+      if (!canWrite()) return;
       try {
         const editIdElem = document.getElementById('editingDeviceId');
         let editId = editIdElem ? String(editIdElem.value).trim() : '';
@@ -822,8 +1941,8 @@
 
         const startUElem = document.getElementById('deviceStartUInput');
         const heightUElem = document.getElementById('deviceHeightUInput');
-        const uInicial = startUElem ? (parseInt(startUElem.value, 10) || 1) : 1;
-        const uAlto = heightUElem ? (parseInt(heightUElem.value, 10) || 1) : 1;
+        const uInicial = startUElem && startUElem.value !== '' ? parseInt(startUElem.value, 10) : 1;
+        const uAlto = heightUElem && heightUElem.value !== '' ? parseInt(heightUElem.value, 10) : 1;
 
         const caraElem = document.getElementById('deviceUbicacionSelect');
         const tamanoElem = document.getElementById('deviceTamanoSelect');
@@ -835,78 +1954,125 @@
         const estado = estadoElem ? estadoElem.value : 'Activo';
         const veracidad = veracidadElem ? veracidadElem.value : '[CONFIRMADO]';
 
-        if (!appState.equipos) appState.equipos = [];
-        if (!appState.reservas) appState.reservas = [];
-
-        // LIMPIEZA AUTOMÁTICA DE REGISTROS ANTIGUOS EN LA MISMA POSICIÓN U
-        if (!editId) {
-          const matchEq = appState.equipos.find(e => String(e.rack_id || e.rackId) === String(appState.activeRackId) && Number(e.u_inicial || e.uStart) === uInicial);
-          const matchRes = appState.reservas.find(r => String(r.rack_id || r.rackId) === String(appState.activeRackId) && Number(r.u_inicial || r.uStart) === uInicial);
-          if (matchEq) editId = String(matchEq.id).trim();
-          else if (matchRes) editId = String(matchRes.id).trim();
+        const isEditing = Boolean(editId);
+        let preservedPuertos = [];
+        let oldItem = null;
+        if (isEditing) {
+          oldItem = (appState.equipos || []).find(e => String(e.id).trim() === editId) ||
+                    (appState.reservas || []).find(r => String(r.id).trim() === editId);
+          if (oldItem && Array.isArray(oldItem.puertos)) {
+            preservedPuertos = oldItem.puertos;
+          }
         }
 
         if (tipo === 'Equipo' || tipo === 'Accesorio') {
           const nameElem = document.getElementById('deviceNameInput');
           const wattsElem = document.getElementById('deviceWattsInput');
+          const portsElem = document.getElementById('devicePortsInput');
           const powerElem = document.getElementById('devicePowerTypeSelect');
 
           const nombre = nameElem ? nameElem.value.trim() : '';
-          const watts = wattsElem ? (parseInt(wattsElem.value, 10) || 0) : 0;
-          const fuente = powerElem ? powerElem.value : 'Simple';
+          const watts = wattsElem && wattsElem.value !== '' ? parseInt(wattsElem.value, 10) : 0;
+          let puertosCount = portsElem && portsElem.value !== '' ? parseInt(portsElem.value, 10) : parsePortCountFromName(nombre);
+          const fuente = powerElem ? powerElem.value : 'Dual A/B';
 
-          if (!nombre) { alert("Ingrese el nombre del equipo."); return; }
+          if (!nombre) { alert("Ingrese el nombre del elemento."); return; }
 
-          // Limpiar cualquier residuo previo en las listas
-          if (editId) {
-            appState.equipos = appState.equipos.filter(e => String(e.id).trim() !== editId);
-            appState.reservas = appState.reservas.filter(r => String(r.id).trim() !== editId);
+          const executeSaveDevice = (argumento = '') => {
+            if (!appState.equipos) appState.equipos = [];
+            if (!appState.reservas) appState.reservas = [];
+
+            if (editId) {
+              appState.equipos = appState.equipos.filter(e => String(e.id).trim() !== editId);
+              appState.reservas = appState.reservas.filter(r => String(r.id).trim() !== editId);
+            }
+            appState.equipos = appState.equipos.filter(e => !(String(e.rack_id || e.rackId) === String(appState.activeRackId) && Number(e.u_inicial || e.uStart) === uInicial));
+            appState.reservas = appState.reservas.filter(r => !(String(r.rack_id || r.rackId) === String(appState.activeRackId) && Number(r.u_inicial || r.uStart) === uInicial));
+
+            appState.equipos.push({
+              id: editId || ("eq-" + Date.now()),
+              rack_id: appState.activeRackId,
+              tipo, subtipo, nombre: escapeHTML(nombre),
+              u_inicial: uInicial, u_alto: uAlto,
+              ubicacion_cara: ubicacionCara, tamano: tamano,
+              consumo_watts: watts, cantidad_puertos: puertosCount, fuente_alimentacion: fuente,
+              estado: estado, fuente_verdad: veracidad,
+              puertos: preservedPuertos.length === puertosCount ? preservedPuertos : []
+            });
+
+            const activeRackName = getRackNameById(appState.activeRackId);
+            const isDeactivation = estado === 'Inactivo' || estado === 'Retirado';
+            const actionCode = isEditing
+              ? (isDeactivation ? "DESACTIVAR_MODIFICAR_ELEMENTO" : "MODIFICAR_ELEMENTO")
+              : "CREAR_ELEMENTO";
+            const actionDesc = isEditing
+              ? `Modificó ${tipo} "${nombre}" en Rack "${activeRackName}" (U${uInicial}, Estado: ${estado}).`
+              : `Creó ${tipo} "${nombre}" en Rack "${activeRackName}" (U${uInicial}, Estado: ${estado}).`;
+
+            addLogEntry(actionCode, actionDesc, argumento);
+            saveState();
+            closeModal('deviceModal');
+            renderRackGraphic();
+            renderInventoryTable();
+          };
+
+          // Pedir argumentación si se está modificando un elemento existente o si se crea/guarda en estado Inactivo/Retirado
+          if (isEditing || estado === 'Inactivo' || estado === 'Retirado') {
+            const rName = getRackNameById(appState.activeRackId);
+            const summary = isEditing
+              ? `Modificación del ${tipo.toLowerCase()} "${nombre}" en Rack "${rName}" - U${uInicial} (Estado: ${estado}).`
+              : `Registro de ${tipo.toLowerCase()} "${nombre}" en Rack "${rName}" en estado "${estado}" (U${uInicial}).`;
+            openJustificationModal(summary, executeSaveDevice);
+          } else {
+            executeSaveDevice('');
           }
-          // Limpiar solapamiento exacto por posición U previa si se trata de una modificación
-          appState.equipos = appState.equipos.filter(e => !(String(e.rack_id || e.rackId) === String(appState.activeRackId) && Number(e.u_inicial || e.uStart) === uInicial));
-          appState.reservas = appState.reservas.filter(r => !(String(r.rack_id || r.rackId) === String(appState.activeRackId) && Number(r.u_inicial || r.uStart) === uInicial));
 
-          appState.equipos.push({
-            id: editId || ("eq-" + Date.now()),
-            rack_id: appState.activeRackId,
-            tipo, subtipo, nombre: escapeHTML(nombre),
-            u_inicial: uInicial, u_alto: uAlto,
-            ubicacion_cara: ubicacionCara, tamano: tamano,
-            consumo_watts: watts, fuente_alimentacion: fuente,
-            estado: estado, fuente_verdad: veracidad
-          });
-
-          addLogEntry("GUARDAR_ELEMENTO", `${tipo} "${nombre}" guardado con éxito en U${uInicial}.`);
         } else {
           const reasonElem = document.getElementById('deviceReasonInput');
           const motivo = reasonElem ? reasonElem.value.trim() : '';
 
           if (!motivo) { alert("Ingrese para qué equipo o proyecto realiza la reserva."); return; }
 
-          if (editId) {
-            appState.equipos = appState.equipos.filter(e => String(e.id).trim() !== editId);
-            appState.reservas = appState.reservas.filter(r => String(r.id).trim() !== editId);
+          const executeSaveReserva = (argumento = '') => {
+            if (!appState.equipos) appState.equipos = [];
+            if (!appState.reservas) appState.reservas = [];
+
+            if (editId) {
+              appState.equipos = appState.equipos.filter(e => String(e.id).trim() !== editId);
+              appState.reservas = appState.reservas.filter(r => String(r.id).trim() !== editId);
+            }
+            appState.equipos = appState.equipos.filter(e => !(String(e.rack_id || e.rackId) === String(appState.activeRackId) && Number(e.u_inicial || e.uStart) === uInicial));
+            appState.reservas = appState.reservas.filter(r => !(String(r.rack_id || r.rackId) === String(appState.activeRackId) && Number(r.u_inicial || r.uStart) === uInicial));
+
+            appState.reservas.push({
+              id: editId || ("res-" + Date.now()),
+              rack_id: appState.activeRackId,
+              tipo: 'Reserva', subtipo,
+              nombre: escapeHTML(motivo), motivo: escapeHTML(motivo),
+              u_inicial: uInicial, u_alto: uAlto,
+              ubicacion_cara: ubicacionCara, tamano: tamano,
+              estado: estado, fuente_verdad: veracidad
+            });
+
+            const activeRackName = getRackNameById(appState.activeRackId);
+            addLogEntry(
+              isEditing ? "MODIFICAR_RESERVA" : "CREAR_RESERVA",
+              `${isEditing ? 'Modificó' : 'Creó'} reserva "${motivo}" en Rack "${activeRackName}" (U${uInicial}, Estado: ${estado}).`,
+              argumento
+            );
+
+            saveState();
+            closeModal('deviceModal');
+            renderRackGraphic();
+            renderInventoryTable();
+          };
+
+          if (isEditing || estado === 'Inactivo' || estado === 'Retirado') {
+            openJustificationModal(`Modificación de la reserva "${motivo}" en U${uInicial} (Estado: ${estado}).`, executeSaveReserva);
+          } else {
+            executeSaveReserva('');
           }
-          appState.equipos = appState.equipos.filter(e => !(String(e.rack_id || e.rackId) === String(appState.activeRackId) && Number(e.u_inicial || e.uStart) === uInicial));
-          appState.reservas = appState.reservas.filter(r => !(String(r.rack_id || r.rackId) === String(appState.activeRackId) && Number(r.u_inicial || r.uStart) === uInicial));
-
-          appState.reservas.push({
-            id: editId || ("res-" + Date.now()),
-            rack_id: appState.activeRackId,
-            tipo: 'Reserva', subtipo,
-            nombre: escapeHTML(motivo), motivo: escapeHTML(motivo),
-            u_inicial: uInicial, u_alto: uAlto,
-            ubicacion_cara: ubicacionCara, tamano: tamano,
-            estado: estado, fuente_verdad: veracidad
-          });
-
-          addLogEntry("GUARDAR_RESERVA", `Reserva "${motivo}" guardada en U${uInicial}.`);
         }
-
-        saveState();
-        closeModal('deviceModal');
-        renderRackGraphic();
-        renderInventoryTable();
       } catch (err) {
         console.error("Error al guardar elemento:", err);
         alert("Ocurrió un error al guardar: " + err.message);
@@ -914,13 +2080,16 @@
     }
 
     function openResetModal() {
-      document.getElementById('confirmModalMessage').textContent = "¿ADVERTENCIA: Deseas borrar todos los datos e inicializar el estado por defecto?";
+      const pol = evaluatePolicy("FACTORY_RESET", "Restablecer Sistema");
+      if (!pol.allowed) { alert(pol.reason); return; }
+      document.getElementById('confirmModalMessage').textContent = "¿ADVERTENCIA: Deseas borrar todos los datos e inicializar el estado por defecto (se conservará el Super Usuario root)?";
       deleteCallback = function() {
         appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        ensureRootUserExists();
+        addLogEntry("RESTABLECER_SISTEMA", "Restableció los datos del inventario a valores por defecto.");
         saveState();
         renderRackGraphic();
         renderInventoryTable();
-        addLogEntry("RESTABLECER", "Datos restablecidos.");
         closeModal('confirmModal');
       };
       document.getElementById('confirmModalActionBtn').onclick = deleteCallback;
@@ -928,6 +2097,7 @@
     }
 
     function confirmDeleteDevice(deviceId) {
+      if (!canWrite()) { alert("Modo solo lectura: No tiene permisos para eliminar elementos."); return; }
       const cleanId = String(deviceId).trim();
       const eq = (appState.equipos || []).find(e => String(e.id) === cleanId);
       const res = (appState.reservas || []).find(r => String(r.id) === cleanId);
@@ -939,7 +2109,8 @@
       deleteCallback = function() {
         if (eq) appState.equipos = appState.equipos.filter(e => String(e.id) !== cleanId);
         if (res) appState.reservas = appState.reservas.filter(r => String(r.id) !== cleanId);
-        addLogEntry("ELIMINAR_ELEMENTO", `Elemento "${itemName}" eliminado.`);
+        const itemRackName = getRackNameById(item.rack_id || item.rackId);
+        addLogEntry("ELIMINAR_ELEMENTO", `Eliminó el elemento "${itemName}" del Rack "${itemRackName}" (U${item.u_inicial || item.uStart}).`);
         saveState();
         renderRackGraphic();
         renderInventoryTable();
@@ -949,6 +2120,9 @@
       openModal('confirmModal');
     }
 
+    /* ==========================================================================
+       DASHBOARD & BITÁCORA (FECHA + HORA + ACTOR + ARGUMENTO)
+       ========================================================================== */
     function renderDashboard() {
       document.getElementById('appVersion').textContent = `v${APP_CONFIG.version}`;
       const totalRacks = appState.racks ? appState.racks.length : 0;
@@ -986,9 +2160,9 @@
       document.getElementById('powerBarA').style.width = `${pctA}%`;
       document.getElementById('powerBarB').style.width = `${pctB}%`;
 
-      const alerts = [];
-      if (singlePowerCount > 0) alerts.push({ type: 'warning', msg: `Riesgo: ${singlePowerCount} equipo(s) con fuente simple.` });
-      if (pctA > 80 || pctB > 80) alerts.push({ type: 'danger', msg: `Carga alta: La rama eléctrica supera el 80%.` });
+      const alerts = [...correlateSecurityEvents()];
+      if (singlePowerCount > 0) alerts.push({ type: 'warning', msg: `Riesgo Eléctrico: ${singlePowerCount} equipo(s) con fuente simple.` });
+      if (pctA > 80 || pctB > 80) alerts.push({ type: 'danger', msg: `Carga Alta: La rama eléctrica supera el 80%.` });
 
       document.getElementById('alertasCount').textContent = alerts.length;
       const alertsBox = document.getElementById('alertsContainer');
@@ -1014,6 +2188,13 @@
           const rackUnits = r.unidades_totales || r.totalU || 42;
           const rackName = r.nombre || r.name;
           
+          const rackActionBtns = canWrite() ? `
+            <div style="display:flex; gap:0.25rem;">
+              <button class="btn btn-accent" style="padding:0.15rem 0.4rem; font-size:0.65rem;" onclick="openRackModal('${r.id}')">Editar</button>
+              <button class="btn btn-danger" style="padding:0.15rem 0.4rem; font-size:0.65rem;" onclick="confirmDeleteRack('${r.id}')">Eliminar</button>
+            </div>
+          ` : '';
+
           html += `
             <div class="btn" style="width:100%; justify-content:space-between; align-items:center; ${isSelected ? 'border-color:var(--accent); background-color:rgba(56,189,248,0.08); box-shadow:0 0 12px rgba(56,189,248,0.15);' : ''}">
               <span onclick="selectRack('${r.id}')" style="cursor:pointer; flex:1; text-align:left;">
@@ -1021,10 +2202,7 @@
                 <span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span>
                 <span style="font-size:0.65rem; color:var(--text-muted); font-weight:bold;">[${escapeHTML(estadoRack)}]</span>
               </span>
-              <div style="display:flex; gap:0.25rem;">
-                <button class="btn btn-accent" style="padding:0.15rem 0.4rem; font-size:0.65rem;" onclick="openRackModal('${r.id}')">Editar</button>
-                <button class="btn btn-danger" style="padding:0.15rem 0.4rem; font-size:0.65rem;" onclick="confirmDeleteRack('${r.id}')">Eliminar</button>
-              </div>
+              ${rackActionBtns}
             </div>
           `;
         });
@@ -1035,13 +2213,48 @@
       }
 
       const logContainer = document.getElementById('auditLogContainer');
+      const sevFilterEl = document.getElementById('logSeverityFilter');
+      const sevFilter = sevFilterEl ? sevFilterEl.value : 'ALL';
+
       if (appState.bitacora && appState.bitacora.length > 0) {
-        let logHtml = '';
-        appState.bitacora.forEach(log => {
-          const time = new Date(log.timestamp).toLocaleTimeString();
-          logHtml += `<div class="log-entry"><span class="log-timestamp">[${time}]</span><strong>${escapeHTML(log.accion)}:</strong> ${escapeHTML(log.detalle)}</div>`;
+        const filteredLogs = appState.bitacora.filter(raw => {
+          const log = normalizeLogRecord(raw);
+          return sevFilter === 'ALL' || log.severity === sevFilter;
         });
-        logContainer.innerHTML = logHtml;
+
+        if (filteredLogs.length === 0) {
+          logContainer.innerHTML = `<span style="color:var(--text-muted);">Sin eventos con severidad ${escapeHTML(sevFilter)}.</span>`;
+        } else {
+          let logHtml = '';
+          filteredLogs.forEach(raw => {
+            const log = normalizeLogRecord(raw);
+            const dt = new Date(log.timestamp);
+            const dateStr = dt.toLocaleDateString();
+            const timeStr = dt.toLocaleTimeString();
+            const sevClass = log.severity === 'CRITICAL' ? 'sev-critical'
+                           : (log.severity === 'WARNING' ? 'sev-warning'
+                           : (log.severity === 'NOTICE' ? 'sev-notice' : 'sev-info'));
+            const decClass = log.decision === 'BLOCK' ? 'dec-block'
+                           : (log.decision === 'REVIEW' ? 'dec-review' : 'dec-allow');
+            const actorStr = log.usuario ? `<span class="log-actor">[${escapeHTML(log.usuario)}]</span> ` : '';
+            const reasonHtml = log.argumento ? `<span class="log-reason">Motivo / Política: ${escapeHTML(log.argumento)}</span>` : '';
+
+            logHtml += `
+              <div class="log-entry">
+                <div>
+                  <span class="sev-badge ${sevClass}">${escapeHTML(log.severity)}</span>
+                  <span class="log-evtid">[${escapeHTML(log.event_id)}]</span>
+                  <span class="log-mnemonic">${escapeHTML(log.mnemonic)}</span>
+                  <span class="decision-pill ${decClass}">${escapeHTML(log.decision)}</span>
+                </div>
+                <div style="margin-top:0.2rem;">
+                  <span class="log-timestamp">[${dateStr} ${timeStr}]</span>${actorStr}${escapeHTML(log.detalle)}
+                </div>
+                ${reasonHtml}
+              </div>`;
+          });
+          logContainer.innerHTML = logHtml;
+        }
       } else {
         logContainer.innerHTML = '<span style="color:var(--text-muted);">Sin registros.</span>';
       }
@@ -1053,136 +2266,301 @@
       renderRackGraphic();
     }
 
-    function renderRackGraphic() {
-  const container = document.getElementById('rackViewContainer');
-  const rack = appState.racks.find(r => String(r.id) === String(appState.activeRackId));
-
-  if (!rack) {
-    document.getElementById('activeRackTitle').textContent = "Ninguno";
-    container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Seleccione un rack para visualizar.</p>';
-    return;
-  }
-
-  const currentView = document.getElementById('viewOrientationSelect').value;
-  const orderU = document.getElementById('uOrderSelect').value;
-  const maxUnits = Number(rack.unidades_totales || rack.totalU || 42);
-  const rackName = rack.nombre || rack.name;
-
-  document.getElementById('activeRackTitle').textContent = `${rackName} (${maxUnits}U) - Vista ${currentView}`;
-
-  // 1. Mapeo de estado por cada unidad U
-  const gridMap = {};
-  for (let u = 1; u <= maxUnits; u++) {
-    gridMap[u] = { item: null, type: 'empty' };
-  }
-
-  // 2. Asignación de Equipos al rack activo
-  if (appState.equipos) {
-    appState.equipos.forEach(eq => {
-      if (String(eq.rack_id || eq.rackId) === String(rack.id)) {
-        const isCompleto = eq.tamano === 'Completo' || eq.tamano === 'both' || eq.face === 'both';
-        const eqCara = eq.ubicacion_cara || eq.face || 'Frontal';
-        const isVisible = isCompleto || eqCara === currentView || 
-                          (currentView === 'Frontal' && (eqCara === 'front' || eqCara === 'Frontal')) ||
-                          (currentView === 'Posterior' && (eqCara === 'rear' || eqCara === 'Posterior'));
-
-        if (isVisible) {
-          const start = Number(eq.u_inicial || eq.uStart);
-          const height = Number(eq.u_alto || eq.uHeight);
-          for (let u = start; u < start + height; u++) {
-            if (gridMap[u]) {
-              gridMap[u] = {
-                item: eq,
-                type: 'occupied',
-                isStart: u === start,
-                heightU: height,
-                startU: start,
-                endU: start + height - 1
-              };
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // 3. Asignación de Reservas
-  if (appState.reservas) {
-    appState.reservas.forEach(res => {
-      if (String(res.rack_id || res.rackId) === String(rack.id)) {
-        const isCompleto = res.tamano === 'Completo' || res.tamano === 'both' || res.face === 'both';
-        const resCara = res.ubicacion_cara || res.face || 'Frontal';
-        const isVisible = isCompleto || resCara === currentView || 
-                          (currentView === 'Frontal' && (resCara === 'front' || resCara === 'Frontal')) ||
-                          (currentView === 'Posterior' && (resCara === 'rear' || resCara === 'Posterior'));
-
-        if (isVisible) {
-          const start = Number(res.u_inicial || res.uStart);
-          const height = Number(res.u_alto || res.uHeight);
-          for (let u = start; u < start + height; u++) {
-            if (gridMap[u]) {
-              gridMap[u] = {
-                item: res,
-                type: 'reserved',
-                isStart: u === start,
-                heightU: height,
-                startU: start,
-                endU: start + height - 1
-              };
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // 4. Renderizado limpio en Grid CSS
-  const rowsTemplate = Array(maxUnits).fill('28px').join(' ');
-  let frameHtml = `<div class="rack-frame-grid" style="grid-template-rows: ${rowsTemplate}; display: grid; grid-template-columns: 50px 1fr 50px;">`;
-
-  const renderedSlots = new Set();
-
-  for (let u = 1; u <= maxUnits; u++) {
-    const slotU = (orderU === 'DESC') ? (maxUnits - u + 1) : u;
-    const cellData = gridMap[slotU];
-
-    // Columna Izquierda: Número U
-    frameHtml += `<div class="u-label-row" style="grid-row: ${u};">U${slotU}</div>`;
-
-    // Columna Central: Elemento / Reserva / Espacio Libre
-    if (cellData.type === 'empty') {
-      frameHtml += `<div class="device-block block-empty" style="grid-row: ${u};"><span style="font-size:0.7rem; color:#475569;">libre</span></div>`;
-    } else {
-      if (!renderedSlots.has(cellData.item.id)) {
-        renderedSlots.add(cellData.item.id);
-        
-        let rowSpan = cellData.heightU;
-        let cssClass = cellData.type === 'occupied' ? 'block-occupied' : 'block-reserved';
-        let label = cellData.type === 'occupied' 
-          ? `[${cellData.item.tipo || 'Equipo'}] ${cellData.item.nombre || cellData.item.name}`
-          : `RESERVADO · ${cellData.item.motivo || cellData.item.nombre || 'Equipo futuro'}`;
-        let fvTag = cellData.item.fuente_verdad || cellData.item.tag || '[CONFIRMADO]';
-
-        frameHtml += `
-          <div class="device-block ${cssClass}" 
-               onclick="openDeviceModal('${cellData.item.id}')" 
-               style="grid-row: ${u} / span ${rowSpan}; cursor:pointer;" 
-               title="${escapeHTML(label)}">
-            <span>${escapeHTML(label)}</span>
-            <span class="tag-badge ${getTagCssClass(fvTag)}" style="margin-left:0.4rem;">${fvTag}</span>
-          </div>
-        `;
+    /* ==========================================================================
+       MOTOR GRÁFICO RACK Y PANEL DE PUERTOS HD (CORREGIDO DESACTIVACIÓN DE PUERTOS)
+       ========================================================================== */
+    function closeContextMenu() {
+      if (activeContextMenu) {
+        activeContextMenu.remove();
+        activeContextMenu = null;
       }
     }
 
-    // Columna Derecha: Número U
-    frameHtml += `<div class="u-status-row" style="grid-row: ${u};">U${slotU}</div>`;
-  }
+    function handleDeviceClick(event, deviceId) {
+      event.stopPropagation();
+      closeContextMenu();
 
-  frameHtml += `</div>`;
-  container.innerHTML = frameHtml;
-}
+      const eq = (appState.equipos || []).find(e => String(e.id) === String(deviceId)) ||
+                 (appState.reservas || []).find(r => String(r.id) === String(deviceId));
+      if (!eq) return;
 
+      const isAccesorio = eq.tipo === 'Accesorio';
+      const isMultitoma = isAccesorio && (eq.subtipo === 'Multitoma' || (eq.nombre && eq.nombre.toLowerCase().includes('multitoma')));
+
+      if (!canWrite()) {
+        if (eq.tipo !== 'Reserva' && (!isAccesorio || isMultitoma)) {
+          openPortsPanelModal(eq.id);
+        } else {
+          alert(`Vista solo lectura: ${eq.nombre || eq.motivo} (U${eq.u_inicial})`);
+        }
+        return;
+      }
+
+      if (isAccesorio && !isMultitoma) {
+        openDeviceModal(eq.id);
+        return;
+      }
+
+      const popover = document.createElement('div');
+      popover.className = 'context-menu-popover';
+      popover.innerHTML = `
+        <div class="context-menu-header">${escapeHTML(eq.nombre || eq.motivo || 'Elemento')}</div>
+        <div class="context-menu-item" onclick="openDeviceModal('${eq.id}')">
+          <span>✏️</span> 1. Modificar Parámetros del Equipo
+        </div>
+        ${eq.tipo !== 'Reserva' ? `
+        <div class="context-menu-item" onclick="openPortsPanelModal('${eq.id}')">
+          <span>🔌</span> 2. Ver / Gestionar Panel de Puertos (HD)
+        </div>` : ''}
+      `;
+
+      document.body.appendChild(popover);
+      const posX = event.clientX;
+      const posY = event.clientY + window.scrollY;
+
+      popover.style.left = `${posX}px`;
+      popover.style.top = `${posY}px`;
+
+      activeContextMenu = popover;
+    }
+
+    document.addEventListener('click', () => closeContextMenu());
+
+    function renderRackGraphic() {
+      closeContextMenu();
+      const container = document.getElementById('rackViewContainer');
+      const rack = appState.racks.find(r => String(r.id) === String(appState.activeRackId));
+
+      if (!rack) {
+        document.getElementById('activeRackTitle').textContent = "Ninguno";
+        container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">Seleccione un rack para visualizar.</p>';
+        return;
+      }
+
+      const currentView = document.getElementById('viewOrientationSelect').value;
+      const orderU = document.getElementById('uOrderSelect').value;
+      const maxUnits = Number(rack.unidades_totales || rack.totalU || 42);
+      const rackName = rack.nombre || rack.name;
+
+      document.getElementById('activeRackTitle').textContent = `${rackName} (${maxUnits}U) - Vista ${currentView}`;
+
+      const gridMap = {};
+      for (let u = 1; u <= maxUnits; u++) { gridMap[u] = { item: null, type: 'empty' }; }
+
+      if (appState.equipos) {
+        appState.equipos.forEach(eq => {
+          if (String(eq.rack_id || eq.rackId) === String(rack.id)) {
+            const isCompleto = eq.tamano === 'Completo' || eq.tamano === 'both' || eq.face === 'both';
+            const eqCara = eq.ubicacion_cara || eq.face || 'Frontal';
+            const isVisible = isCompleto || eqCara === currentView || 
+                              (currentView === 'Frontal' && (eqCara === 'front' || eqCara === 'Frontal')) ||
+                              (currentView === 'Posterior' && (eqCara === 'rear' || eqCara === 'Posterior'));
+
+            if (isVisible) {
+              const start = Number(eq.u_inicial || eq.uStart);
+              const height = Number(eq.u_alto || eq.uHeight);
+              for (let u = start; u < start + height; u++) {
+                if (gridMap[u]) { gridMap[u] = { item: eq, type: 'occupied', heightU: height, startU: start }; }
+              }
+            }
+          }
+        });
+      }
+
+      if (appState.reservas) {
+        appState.reservas.forEach(res => {
+          if (String(res.rack_id || res.rackId) === String(rack.id)) {
+            const isCompleto = res.tamano === 'Completo' || res.tamano === 'both' || res.face === 'both';
+            const resCara = res.ubicacion_cara || res.face || 'Frontal';
+            const isVisible = isCompleto || resCara === currentView || 
+                              (currentView === 'Frontal' && (resCara === 'front' || resCara === 'Frontal')) ||
+                              (currentView === 'Posterior' && (resCara === 'rear' || resCara === 'Posterior'));
+
+            if (isVisible) {
+              const start = Number(res.u_inicial || res.uStart);
+              const height = Number(res.u_alto || res.uHeight);
+              for (let u = start; u < start + height; u++) {
+                if (gridMap[u]) { gridMap[u] = { item: res, type: 'reserved', heightU: height, startU: start }; }
+              }
+            }
+          }
+        });
+      }
+
+      const rowsTemplate = Array(maxUnits).fill('28px').join(' ');
+      let frameHtml = `<div class="rack-frame-grid" style="grid-template-rows: ${rowsTemplate}; display: grid; grid-template-columns: 50px 1fr 50px;">`;
+
+      const renderedSlots = new Set();
+
+      for (let u = 1; u <= maxUnits; u++) {
+        const slotU = (orderU === 'DESC') ? (maxUnits - u + 1) : u;
+        const cellData = gridMap[slotU];
+
+        frameHtml += `<div class="u-label-row" style="grid-row: ${u};">U${slotU}</div>`;
+
+        if (cellData.type === 'empty') {
+          frameHtml += `<div class="device-block block-empty" style="grid-row: ${u};"><span style="font-size:0.7rem; color:#475569;">libre</span></div>`;
+        } else {
+          if (!renderedSlots.has(cellData.item.id)) {
+            renderedSlots.add(cellData.item.id);
+            
+            let rowSpan = cellData.heightU;
+            const isInactiveItem = cellData.item.estado === 'Inactivo' || cellData.item.estado === 'Retirado';
+            let cssClass = cellData.type === 'occupied'
+              ? `block-occupied ${isInactiveItem ? 'status-inactive' : ''}`
+              : 'block-reserved';
+            let portsCnt = cellData.item.cantidad_puertos || parsePortCountFromName(cellData.item.nombre);
+            
+            let label = cellData.type === 'occupied' 
+              ? `[${cellData.item.tipo || 'Equipo'}] ${cellData.item.nombre || cellData.item.name} ${cellData.item.tipo !== 'Accesorio' || cellData.item.subtipo === 'Multitoma' ? `(${portsCnt}P)` : ''}${isInactiveItem ? ' [INACTIVO]' : ''}`
+              : `RESERVADO · ${cellData.item.motivo || cellData.item.nombre || 'Equipo futuro'}`;
+            let fvTag = cellData.item.fuente_verdad || cellData.item.tag || '[CONFIRMADO]';
+
+            frameHtml += `
+              <div class="device-block ${cssClass}" 
+                   onclick="handleDeviceClick(event, '${cellData.item.id}')" 
+                   style="grid-row: ${u} / span ${rowSpan}; cursor:pointer;" 
+                   title="${canWrite() ? 'Clic para opciones de equipo / panel de puertos' : 'Clic para inspeccionar panel de puertos'}">
+                <span>${escapeHTML(label)}</span>
+                <span class="tag-badge ${getTagCssClass(fvTag)}" style="margin-left:0.4rem;">${fvTag}</span>
+              </div>
+            `;
+          }
+        }
+
+        frameHtml += `<div class="u-status-row" style="grid-row: ${u};">U${slotU}</div>`;
+      }
+
+      frameHtml += `</div>`;
+      container.innerHTML = frameHtml;
+    }
+
+    function openPortsPanelModal(deviceId) {
+      closeContextMenu();
+      const eq = (appState.equipos || []).find(e => String(e.id) === String(deviceId));
+      if (!eq) { alert("El elemento no admite gestión de puertos."); return; }
+
+      const portsCount = eq.cantidad_puertos || parsePortCountFromName(eq.nombre);
+      document.getElementById('portsPanelTitle').textContent = `Panel HD - ${eq.nombre}`;
+      document.getElementById('portsPanelSubtitle').textContent = `Ubicación: U${eq.u_inicial} | Puertos Totales: ${portsCount} ${!canWrite() ? '(Modo Lectura)' : ''}`;
+      document.getElementById('portDetailForm').style.display = 'none';
+
+      if (!eq.puertos || !Array.isArray(eq.puertos) || eq.puertos.length !== portsCount) {
+        eq.puertos = [];
+        for (let i = 1; i <= portsCount; i++) {
+          eq.puertos.push({ id: i, tag: `P${i}`, estado: 'INACTIVO', servicio: '', ip: '' });
+        }
+      }
+
+      const gridContainer = document.getElementById('portsGridContainer');
+
+      let columnsCount = 12;
+      if (portsCount <= 4) {
+        columnsCount = portsCount;
+      } else if (portsCount <= 8) {
+        columnsCount = Math.ceil(portsCount / 2);
+      } else if (portsCount <= 12) {
+        columnsCount = Math.ceil(portsCount / 2);
+      } else if (portsCount <= 16) {
+        columnsCount = Math.ceil(portsCount / 2);
+      } else if (portsCount <= 24) {
+        columnsCount = 12;
+      } else if (portsCount <= 48) {
+        columnsCount = 24;
+      } else {
+        columnsCount = Math.ceil(portsCount / 2);
+      }
+
+      gridContainer.style.gridTemplateColumns = `repeat(${columnsCount}, 40px)`;
+
+      let html = '';
+      eq.puertos.forEach((p, idx) => {
+        // Corrección #2: Respetar explícitamente el estado seleccionado ('ACTIVO' vs 'INACTIVO')
+        const isActive = p.estado === 'ACTIVO';
+        html += `
+          <div class="port-box ${isActive ? 'port-active' : ''}" 
+               onclick="selectPortForEdit('${eq.id}', ${idx})" 
+               title="Puerto ${p.tag} - Estado: ${isActive ? 'ACTIVO' : 'INACTIVO'} | Servicio: ${escapeHTML(p.servicio || 'Sin servicio')}">
+            <div class="port-led"></div>
+            <span class="port-num">${p.tag}</span>
+          </div>
+        `;
+      });
+
+      gridContainer.innerHTML = html;
+      openModal('portsPanelModal');
+    }
+
+    function selectPortForEdit(deviceId, portIndex) {
+      const eq = appState.equipos.find(e => String(e.id) === String(deviceId));
+      if (!eq || !eq.puertos[portIndex]) return;
+
+      const p = eq.puertos[portIndex];
+      const editable = canWrite();
+
+      document.getElementById('selectedPortDeviceId').value = deviceId;
+      document.getElementById('selectedPortIndex').value = portIndex;
+      document.getElementById('selectedPortLabel').textContent = editable
+        ? `Configurar Puerto #${p.id} (${p.tag})`
+        : `Detalle Puerto #${p.id} (${p.tag}) - Solo Lectura`;
+
+      document.getElementById('portTagInput').value = p.tag || `P${p.id}`;
+      document.getElementById('portEstadoSelect').value = p.estado === 'ACTIVO' ? 'ACTIVO' : 'INACTIVO';
+      document.getElementById('portServicioInput').value = p.servicio || '';
+      document.getElementById('portIpInput').value = p.ip || '';
+
+      document.getElementById('portTagInput').disabled = !editable;
+      document.getElementById('portEstadoSelect').disabled = !editable;
+      document.getElementById('portServicioInput').disabled = !editable;
+      document.getElementById('portIpInput').disabled = !editable;
+      document.getElementById('portSaveBtnContainer').style.display = editable ? 'flex' : 'none';
+
+      document.getElementById('portDetailForm').style.display = 'flex';
+    }
+
+    function savePortDetail() {
+      if (!canWrite()) return;
+      const deviceId = document.getElementById('selectedPortDeviceId').value;
+      const portIdx = parseInt(document.getElementById('selectedPortIndex').value, 10);
+      const eq = appState.equipos.find(e => String(e.id) === String(deviceId));
+
+      if (!eq || !eq.puertos[portIdx]) return;
+
+      const prevPort = { ...eq.puertos[portIdx] };
+      const tag = document.getElementById('portTagInput').value.trim() || `P${portIdx + 1}`;
+      const estado = document.getElementById('portEstadoSelect').value; // Puede ser ACTIVO o INACTIVO sin ser sobrescrito
+      const servicio = document.getElementById('portServicioInput').value.trim();
+      const ip = document.getElementById('portIpInput').value.trim();
+
+      const applyPortChanges = (argumento) => {
+        eq.puertos[portIdx].tag = escapeHTML(tag);
+        eq.puertos[portIdx].estado = estado;
+        eq.puertos[portIdx].servicio = escapeHTML(servicio);
+        eq.puertos[portIdx].ip = escapeHTML(ip);
+
+        const eqRackName = getRackNameById(eq.rack_id || eq.rackId);
+        const isDeactivating = prevPort.estado === 'ACTIVO' && estado === 'INACTIVO';
+        const actionType = isDeactivating ? "DESACTIVAR_PUERTO" : "MODIFICAR_PUERTO";
+        const actionDesc = isDeactivating
+          ? `Desactivó el puerto ${tag} en "${eq.nombre}" [Rack "${eqRackName}", U${eq.u_inicial}] (Estado: INACTIVO).`
+          : `Configuró puerto ${tag} en "${eq.nombre}" [Rack "${eqRackName}", U${eq.u_inicial}] (Estado: ${estado}${servicio ? ', Servicio: ' + servicio : ''}).`;
+
+        addLogEntry(actionType, actionDesc, argumento);
+        saveState();
+        openPortsPanelModal(deviceId);
+      };
+
+      const eqRackNameForSummary = getRackNameById(eq.rack_id || eq.rackId);
+      const summaryText = (prevPort.estado === 'ACTIVO' && estado === 'INACTIVO')
+        ? `Desactivación del puerto ${tag} del equipo "${eq.nombre}" (Rack "${eqRackNameForSummary}", U${eq.u_inicial}).`
+        : `Modificación de configuración del puerto ${tag} en "${eq.nombre}" (Rack "${eqRackNameForSummary}", U${eq.u_inicial} - Nuevo estado: ${estado}).`;
+
+      openJustificationModal(summaryText, applyPortChanges);
+    }
+
+    /* ==========================================================================
+       TABLA DE INVENTARIO CRUD (RESPETANDO PRIVILEGIOS DE LECTURA / ESCRITURA)
+       ========================================================================== */
     function renderInventoryTable() {
       const container = document.getElementById('inventoryTableContainer');
       const searchTerm = document.getElementById('globalSearchInput').value.toLowerCase().trim();
@@ -1210,7 +2588,7 @@
         <table>
           <thead>
             <tr>
-              <th>Rack</th><th>Tipo</th><th>Elemento / Reserva</th><th>Posición U</th><th>Ubicación</th><th>Estado</th><th>Fuente de Verdad</th><th>Acciones</th>
+              <th>Rack</th><th>Tipo</th><th>Elemento / Reserva</th><th>Posición U</th><th>Puertos</th><th>Estado</th><th>Fuente de Verdad</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -1225,6 +2603,25 @@
         const uRange = heightU > 1 ? `U${startU} - U${startU + heightU - 1}` : `U${startU}`;
         const fvTag = item.fuente_verdad || item.tag || '[CONFIRMADO]';
         const name = item.nombre || item.name || `RESERVA: ${item.motivo || item.subtipo}`;
+        const portsCnt = item.cantidad_puertos || parsePortCountFromName(item.nombre);
+        const showPortsBtn = item.tipo !== 'Reserva' && (item.tipo !== 'Accesorio' || item.subtipo === 'Multitoma' || (item.nombre && item.nombre.toLowerCase().includes('multitoma')));
+
+        let actionsCell = '<div style="display:flex; gap:0.3rem;">';
+        if (showPortsBtn) {
+          actionsCell += `<button class="btn btn-accent" style="padding:0.15rem 0.4rem; font-size:0.7rem;" onclick="openPortsPanelModal('${item.id}')">Puertos HD</button>`;
+        }
+        if (canWrite()) {
+          actionsCell += `
+            <button class="btn" style="padding:0.15rem 0.4rem; font-size:0.7rem;" onclick="openDeviceModal('${item.id}')">Editar</button>
+            <button class="btn btn-danger" style="padding:0.15rem 0.4rem; font-size:0.7rem;" onclick="confirmDeleteDevice('${item.id}')">Eliminar</button>
+          `;
+        } else if (!showPortsBtn) {
+          actionsCell += `<span style="font-size:0.7rem; color:var(--text-muted);">Solo lectura</span>`;
+        }
+        actionsCell += '</div>';
+
+        const estadoStr = item.estado || 'Activo';
+        const estadoColor = (estadoStr === 'Inactivo' || estadoStr === 'Retirado') ? 'var(--danger)' : 'var(--accent)';
 
         html += `
           <tr>
@@ -1232,15 +2629,10 @@
             <td><span class="version-badge" style="font-size:0.65rem;">${escapeHTML(item.tipo || 'Equipo')}</span> ${escapeHTML(item.subtipo || '')}</td>
             <td>${escapeHTML(name)}</td>
             <td><strong style="font-family:var(--font-mono);">${uRange}</strong></td>
-            <td>${escapeHTML(item.ubicacion_cara || 'Frontal')} (${escapeHTML(item.tamano || 'Medio')})</td>
-            <td><strong style="color:var(--accent);">${escapeHTML(item.estado || 'Activo')}</strong></td>
+            <td><strong style="color:var(--accent);">${showPortsBtn ? portsCnt + ' Ports' : 'N/A'}</strong></td>
+            <td><strong style="color:${estadoColor};">${escapeHTML(estadoStr)}</strong></td>
             <td><span class="tag-badge ${getTagCssClass(fvTag)}">${fvTag}</span></td>
-            <td>
-              <div style="display:flex; gap:0.3rem;">
-                <button class="btn btn-accent" style="padding:0.15rem 0.4rem; font-size:0.7rem;" onclick="openDeviceModal('${item.id}')">Editar</button>
-                <button class="btn btn-danger" style="padding:0.15rem 0.4rem; font-size:0.7rem;" onclick="confirmDeleteDevice('${item.id}')">Eliminar</button>
-              </div>
-            </td>
+            <td>${actionsCell}</td>
           </tr>
         `;
       });
@@ -1249,10 +2641,131 @@
       container.innerHTML = html;
     }
 
+    /* ==========================================================================
+       EXPORTACIÓN DE BITÁCORA EN .XLSX (EXCLUSIVO SUPER USUARIO)
+       ========================================================================== */
+    function exportAuditLogXLSX() {
+      const pol = evaluatePolicy("EXPORT_AUDIT_LOG", "Exportar Bitácora XLSX");
+      if (!pol.allowed) { alert(pol.reason); return; }
+
+      const logs = appState.bitacora || [];
+      if (logs.length === 0) {
+        alert("No hay registros en la bitácora para exportar.");
+        return;
+      }
+
+      const rowsData = logs.map((raw, index) => {
+        const log = normalizeLogRecord(raw);
+        const dt = new Date(log.timestamp);
+        return {
+          "N°": index + 1,
+          "Event ID": log.event_id,
+          "Fecha": dt.toLocaleDateString(),
+          "Hora": dt.toLocaleTimeString(),
+          "Facility": log.facility,
+          "Severidad Syslog": `${log.severity} (${log.severity_code})`,
+          "Mnemónico Syslog": log.mnemonic,
+          "Decisión Política": log.decision,
+          "Usuario": log.usuario || "Sistema",
+          "Rol": log.rol || "Sistema",
+          "Acción Realizada": log.accion || "",
+          "Descripción / Detalle": log.detalle || "",
+          "Argumentación / Motivo": log.argumento || "N/A"
+        };
+      });
+
+      const fileName = `Bitacora_Auditoria_Racks_${new Date().toISOString().slice(0,10)}.xlsx`;
+
+      // Si SheetJS (XLSX) está disponible en línea, generar .xlsx nativo con anchos ajustados
+      if (typeof XLSX !== 'undefined') {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(rowsData);
+        ws['!cols'] = [
+          { wch: 6 },  // N°
+          { wch: 12 }, // Event ID
+          { wch: 14 }, // Fecha
+          { wch: 14 }, // Hora
+          { wch: 12 }, // Facility
+          { wch: 18 }, // Severidad Syslog
+          { wch: 24 }, // Mnemónico Syslog
+          { wch: 16 }, // Decisión Política
+          { wch: 18 }, // Usuario
+          { wch: 18 }, // Rol
+          { wch: 28 }, // Acción
+          { wch: 52 }, // Descripción
+          { wch: 45 }  // Argumentación
+        ];
+        XLSX.utils.book_append_sheet(wb, ws, "Bitácora de Auditoría");
+        XLSX.writeFile(wb, fileName);
+      } else {
+        // Fallback offline en formato SpreadsheetML XML compatible con Excel (.xlsx)
+        let xmlRows = `
+          <Row>
+            <Cell><Data ss:Type="String">N°</Data></Cell>
+            <Cell><Data ss:Type="String">Event ID</Data></Cell>
+            <Cell><Data ss:Type="String">Fecha</Data></Cell>
+            <Cell><Data ss:Type="String">Hora</Data></Cell>
+            <Cell><Data ss:Type="String">Facility</Data></Cell>
+            <Cell><Data ss:Type="String">Severidad Syslog</Data></Cell>
+            <Cell><Data ss:Type="String">Mnemónico Syslog</Data></Cell>
+            <Cell><Data ss:Type="String">Decisión Política</Data></Cell>
+            <Cell><Data ss:Type="String">Usuario</Data></Cell>
+            <Cell><Data ss:Type="String">Rol</Data></Cell>
+            <Cell><Data ss:Type="String">Acción Realizada</Data></Cell>
+            <Cell><Data ss:Type="String">Descripción / Detalle</Data></Cell>
+            <Cell><Data ss:Type="String">Argumentación / Motivo</Data></Cell>
+          </Row>`;
+        rowsData.forEach(r => {
+          xmlRows += `
+            <Row>
+              <Cell><Data ss:Type="Number">${r["N°"]}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Event ID"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Fecha"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Hora"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Facility"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Severidad Syslog"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Mnemónico Syslog"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Decisión Política"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Usuario"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Rol"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Acción Realizada"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Descripción / Detalle"])}</Data></Cell>
+              <Cell><Data ss:Type="String">${escapeHTML(r["Argumentación / Motivo"])}</Data></Cell>
+            </Row>`;
+        });
+
+        const xmlTemplate = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Bitácora de Auditoría">
+  <Table>${xmlRows}</Table>
+ </Worksheet>
+</Workbook>`;
+
+        const blob = new Blob([xmlTemplate], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+    }
+
+    /* ==========================================================================
+       EXPORTACIÓN, IMPORTACIÓN Y BORRADO DE BITÁCORA (EXCLUSIVO SUPER USUARIO)
+       ========================================================================== */
     function exportStateJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const pol = evaluatePolicy("EXPORT_DATA", "Exportar JSON");
+      if (!pol.allowed) { alert(pol.reason); return; }
+      addLogEntry("EXPORTAR_DATOS", "Exportó respaldo completo del inventario en formato JSON.", "", pol.decision);
+      const exportPayload = JSON.parse(JSON.stringify(appState));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
       const downloadAnchor = document.createElement('a');
-      const filename = `inventario_rack_v${APP_CONFIG.version}_${new Date().toISOString().slice(0,10)}.json`;
+      const filename = `gestor_inventario_racks_v${APP_CONFIG.version}_${new Date().toISOString().slice(0,10)}.json`;
       downloadAnchor.setAttribute("href", dataStr);
       downloadAnchor.setAttribute("download", filename);
       document.body.appendChild(downloadAnchor);
@@ -1261,35 +2774,76 @@
     }
 
     function exportInventoryCSV() {
+      const pol = evaluatePolicy("EXPORT_DATA", "Exportar CSV");
+      if (!pol.allowed) { alert(pol.reason); return; }
+      addLogEntry("EXPORTAR_DATOS", "Exportó inventario tabular en formato CSV.", "", pol.decision);
       const allItems = [...(appState.equipos || []), ...(appState.reservas || [])];
       if (allItems.length === 0) { alert("No hay elementos."); return; }
-      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Tipo,Subtipo,Nombre,U_Inicial,U_Alto\n";
+      let csvContent = "data:text/csv;charset=utf-8,ID,Rack_ID,Tipo,Subtipo,Nombre,U_Inicial,U_Alto,Cantidad_Puertos,Estado\n";
       allItems.forEach(item => {
-        csvContent += [item.id, item.rack_id, `"${item.tipo}"`, `"${item.subtipo}"`, `"${item.nombre}"`, item.u_inicial, item.u_alto].join(",") + "\n";
+        const ports = item.cantidad_puertos || parsePortCountFromName(item.nombre);
+        csvContent += [item.id, item.rack_id, `"${item.tipo}"`, `"${item.subtipo}"`, `"${item.nombre}"`, item.u_inicial, item.u_alto, ports, `"${item.estado || 'Activo'}"`].join(",") + "\n";
       });
       const downloadLink = document.createElement("a");
       downloadLink.setAttribute("href", encodeURI(csvContent));
-      downloadLink.setAttribute("download", `inventario_${new Date().toISOString().slice(0,10)}.csv`);
+      downloadLink.setAttribute("download", `inventario_racks_${new Date().toISOString().slice(0,10)}.csv`);
       downloadLink.click();
       downloadLink.remove();
     }
 
     function importStateJSON(event) {
+      const pol = evaluatePolicy("IMPORT_DATA", "Importar JSON externo");
+      if (!pol.allowed) { alert(pol.reason); return; }
       const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          appState = JSON.parse(e.target.result);
+          const parsedRaw = JSON.parse(e.target.result);
+          const boundaryCheck = validateTrustBoundaryJSON(parsedRaw);
+          if (!boundaryCheck.valid) {
+            addLogEntry("IMPORTAR_JSON_RECHAZADO", boundaryCheck.error, "Frontera de confianza activada", "BLOCK");
+            alert(boundaryCheck.error);
+            return;
+          }
+          const currentUsersBackup = appState.usuarios;
+          appState = boundaryCheck.sanitized;
+          appState.usuarios = currentUsersBackup;
+          ensureRootUserExists();
+          appState.bitacora = appState.bitacora.map(item => normalizeLogRecord(item));
+          addLogEntry("IMPORTAR_JSON", `Importó y sanitizó respaldo JSON validado en frontera de confianza (${appState.racks.length} racks, ${appState.equipos.length} equipos).`, "Validación de esquema superada", "REVIEW");
           saveState(); renderRackGraphic(); renderInventoryTable();
-          alert("Inventario cargado exitosamente.");
-        } catch (err) { alert("Error al parsear el JSON."); }
+          alert("Inventario validado y cargado exitosamente.");
+        } catch (err) {
+          addLogEntry("IMPORTAR_JSON_RECHAZADO", "Archivo JSON malformado rechazado en frontera de confianza.", "Error de sintaxis JSON", "BLOCK");
+          alert("Error de seguridad/sintaxis al parsear el JSON.");
+        }
       };
       reader.readAsText(file);
       event.target.value = '';
     }
 
-    function clearLog() { appState.bitacora = []; saveState(); }
+    function confirmClearLog() {
+      const pol = evaluatePolicy("PURGE_AUDIT_LOG", "Depurar Bitácora");
+      if (!pol.allowed) { alert(pol.reason); return; }
+      document.getElementById('confirmModalMessage').textContent = "¿Confirmas que deseas vaciar todos los registros de la bitácora de auditoría?";
+      deleteCallback = function() {
+        appState.bitacora = [
+          {
+            timestamp: new Date().toISOString(),
+            usuario: currentUser.username,
+            rol: "Super Usuario",
+            accion: "BITACORA_DEPURADA",
+            detalle: "El Super Usuario root borró el historial previo de la bitácora.",
+            argumento: "Depuración autorizada por Super Usuario"
+          }
+        ];
+        saveState();
+        closeModal('confirmModal');
+      };
+      document.getElementById('confirmModalActionBtn').onclick = deleteCallback;
+      openModal('confirmModal');
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadState();
